@@ -1,8 +1,6 @@
 import { type LekkoConfig } from "./types"
 
-export interface Value {
-  toJsonString: () => string
-}
+import { type Value } from "@buf/lekkodev_sdk.bufbuild_es/lekko/client/v1beta1/configuration_service_pb"
 
 export function isValue(obj: unknown): obj is Value {
   return typeof obj === "object" && obj !== null && "toJsonString" in obj

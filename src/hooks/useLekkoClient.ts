@@ -35,8 +35,8 @@ export default function useLekkoClient(): Client {
     suspense: true,
     ...DEFAULT_REFRESH,
   })
-  if (!client) {
-    throw new Error('Cannot initialize client')
+  if (client === undefined) {
+    throw new Error("Cannot initialize client")
   }
   return client
 }

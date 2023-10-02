@@ -5,7 +5,7 @@ Currently the SDK is not released.  You must clone the Client JS SDK and the Cli
 Then in the project you want to use the sdk, in your dependencies in package.json add "react-sdk": "file:../react-sdk"
 
 - Create a .env file to provide your credentials and api information to the sdk
-The hostname is optional and most likely not needed
+The hostname is optional and only needed for local testing until we fix CORS settings on our api.
 ```
 REACT_APP_API_KEY=<your api key>
 REACT_APP_REPOSITORY_OWNER=<owner name>
@@ -101,3 +101,5 @@ function Evaluation() {
 ```
 
 Note: tests currently remove the node_modules that are copied from the js distribution.  This will not be necessary once these sdks have been released via yarn.
+
+The transport API was chosen over the CachedAPI from the node project because for security, we won't want to expose the entire repository contents to the client.  Evaluations go through the API and are not done locally.

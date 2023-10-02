@@ -108,3 +108,5 @@ function Evaluation() {
 Note: tests currently remove the node_modules that are copied from the js distribution.  This will not be necessary once these sdks have been released via yarn.
 
 The transport API was chosen over the CachedAPI from the node project because for security, we won't want to expose the entire repository contents to the client.  Evaluations go through the API and are not done locally.
+
+The stale time is Infinity for now.  In general client libraries usually prefer stability within a session over trying to mark configs as stale or poll for config changes because it can create a bad user experience re-triggering suspense boundaries unexpected to the user or cause flag flipping making the page change significantly during a user action.

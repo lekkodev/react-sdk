@@ -2080,6 +2080,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-sdk@file:../js-sdk::locator=react-sdk%40workspace%3A.":
+  version: 1.0.40
+  resolution: "js-sdk@file:../js-sdk#../js-sdk::hash=282a1e&locator=react-sdk%40workspace%3A."
+  dependencies:
+    "@buf/lekkodev_cli.bufbuild_connect-es": ^0.12.0-20230725173132-dd46c8444719.1
+    "@buf/lekkodev_cli.bufbuild_es": ^1.3.0-20230725173132-dd46c8444719.1
+    "@buf/lekkodev_sdk.bufbuild_connect-es": ^0.12.0-20230810202034-1c821065b9a0.1
+    "@buf/lekkodev_sdk.bufbuild_es": ^1.3.0-20230810202034-1c821065b9a0.1
+    "@bufbuild/connect": ^0.12.0
+    "@bufbuild/connect-web": ^0.12.0
+    "@bufbuild/protobuf": ^1.2.0
+    crypto-js: ^4.1.1
+    xxhashjs: ^0.2.2
+  checksum: decbc6391532f31889965271148c8ba581bcec35b462ddf03478b588bb8048e5a6260bf59eb4d3046183e3dfa3fe428e066353a8d0e33e56f34a95d58cb27a6c
+  languageName: node
+  linkType: hard
+
 "js-sha3@npm:0.8.0":
   version: 0.8.0
   resolution: "js-sha3@npm:0.8.0"
@@ -2667,10 +2684,10 @@ __metadata:
     eslint-plugin-promise: ^6.0.0
     eslint-plugin-react: latest
     eslint-plugin-react-hooks: ^4.6.0
+    js-sdk: "file:../js-sdk"
     react: ^18.2.0
     react-dom: ^18.2.0
     react-query: ^3.39.3
-    sdk-ts: "file:../sdk-ts"
     typescript: "*"
   languageName: unknown
   linkType: soft
@@ -2854,23 +2871,6 @@ __metadata:
   dependencies:
     loose-envify: ^1.1.0
   checksum: d79192eeaa12abef860c195ea45d37cbf2bbf5f66e3c4dcd16f54a7da53b17788a70d109ee3d3dde1a0fd50e6a8fc171f4300356c5aee4fc0171de526bf35f8a
-  languageName: node
-  linkType: hard
-
-"sdk-ts@file:../sdk-ts::locator=react-sdk%40workspace%3A.":
-  version: 1.0.38
-  resolution: "sdk-ts@file:../sdk-ts#../sdk-ts::hash=c796a8&locator=react-sdk%40workspace%3A."
-  dependencies:
-    "@buf/lekkodev_cli.bufbuild_connect-es": ^0.12.0-20230725173132-dd46c8444719.1
-    "@buf/lekkodev_cli.bufbuild_es": ^1.3.0-20230725173132-dd46c8444719.1
-    "@buf/lekkodev_sdk.bufbuild_connect-es": ^0.12.0-20230810202034-1c821065b9a0.1
-    "@buf/lekkodev_sdk.bufbuild_es": ^1.3.0-20230810202034-1c821065b9a0.1
-    "@bufbuild/connect": ^0.12.0
-    "@bufbuild/connect-web": ^0.12.0
-    "@bufbuild/protobuf": ^1.2.0
-    crypto-js: ^4.1.1
-    xxhashjs: ^0.2.2
-  checksum: fc1af7d60dd08873af73d260b6fe20dfe2b6a8b79626d3ef9380d4b51c5d7f53b56824277e6742fa5025f6ca67bcd7c981305e4b4ccfed9c420ffa8218ffd6ce
   languageName: node
   linkType: hard
 

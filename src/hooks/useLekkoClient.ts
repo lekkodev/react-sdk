@@ -1,5 +1,5 @@
 import { useQuery } from "react-query"
-import { initAPIClient, type Client } from "sdk-ts"
+import { initAPIClient, type Client } from "js-sdk"
 import { DEFAULT_REFRESH } from "../utils/constants"
 
 declare const process: {

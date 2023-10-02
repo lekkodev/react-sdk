@@ -1,4 +1,4 @@
-import { type ClientContext } from "sdk-ts"
+import { type ClientContext } from "js-sdk"
 
 export enum EvaluationType {
   STRING = "String",

@@ -41,7 +41,7 @@ Your main app loading suspense boundary should wrap the provider
 
 # Ways of using Configs
 
-1.  Suspense hook
+1.  Suspense hook \
 This will retrieve the config if already loaded or fetch it and trigger a suspense until it is fetched.
 If you did not use the provider, it will also initialize the client.
 ```
@@ -59,7 +59,7 @@ function Evaluation() {
 }
 ```
 
-2.  DLE (data, loading, error) hook
+2.  DLE (data, loading, error) hook \
 This will retrieve the config if already loaded or return { evaluation, isEvaluationLoading, error }.
 It will not trigger a suspense boundary unless you did not use the provider.
 ```
@@ -85,7 +85,7 @@ function Evaluation() {
 }
 ```
 
-3.  Fetch hook
+3.  Fetch hook \
 This will allow you to trigger async fetches of any config/context pair.  It will not use the cache or store the returned info in the cache.
 
 ```

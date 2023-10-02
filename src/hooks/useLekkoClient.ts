@@ -30,10 +30,13 @@ export async function init(): Promise<Client> {
   return client
 }
 
-export default function useLekkoClient() {
+export default function useLekkoClient(): Client {
   const { data: client } = useQuery(CLIENT_STABLE_KEY, init, {
     suspense: true,
     ...DEFAULT_REFRESH,
   })
+  if (!client) {
+    throw new Error('Cannot initialize client')
+  }
   return client
 }

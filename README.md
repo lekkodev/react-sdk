@@ -1,8 +1,13 @@
 # Lekko Client React SDK
 
 ### Usage
-Currently the SDK is not released.  You must clone the Client JS SDK and the Client React SDK into the same directory and yarn install.
+Currently the SDK is not released.  
+You must clone the Client JS SDK and the Client React SDK into the same directory.
+Then run yarn build in the js sdk.
+Then run yarn install in the react sdk.
+Then run yarn build in the react sdk.
 Then in the project you want to use the sdk, in your dependencies in package.json add "react-sdk": "file:../react-sdk"
+Then run yarn install in the project.
 
 - Create a .env file to provide your credentials and api information to the sdk
 The hostname is optional and only needed for local testing until we fix CORS settings on our api.

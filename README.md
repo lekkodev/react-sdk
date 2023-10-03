@@ -29,8 +29,8 @@ const EVALUATIONS = [{
 ```
 
 - Wrap your React App in the LekkoConfigProvider
-The configRequests are an optional argument \
-Your main app loading suspense boundary should wrap the provider \
+The configRequests are an optional argument. \
+Your main app loading suspense boundary should wrap the provider. \
 The initial set of evaluations are available immediately when your app renders without needing additional loading or suspense.
 ```
 <Suspense fallback={<div>Loading...</div>}>
@@ -43,8 +43,9 @@ The initial set of evaluations are available immediately when your app renders w
 # Ways of using Configs
 
 1.  Suspense hook \
-This will retrieve the config if already loaded or fetch it and trigger a suspense until it is fetched.
-If you did not use the provider, it will also initialize the client.
+This will retrieve the config if already loaded or fetch it and trigger a suspense until it is fetched.  \
+If you did not use the provider, it will also initialize the client. \
+Previously fetched configs are available immediately from the cache.
 ```
 function Evaluation() {
   const evaluation = useLekkoConfig({

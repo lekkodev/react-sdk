@@ -29,11 +29,12 @@ const EVALUATIONS = [{
 ```
 
 - Wrap your React App in the LekkoConfigProvider
-The configRequests are an optional argument
-Your main app loading suspense boundary should wrap the provider
+The configRequests are an optional argument \
+Your main app loading suspense boundary should wrap the provider \
+The initial set of evaluations are available immediately when your app renders without needing additional loading or suspense.
 ```
 <Suspense fallback={<div>Loading...</div>}>
-    <LekkoConfigProvider configRequests={[sampleEvaluation]}>
+    <LekkoConfigProvider configRequests={[EVALUATIONS]}>
         <RestOfApp />
     </LekkoConfigProvider>
 </Suspense>

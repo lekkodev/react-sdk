@@ -1,6 +1,6 @@
 {
   "name": "react-sdk",
-  "version": "1.0.9",
+  "version": "1.0.32",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -9,11 +9,17 @@
     "test": "rm -rf node_modules/js-sdk/node_modules && jest"
   },
   "dependencies": {
+    "@suspensive/react": "^1.15.3",
+    "@suspensive/react-query": "^1.15.3",
+    "@tanstack/query-sync-storage-persister": "^4.35.7",
+    "@tanstack/react-query": "^4.35.7",
+    "@tanstack/react-query-persist-client": "^4.35.7",
+    "@types/react-query": "^1.2.9",
     "dotenv": "^16.3.1",
     "js-sdk": "file:../js-sdk",
+    "lz-string": "^1.5.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-query": "^3.39.3"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.5",

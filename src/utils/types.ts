@@ -15,3 +15,7 @@ export interface LekkoConfig {
   context: ClientContext
   evaluationType: EvaluationType
 }
+
+export interface LekkoSettings {
+  persist: boolean
+}

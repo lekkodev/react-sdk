@@ -5,7 +5,7 @@ import { LekkoConfigProvider } from "./providers/lekkoConfigProvider"
 import { EvaluationType } from "./utils/types"
 
 import { createMockClient } from "./testHelpers/createMockClient"
-import { LekkoConfigMockClientContext } from "./testHelpers/LekkoConfigMockProvider"
+import { LekkoConfigMockProvider } from "./testHelpers/LekkoConfigMockProvider"
 
 export type { LekkoConfig } from "./utils/types"
 export * from "./testHelpers/types"
@@ -17,5 +17,5 @@ export {
   LekkoConfigProvider,
   EvaluationType,
   createMockClient,
-  LekkoConfigMockClientContext,
+  LekkoConfigMockProvider,
 }

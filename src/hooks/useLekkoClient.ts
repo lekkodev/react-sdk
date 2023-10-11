@@ -1,8 +1,9 @@
-import { useQuery, useIsRestoring } from "@tanstack/react-query"
 import { initAPIClient, type Client } from "js-sdk"
-import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { RepositoryKey } from "@buf/lekkodev_sdk.bufbuild_es/lekko/client/v1beta1/configuration_service_pb"
-import { useSuspenseQuery } from '@suspensive/react-query'
+import { useSuspenseQuery } from "@suspensive/react-query"
+import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
+import { LekkoConfigMockClientContext } from "../testHelpers/LekkoConfigMockProvider"
+import { useContext } from "react"
 
 declare const process: {
   env: Record<string, string | undefined>
@@ -40,17 +41,22 @@ export async function init(): Promise<Client> {
     repositoryName,
     hostname,
   })
-  const v = await client.getRepoSha()
-  console.log(v)
   return client
 }
 
 export default function useLekkoClient(): Client {
+  const contextClient = useContext(LekkoConfigMockClientContext)
+
   const { data: client } = useSuspenseQuery({
     queryKey: [CLIENT_STABLE_KEY],
-    queryFn: init,
+    queryFn: contextClient !== undefined ? () => undefined : init,
     ...DEFAULT_LEKKO_REFRESH,
   })
+
+  if (contextClient !== undefined) {
+    return contextClient
+  }
+
   if (client === undefined) {
     throw new Error("Cannot initialize client")
   }

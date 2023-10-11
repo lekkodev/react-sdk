@@ -3,9 +3,12 @@ import { useLekkoConfigDLE } from "./hooks/useLekkoConfigDLE"
 import { useLekkoConfigFetch } from "./hooks/useLekkoConfigFetch"
 import { LekkoConfigProvider } from "./providers/lekkoConfigProvider"
 import { EvaluationType } from "./utils/types"
-import { DEFAULT_LEKKO_SETTINGS } from "./utils/constants"
+
+import { createMockClient } from "./testHelpers/createMockClient"
+import { LekkoConfigMockClientContext } from "./testHelpers/LekkoConfigMockProvider"
 
 export type { LekkoConfig } from "./utils/types"
+export * from "./testHelpers/types"
 
 export {
   useLekkoConfig,
@@ -13,5 +16,6 @@ export {
   useLekkoConfigFetch,
   LekkoConfigProvider,
   EvaluationType,
-  DEFAULT_LEKKO_SETTINGS,
+  createMockClient,
+  LekkoConfigMockClientContext,
 }

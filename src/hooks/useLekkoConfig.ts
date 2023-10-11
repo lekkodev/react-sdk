@@ -10,8 +10,8 @@ export function useLekkoConfig(config: LekkoConfig) {
   const { data: evaluation } = useQuery({
     queryKey: createStableKey(config, client.repository),
     queryFn: async () => await getEvaluation(client, config),
-    suspense: true,
     ...DEFAULT_LEKKO_REFRESH,
+    suspense: true,
   })
 
   return evaluation

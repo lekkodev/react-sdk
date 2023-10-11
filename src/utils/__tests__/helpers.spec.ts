@@ -14,7 +14,7 @@ const config = {
 }
 
 const repository = RepositoryKey.fromJson({
-  ownnerName: "owner-1",
+  ownerName: "owner-1",
   repoName: "repo-1",
 })
 

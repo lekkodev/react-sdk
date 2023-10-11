@@ -29,11 +29,12 @@ const EVALUATIONS = [{
 ```
 
 - Wrap your React App in the LekkoConfigProvider
-The configRequests are an optional argument
-Your main app loading suspense boundary should wrap the provider
+The configRequests are an optional argument. \
+Your main app loading suspense boundary should wrap the provider. \
+The initial set of evaluations are available immediately when your app renders without needing additional loading or suspense.
 ```
 <Suspense fallback={<div>Loading...</div>}>
-    <LekkoConfigProvider configRequests={[sampleEvaluation]}>
+    <LekkoConfigProvider configRequests={[EVALUATIONS]}>
         <RestOfApp />
     </LekkoConfigProvider>
 </Suspense>
@@ -41,9 +42,10 @@ Your main app loading suspense boundary should wrap the provider
 
 # Ways of using Configs
 
-1.  Suspense hook
-This will retrieve the config if already loaded or fetch it and trigger a suspense until it is fetched.
-If you did not use the provider, it will also initialize the client.
+1.  Suspense hook \
+This will retrieve the config if already loaded or fetch it and trigger a suspense until it is fetched.  \
+If you did not use the provider, it will also initialize the client. \
+Previously fetched configs are available immediately from the cache.
 ```
 function Evaluation() {
   const evaluation = useLekkoConfig({
@@ -59,7 +61,7 @@ function Evaluation() {
 }
 ```
 
-2.  DLE (data, loading, error) hook
+2.  DLE (data, loading, error) hook \
 This will retrieve the config if already loaded or return { evaluation, isEvaluationLoading, error }.
 It will not trigger a suspense boundary unless you did not use the provider.
 ```
@@ -85,7 +87,7 @@ function Evaluation() {
 }
 ```
 
-3.  Fetch hook
+3.  Fetch hook \
 This will allow you to trigger async fetches of any config/context pair.  It will not use the cache or store the returned info in the cache.
 
 ```
@@ -109,6 +111,7 @@ Note: tests currently remove the node_modules that are copied from the js distri
 
 The transport API was chosen over the CachedAPI from the node project because for security, we won't want to expose the entire repository contents to the client.  Evaluations go through the API and are not done locally.
 
+The stale time is Infinity for now.  In general client libraries usually prefer stability within a session over trying to mark configs as stale or poll for config changes because it can create a bad user experience re-triggering suspense boundaries unexpected to the user or cause flag flipping making the page change significantly during a user action.
 
 ### Testing
 

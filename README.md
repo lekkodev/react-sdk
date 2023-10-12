@@ -118,27 +118,36 @@ The stale time is Infinity for now.  In general client libraries usually prefer 
 1.  This library exports helpers for jest including a LekkoConfigMockProvider that will not use fetch and a helper function to create mock evaluation results and default evaluation results.
 
 ```
+import { EvaluationType, LekkoConfig, useLekkoConfig, LekkoConfigMockProvider, RepositoryKey, createMockClient, ResolvedLekkoConfig, ClientContext } from "react-sdk"
+import { render, waitFor } from "@testing-library/react"
+import { Suspense } from "react"
+
 const repositoryKey = RepositoryKey.fromJson({
     ownerName: 'owner-1',
     repoName: 'name-1',
 })
 
-const stringConfig = {
+const stringConfig: LekkoConfig = {
     namespaceName: 'default',
     configName: 'example',
     evaluationType: EvaluationType.STRING,
     context: new ClientContext().setInt("organization_id", 3).setString("state", "texas"),
 }
 
+const resolvedStringConfig: ResolvedLekkoConfig = {
+    ...stringConfig,
+    result: 'string-value'
+}
+
 // this context does not have a mocked value, it will use a default for the namespace/config if provided
-const unspecifiedStringConfig = {
+const unspecifiedStringConfig: LekkoConfig = {
     namespaceName: 'default',
     configName: 'example',
     evaluationType: EvaluationType.STRING,
     context: new ClientContext().setInt("organization_id", 5).setString("state", "florida"),
 }
 
-const defaultStringConfig = {
+const resolvedDefaultStringConfig: ResolvedLekkoConfig = {
     namespaceName: 'default',
     configName: 'example',
     evaluationType: EvaluationType.STRING,
@@ -159,30 +168,41 @@ function TestComponent({
     )
 }
 
-const mockClient = createMockClient(repositoryKey, [{
-    ...stringConfig,
-    result: 'string-value'
-} as ResolvedStringLekkoConfig], [defaultStringConfig as DefaultResolvedStringLekkoConfig])
+const mockClient = createMockClient({
+    repositoryKey, 
+    resolvedConfigs: [
+        resolvedStringConfig
+    ], 
+    resolvedDefaultConfigs: [resolvedDefaultStringConfig]
+})
 
 describe('LekkoConfigMockProvider', () => {
-    it('should mock LekkoConfigMockProvider with a specified context', () => {
+    it('should mock LekkoConfigMockProvider with a specified context', async () => {
         const { getByText } = render(
             <LekkoConfigMockProvider client={mockClient}>
-                <TestComponent config={stringConfig} />
+                <Suspense fallback={<></>}>
+                    <TestComponent config={stringConfig} />
+                </Suspense>
             </LekkoConfigMockProvider>
         )
 
-        expect(getByText("string-value")).toBeInTheDocument()
+        const content = await waitFor(() => getByText('"string-value"'))
+
+        expect(content).toBeInTheDocument()
     })
 
     it('should mock LekkoConfigMockProvider with a default context', async () => {
         const { getByText } = render(
             <LekkoConfigMockProvider client={mockClient}>
-                <TestComponent config={unspecifiedStringConfig} />
+                <Suspense fallback={<></>}>
+                    <TestComponent config={unspecifiedStringConfig} />
+                </Suspense>
             </LekkoConfigMockProvider>
         )
 
-        expect(getByText("default-value")).toBeInTheDocument()
+        const content = await waitFor(() => getByText('"default-value"'))
+
+        expect(content).toBeInTheDocument()
     })
 })
 ```

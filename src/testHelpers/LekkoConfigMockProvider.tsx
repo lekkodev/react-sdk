@@ -1,5 +1,5 @@
 import { type Client } from "js-sdk"
-import { createContext, type PropsWithChildren } from "react"
+import { createContext, Suspense, type PropsWithChildren } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 const queryClient = new QueryClient()
@@ -14,8 +14,12 @@ interface MockProps extends PropsWithChildren {
 
 export function LekkoConfigMockProvider({ client, children }: MockProps) {
   return (
-    <LekkoConfigMockClientContext.Provider value={client}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </LekkoConfigMockClientContext.Provider>
+    <Suspense fallback={<></>}>
+      <LekkoConfigMockClientContext.Provider value={client}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </LekkoConfigMockClientContext.Provider>
+    </Suspense>
   )
 }

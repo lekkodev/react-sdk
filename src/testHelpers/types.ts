@@ -1,77 +1,29 @@
-import { type ClientContext } from "js-sdk"
-import { type EvaluationType } from "../utils/types"
+import { type LekkoConfig } from "../utils/types"
 import { type Any } from "@bufbuild/protobuf"
 
-export interface DefaultResolvedBoolLekkoConfig {
-  namespaceName: string
-  configName: string
-  evaluationType: EvaluationType.BOOL
+export interface ResolvedBoolLekkoConfig extends LekkoConfig {
   result: boolean
 }
 
-export interface ResolvedBoolLekkoConfig
-  extends DefaultResolvedBoolLekkoConfig {
-  context: ClientContext
-}
-
-export interface DefaultResolvedStringLekkoConfig {
-  namespaceName: string
-  configName: string
-  evaluationType: EvaluationType.STRING
+export interface ResolvedStringLekkoConfig extends LekkoConfig {
   result: string
 }
 
-export interface ResolvedStringLekkoConfig
-  extends DefaultResolvedStringLekkoConfig {
-  context: ClientContext
-}
-
-export interface DefaultResolvedIntLekkoConfig {
-  namespaceName: string
-  configName: string
-  evaluationType: EvaluationType.INT
+export interface ResolvedFloatLekkoConfig extends LekkoConfig {
   result: number
 }
 
-export interface ResolvedIntLekkoConfig extends DefaultResolvedIntLekkoConfig {
-  context: ClientContext
+export interface ResolvedIntLekkoConfig extends LekkoConfig {
+  result: bigint
 }
 
-export interface DefaultResolvedFloatLekkoConfig {
-  namespaceName: string
-  configName: string
-  evaluationType: EvaluationType.FLOAT
-  result: number
-}
-
-export interface ResolvedFloatLekkoConfig
-  extends DefaultResolvedFloatLekkoConfig {
-  context: ClientContext
-}
-
-export interface DefaultResolvedJSONLekkoConfig {
-  namespaceName: string
-  configName: string
-  evaluationType: EvaluationType.JSON
+export interface ResolvedJSONLekkoConfig extends LekkoConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result: any
 }
 
-export interface ResolvedJSONLekkoConfig
-  extends DefaultResolvedJSONLekkoConfig {
-  context: ClientContext
-}
-
-export interface DefaultResolvedProtoLekkoConfig {
-  namespaceName: string
-  configName: string
-  evaluationType: EvaluationType.PROTO
+export interface ResolvedProtoLekkoConfig extends LekkoConfig {
   result: Any
-}
-
-export interface ResolvedProtoLekkoConfig
-  extends DefaultResolvedProtoLekkoConfig {
-  context: ClientContext
 }
 
 export type ResolvedLekkoConfig =
@@ -81,11 +33,3 @@ export type ResolvedLekkoConfig =
   | ResolvedFloatLekkoConfig
   | ResolvedJSONLekkoConfig
   | ResolvedProtoLekkoConfig
-
-export type DefaultResolvedLekkoConfig =
-  | DefaultResolvedBoolLekkoConfig
-  | DefaultResolvedStringLekkoConfig
-  | DefaultResolvedIntLekkoConfig
-  | DefaultResolvedFloatLekkoConfig
-  | DefaultResolvedJSONLekkoConfig
-  | DefaultResolvedProtoLekkoConfig

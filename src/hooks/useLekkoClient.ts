@@ -27,7 +27,8 @@ export function getRepositoryKey() {
   })
 }
 
-export async function init(): Promise<Client> {
+export async function init(contextClient?: Client): Promise<Client> {
+  if (contextClient !== undefined) return contextClient
   if (
     apiKey === undefined ||
     repositoryOwner === undefined ||
@@ -49,7 +50,7 @@ export default function useLekkoClient(): Client {
 
   const { data: client } = useSuspenseQuery({
     queryKey: [CLIENT_STABLE_KEY],
-    queryFn: contextClient !== undefined ? () => undefined : init,
+    queryFn: async () => await init(contextClient),
     ...DEFAULT_LEKKO_REFRESH,
   })
 

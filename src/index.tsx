@@ -6,6 +6,9 @@ import { EvaluationType } from "./utils/types"
 
 import { createMockClient } from "./testHelpers/createMockClient"
 import { LekkoConfigMockProvider } from "./testHelpers/LekkoConfigMockProvider"
+import { RepositoryKey } from "@buf/lekkodev_sdk.bufbuild_es/lekko/client/v1beta1/configuration_service_pb"
+import { ClientContext } from "js-sdk"
+import { type Client } from "js-sdk"
 
 export type { LekkoConfig } from "./utils/types"
 export * from "./testHelpers/types"
@@ -18,4 +21,7 @@ export {
   EvaluationType,
   createMockClient,
   LekkoConfigMockProvider,
+  RepositoryKey,
+  ClientContext,
+  type Client,
 }

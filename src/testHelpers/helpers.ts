@@ -1,11 +1,8 @@
-import {
-  type DefaultResolvedLekkoConfig,
-  type ResolvedLekkoConfig,
-} from "./types"
+import { type ResolvedLekkoConfig } from "./types"
 
 import { type RepositoryKey } from "@buf/lekkodev_sdk.bufbuild_es/lekko/client/v1beta1/configuration_service_pb"
 import { createStableKey } from "../utils/helpers"
-import { type LekkoConfig } from "../utils/types"
+import { type EvaluationType, type LekkoConfig } from "../utils/types"
 import { ClientContext } from "js-sdk"
 
 export function createStableTestKey(
@@ -26,19 +23,42 @@ export function mapStableKeysToConfigs(
   }, {})
 }
 
-export function mapStableKeysToDefaultConfigs(
-  configs: DefaultResolvedLekkoConfig[],
-  repository: RepositoryKey,
-): Record<string, DefaultResolvedLekkoConfig> {
-  return configs.reduce<Record<string, DefaultResolvedLekkoConfig>>(
-    (acc, config) => {
-      const stableKey = createStableTestKey(
-        { ...config, context: new ClientContext() },
-        repository,
-      )
-      acc[stableKey] = config
-      return acc
+export async function getMockedValue<T>(
+  evaluationType: EvaluationType,
+  namespaceName: string,
+  configName: string,
+  context: ClientContext | undefined,
+  repositoryKey: RepositoryKey,
+  lookupMap: Record<string, ResolvedLekkoConfig>,
+  defaultLookupMap: Record<string, ResolvedLekkoConfig>,
+): Promise<T> {
+  const key = createStableTestKey(
+    {
+      namespaceName,
+      configName,
+      context,
+      evaluationType,
     },
-    {},
+    repositoryKey,
   )
+
+  if (lookupMap[key] !== undefined) {
+    return await Promise.resolve(lookupMap[key].result as T)
+  }
+
+  const defaultKey = createStableTestKey(
+    {
+      namespaceName,
+      configName,
+      context: new ClientContext(),
+      evaluationType,
+    },
+    repositoryKey,
+  )
+
+  if (defaultLookupMap[defaultKey] !== undefined) {
+    return await Promise.resolve(defaultLookupMap[defaultKey].result as T)
+  }
+
+  throw new Error("No evaluation provided for this config")
 }

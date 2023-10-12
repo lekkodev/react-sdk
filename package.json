@@ -1,6 +1,6 @@
 {
   "name": "react-sdk",
-  "version": "1.0.42",
+  "version": "1.0.63",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {

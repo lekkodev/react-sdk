@@ -12,6 +12,6 @@ export enum EvaluationType {
 export interface LekkoConfig {
   namespaceName: string
   configName: string
-  context: ClientContext
+  context?: ClientContext
   evaluationType: EvaluationType
 }

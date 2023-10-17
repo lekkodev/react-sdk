@@ -1,4 +1,4 @@
-import { initAPIClient, type Client } from "js-sdk"
+import { initAPIClient, type Client } from "@lekko/js-sdk"
 import { RepositoryKey } from "@buf/lekkodev_sdk.bufbuild_es/lekko/client/v1beta1/configuration_service_pb"
 import { useSuspenseQuery } from "@suspensive/react-query"
 import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
@@ -27,7 +27,7 @@ export function getRepositoryKey() {
   })
 }
 
-export async function init(contextClient?: Client): Promise<Client> {
+export function init(contextClient?: Client): Client {
   if (contextClient !== undefined) return contextClient
   if (
     apiKey === undefined ||
@@ -36,13 +36,12 @@ export async function init(contextClient?: Client): Promise<Client> {
   ) {
     throw new Error("Missing Lekko env values")
   }
-  const client = await initAPIClient({
+  return initAPIClient({
     apiKey,
     repositoryOwner,
     repositoryName,
     hostname,
   })
-  return client
 }
 
 export default function useLekkoClient(): Client {
@@ -50,7 +49,7 @@ export default function useLekkoClient(): Client {
 
   const { data: client } = useSuspenseQuery({
     queryKey: [CLIENT_STABLE_KEY],
-    queryFn: async () => await init(contextClient),
+    queryFn: async () => init(contextClient),
     ...DEFAULT_LEKKO_REFRESH,
   })
 

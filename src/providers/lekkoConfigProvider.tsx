@@ -1,4 +1,4 @@
-import { type PropsWithChildren } from "react"
+import { useEffect, type PropsWithChildren } from "react"
 import {
   QueryClient,
   QueryClientProvider,
@@ -11,6 +11,7 @@ import { type LekkoConfig } from "../utils/types"
 import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { useSuspenseQueries } from "@suspensive/react-query"
 import { useLekkoConfig } from "../hooks/useLekkoConfig"
+import { persister } from "./lekkoPersistedConfigProvider"
 
 interface Props extends PropsWithChildren {
   configRequests?: LekkoConfig[]
@@ -45,11 +46,6 @@ export function LekkoConfigWithoutProvider({
       ...DEFAULT_LEKKO_REFRESH,
     })),
   })
-
-  
-
-
-
 
 
   /*if (results.some(result => result.isLoading)) {

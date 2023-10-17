@@ -1,14 +1,12 @@
 import React, { Suspense, useState } from 'react'
-import { LekkoConfigProvider } from '../providers/lekkoConfigProvider';
 import { EvaluationType, LekkoConfig } from '../utils/types';
-import { ClientContext, useLekkoConfig, useLekkoConfigDLE, useLekkoConfigFetch } from '..';
+import { ClientContext, useLekkoConfig, useLekkoConfigFetch } from '..';
 import { LekkoPersistedConfigProvider } from '../providers/lekkoPersistedConfigProvider';
 
 const sampleEvaluation = {
     namespaceName: 'default',
     configName: 'example',
     evaluationType: EvaluationType.BOOL,
-    //context: new ClientContext().setInt("age", 34)
     context: new ClientContext().setInt("organization_id", 3).setString("state", "texas")
   }
   
@@ -35,7 +33,6 @@ const sampleEvaluation = {
     }*/
     //console.log(e)
     const evaluation = useLekkoConfig(config)
-    console.log(evaluation)
   
     return (
       <div>
@@ -244,17 +241,18 @@ const sampleEvaluation = {
     );
   };
 
+function Fallback() {
+   return <div className='p-3'>Loading Lekko SDK Provider...</div>
+}
 
 export default function App() {
     const [show, setShow] = useState<boolean>(false)
     return (
       <div className="App flex flex-col items-start">
-          <Suspense fallback={<div className='p-3'>Loading Lekko SDK Provider...</div>}>
-            <LekkoPersistedConfigProvider configRequests={[sampleEvaluation]}>
+          <Suspense fallback={<Fallback />}>
+            <LekkoPersistedConfigProvider fallback={<Fallback />}>
                 <div className='mb-5'>
-                    {/*<Suspense fallback={<div className='mt-4'>Loading inner suspense component...</div>}>
-                        <Evaluation config={sampleEvaluation} title="Preloaded provider evaluation" />
-                    </Suspense>*/}
+                    <Evaluation config={sampleEvaluation} title="Preloaded provider evaluation" />
                 </div>
                 <EditableConfig config={sampleEvaluation2} />
                 {show && <div>

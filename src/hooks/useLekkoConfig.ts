@@ -11,6 +11,9 @@ export function useLekkoConfig(config: LekkoConfig) {
     queryKey: createStableKey(config, client.repository),
     queryFn: async () => await getEvaluation(client, config),
     ...DEFAULT_LEKKO_REFRESH,
+    onError: (error) => {
+      console.log(error)
+    }
   })
 
   return evaluation

@@ -1,4 +1,4 @@
-import { type ResolvedLekkoConfig } from "./types"
+import { type ResolvedLekkoConfig } from "../utils/types"
 
 import { type RepositoryKey } from "@buf/lekkodev_sdk.bufbuild_es/lekko/client/v1beta1/configuration_service_pb"
 import { getMockedValue, mapStableKeysToConfigs } from "./helpers"

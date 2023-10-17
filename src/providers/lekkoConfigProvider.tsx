@@ -1,20 +1,20 @@
-import { useEffect, type PropsWithChildren } from "react"
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQueries,
-} from "@tanstack/react-query"
+import { type PropsWithChildren } from "react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import useLekkoClient from "../hooks/useLekkoClient"
 import { getEvaluation } from "../utils/evaluation"
-import { createStableKey } from "../utils/helpers"
-import { type LekkoConfig } from "../utils/types"
-import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
-import { useSuspenseQueries } from "@suspensive/react-query"
-import { useLekkoConfig } from "../hooks/useLekkoConfig"
-import { persister } from "./lekkoPersistedConfigProvider"
+import {
+  createDefaultStableKey,
+  createStableKey,
+  mapStableKeysToConfigs,
+} from "../utils/helpers"
+import { type ResolvedLekkoConfig, type LekkoConfig } from "../utils/types"
+import { DEFAULT_LEKKO_REFRESH, DEFAULT_LOOKUP_KEY } from "../utils/constants"
+import { useSuspenseQueries, useSuspenseQuery } from "@suspensive/react-query"
+import { handleLekkoErrors } from "../errors/errors"
 
 interface Props extends PropsWithChildren {
   configRequests?: LekkoConfig[]
+  backupResolvedDefaultConfigs?: ResolvedLekkoConfig[]
 }
 
 export const queryClient = new QueryClient({
@@ -34,23 +34,30 @@ export function LekkoConfigProvider(props: Props) {
 // for use if your project is already using react-query
 export function LekkoConfigWithoutProvider({
   configRequests = [],
+  backupResolvedDefaultConfigs = [],
   children,
 }: Props) {
   const client = useLekkoClient()
-  //useLekkoConfig(configRequests[0])
 
-  const results = useSuspenseQueries({
+  const { data: backupLookup } = useSuspenseQuery({
+    queryKey: DEFAULT_LOOKUP_KEY,
+    queryFn: () =>
+      mapStableKeysToConfigs(backupResolvedDefaultConfigs, client.repository),
+    ...DEFAULT_LEKKO_REFRESH,
+  })
+
+  useSuspenseQueries({
     queries: configRequests.map((config) => ({
       queryKey: createStableKey(config, client.repository),
-      queryFn: async () => getEvaluation(client, config),
+      queryFn: async () =>
+        await handleLekkoErrors(
+          async () => await getEvaluation(client, config),
+          createDefaultStableKey(config, client.repository),
+          backupLookup,
+        ),
       ...DEFAULT_LEKKO_REFRESH,
     })),
   })
-
-
-  /*if (results.some(result => result.isLoading)) {
-    return <></>
-  }*/
 
   return <div>{children}</div>
 }

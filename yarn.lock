@@ -7221,8 +7221,8 @@ __metadata:
   linkType: hard
 
 "js-sdk@file:../js-sdk::locator=react-sdk%40workspace%3A.":
-  version: 1.0.47
-  resolution: "js-sdk@file:../js-sdk#../js-sdk::hash=aee72e&locator=react-sdk%40workspace%3A."
+  version: 1.0.0
+  resolution: "js-sdk@file:../js-sdk#../js-sdk::hash=30b3ee&locator=react-sdk%40workspace%3A."
   dependencies:
     "@buf/lekkodev_cli.bufbuild_connect-es": ^0.12.0-20230725173132-dd46c8444719.1
     "@buf/lekkodev_cli.bufbuild_es": ^1.3.0-20230725173132-dd46c8444719.1
@@ -7233,7 +7233,7 @@ __metadata:
     "@bufbuild/protobuf": ^1.2.0
     crypto-js: ^4.1.1
     xxhashjs: ^0.2.2
-  checksum: f3de5fc039b462fbee900fc9c979e040a6dd8c58acbd85605c31dc088c017e3aa97079bf750b0344bd5866d740747a71431f3cf51f177036c722ef25a5361346
+  checksum: 1044e0ecd16b84c597e17188a228484f160de6d445312a4a36086fae49752769b576cc20020bc26bc8ea0cdf4f38aa0ecce197cf2fb4082ec4e4097c569a9cf6
   languageName: node
   linkType: hard
 

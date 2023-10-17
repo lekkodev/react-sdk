@@ -7,17 +7,17 @@ export async function getEvaluation(client: Client, config: LekkoConfig) {
 
   switch (evaluationType) {
   case EvaluationType.BOOL:
-    return await client.getBool(namespaceName, configName, context)
+    return client.getBool(namespaceName, configName, context)
   case EvaluationType.FLOAT:
-    return await client.getFloat(namespaceName, configName, context)
+    return client.getFloat(namespaceName, configName, context)
   case EvaluationType.INT:
-    return await client.getInt(namespaceName, configName, context)
+    return client.getInt(namespaceName, configName, context)
   case EvaluationType.STRING:
-    return await client.getString(namespaceName, configName, context)
+    return client.getString(namespaceName, configName, context)
   case EvaluationType.JSON:
-    return await client.getJSON(namespaceName, configName, context)
+    return client.getJSON(namespaceName, configName, context)
   case EvaluationType.PROTO:
-    return await client.getProto(namespaceName, configName, context)
+    return client.getProto(namespaceName, configName, context)
   default:
     return assertExhaustive(evaluationType)
   }

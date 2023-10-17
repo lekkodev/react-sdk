@@ -9,6 +9,8 @@ import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
 import { type LekkoConfig } from "../utils/types"
 import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
+import { useSuspenseQueries } from "@suspensive/react-query"
+import { useLekkoConfig } from "../hooks/useLekkoConfig"
 
 interface Props extends PropsWithChildren {
   configRequests?: LekkoConfig[]
@@ -34,15 +36,25 @@ export function LekkoConfigWithoutProvider({
   children,
 }: Props) {
   const client = useLekkoClient()
+  //useLekkoConfig(configRequests[0])
 
-  useQueries({
+  const results = useSuspenseQueries({
     queries: configRequests.map((config) => ({
       queryKey: createStableKey(config, client.repository),
-      queryFn: async () => await getEvaluation(client, config),
+      queryFn: async () => getEvaluation(client, config),
       ...DEFAULT_LEKKO_REFRESH,
-      suspense: true,
     })),
   })
+
+  
+
+
+
+
+
+  /*if (results.some(result => result.isLoading)) {
+    return <></>
+  }*/
 
   return <div>{children}</div>
 }

@@ -252,9 +252,9 @@ export default function App() {
           <Suspense fallback={<div className='p-3'>Loading Lekko SDK Provider...</div>}>
             <LekkoPersistedConfigProvider configRequests={[sampleEvaluation]}>
                 <div className='mb-5'>
-                    <Suspense fallback={<div className='mt-4'>Loading inner suspense component...</div>}>
+                    {/*<Suspense fallback={<div className='mt-4'>Loading inner suspense component...</div>}>
                         <Evaluation config={sampleEvaluation} title="Preloaded provider evaluation" />
-                    </Suspense>
+                    </Suspense>*/}
                 </div>
                 <EditableConfig config={sampleEvaluation2} />
                 {show && <div>

@@ -1,4 +1,4 @@
-import { type Client } from "js-sdk"
+import { type Client } from "@lekko/js-sdk"
 import { assertExhaustive } from "./helpers"
 import { EvaluationType, type LekkoConfig } from "./types"
 

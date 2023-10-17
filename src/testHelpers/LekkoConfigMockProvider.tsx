@@ -1,4 +1,4 @@
-import { type Client } from "js-sdk"
+import { type Client } from "@lekko/js-sdk"
 import { createContext, Suspense, type PropsWithChildren } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 

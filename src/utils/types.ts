@@ -1,4 +1,4 @@
-import { type ClientContext } from "js-sdk"
+import { type ClientContext } from "@lekko/js-sdk"
 
 export enum EvaluationType {
   STRING = "String",

@@ -1,6 +1,6 @@
 {
-  "name": "react-sdk",
-  "version": "2.0.1",
+  "name": "@lekko/react-sdk",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.23.2",
+    "@lekko/js-sdk": "^1.0.0",
     "@suspensive/react": "^1.15.3",
     "@suspensive/react-query": "^1.15.3",
     "@tanstack/query-sync-storage-persister": "^4.36.1",

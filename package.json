@@ -1,5 +1,5 @@
 {
-  "name": "react-sdk",
+  "name": "@lekko/react-sdk",
   "version": "1.0.0",
   "main": "dist/index.js",
   "license": "MIT",

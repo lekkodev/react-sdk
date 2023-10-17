@@ -1,4 +1,4 @@
-import { type LekkoConfig } from "./types"
+import { type ResolvedLekkoConfig, type LekkoConfig } from "./types"
 
 import {
   type Value,
@@ -34,6 +34,24 @@ export function createStableKey(
   return [
     `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}_${contextKey}_${config.evaluationType}`,
   ]
+}
+
+export function createDefaultStableKey(
+  config: LekkoConfig,
+  repository: RepositoryKey,
+): string {
+  return `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}_${config.evaluationType}`
+}
+
+export function mapStableKeysToConfigs(
+  configs: ResolvedLekkoConfig[],
+  repository: RepositoryKey,
+): Record<string, ResolvedLekkoConfig> {
+  return configs.reduce<Record<string, ResolvedLekkoConfig>>((acc, config) => {
+    const stableKey = createDefaultStableKey(config, repository)
+    acc[stableKey] = config
+    return acc
+  }, {})
 }
 
 export function assertExhaustive(value: never): never {

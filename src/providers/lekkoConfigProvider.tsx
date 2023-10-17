@@ -14,7 +14,7 @@ interface Props extends PropsWithChildren {
   configRequests?: LekkoConfig[]
 }
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: DEFAULT_LEKKO_REFRESH,
   },

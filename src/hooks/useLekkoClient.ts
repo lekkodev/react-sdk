@@ -9,7 +9,7 @@ declare const process: {
   env: Record<string, string | undefined>
 }
 
-export const CLIENT_STABLE_KEY = "LekkoClient"
+export const CLIENT_STABLE_KEY = ["LekkoClient"]
 
 const apiKey = process.env.REACT_APP_API_KEY
 const repositoryOwner = process.env.REACT_APP_REPOSITORY_OWNER
@@ -27,7 +27,7 @@ export function getRepositoryKey() {
   })
 }
 
-export async function init(contextClient?: Client): Promise<Client> {
+export function init(contextClient?: Client): Client {
   if (contextClient !== undefined) return contextClient
   if (
     apiKey === undefined ||
@@ -36,7 +36,7 @@ export async function init(contextClient?: Client): Promise<Client> {
   ) {
     throw new Error("Missing Lekko env values")
   }
-  const client = await initAPIClient({
+  const client = initAPIClient({
     apiKey,
     repositoryOwner,
     repositoryName,
@@ -45,21 +45,23 @@ export async function init(contextClient?: Client): Promise<Client> {
   return client
 }
 
+if (!apiKey) throw new Error("No api key")
+if (!repositoryOwner) throw new Error("No repository owner")
+if (!repositoryName) throw new Error("No repository name")
+
+export const lekkoClient: Client = initAPIClient({
+    apiKey,
+    repositoryOwner,
+    repositoryName,
+    hostname,
+})
+
 export default function useLekkoClient(): Client {
   const contextClient = useContext(LekkoConfigMockClientContext)
-
-  const { data: client } = useSuspenseQuery({
-    queryKey: [CLIENT_STABLE_KEY],
-    queryFn: async () => await init(contextClient),
-    ...DEFAULT_LEKKO_REFRESH,
-  })
 
   if (contextClient !== undefined) {
     return contextClient
   }
 
-  if (client === undefined) {
-    throw new Error("Cannot initialize client")
-  }
-  return client
+  return lekkoClient
 }

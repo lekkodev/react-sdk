@@ -1,7 +1,7 @@
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { useIsRestoring } from '@tanstack/react-query'
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, Suspense } from 'react'
 import { LekkoConfig } from '../utils/types'
 import { LekkoConfigWithoutProvider, queryClient } from './lekkoConfigProvider'
 import useLekkoClient, { CLIENT_STABLE_KEY } from '../hooks/useLekkoClient'
@@ -31,16 +31,6 @@ export function LekkoPersistedConfigProvider(props: Props) {
         <LekkoPersistedConfigProviderInner {...props} />
     )
 }
-
-export function LekkoPersistedConfigProviderInner3(props: Props) {
-    // 2 layers of providers because we need to check the sha of the repo before we use the persisted version
-    useRepositorySha()
-
-    return (
-        <LekkoConfigWithoutProvider {...props} />
-    )
-}
-
 
 export function LekkoPersistedConfigProviderInner(props: Props) {
     console.log('here')

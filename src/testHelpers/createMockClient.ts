@@ -3,7 +3,11 @@ import { type ResolvedLekkoConfig } from "./types"
 import { getMockedValue, mapStableKeysToConfigs } from "./helpers"
 import { EvaluationType } from "../utils/types"
 import { type Any } from "@bufbuild/protobuf"
-import { type Client, type ClientContext, RepositoryKey } from "@lekko/js-sdk"
+import {
+  type Client,
+  type ClientContext,
+  type RepositoryKey,
+} from "@lekko/js-sdk"
 
 interface Props {
   repositoryKey: RepositoryKey
@@ -114,7 +118,7 @@ export function createMockClient({
       ),
     repository: repositoryKey,
     getRepoSha: async () => repositorySha,
-    close: async () => {}
+    close: async () => {},
   }
 
   return mockClient

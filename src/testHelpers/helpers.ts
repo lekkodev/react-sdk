@@ -2,7 +2,7 @@ import { type ResolvedLekkoConfig } from "./types"
 
 import { createStableKey } from "../utils/helpers"
 import { type EvaluationType, type LekkoConfig } from "../utils/types"
-import { ClientContext, RepositoryKey } from "@lekko/js-sdk"
+import { ClientContext, type RepositoryKey } from "@lekko/js-sdk"
 
 export function createStableTestKey(
   resolvedConfig: LekkoConfig,

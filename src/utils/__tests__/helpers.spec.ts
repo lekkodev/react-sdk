@@ -30,7 +30,7 @@ describe("helpers", () => {
 
   it("should create a stable key for a lekko config without a context", () => {
     expect(createStableKey(simpleConfig, repository)).toEqual([
-      "owner-1_repo-1_namespace-1_config-1",
+      "owner-1_repo-1_namespace-1_config-1__Int",
     ])
   })
 })

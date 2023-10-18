@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@suspensive/react-query"
 import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { LekkoConfigMockClientContext } from "../testHelpers/LekkoConfigMockProvider"
 import { useContext } from "react"
-import { getEnvironmentVariable } from "../utils/helpers"
+import { getEnvironmentVariable } from "../utils/viteHelpers"
 
 export const CLIENT_STABLE_KEY = "LekkoClient"
 

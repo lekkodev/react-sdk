@@ -32,30 +32,30 @@ npmScopes:
     npmRegistryServer: https://buf.build/gen/npm/v1
 ```
 
-Then, you can add the package to your project by running `npm install @lekko/node-server-sdk` or `yarn add @lekko/node-server-sdk`.
+Then, you can add the package to your project by running `npm install @lekko/react-sdk` or `yarn add @lekko/react-sdk`.
 
 ### Client API Keys
 
-You will need to generate an API key [API key](../../start.md#api-key) and optionally can restrict config evaluations to specific namespaces that are needed by the client.
+You will need to generate an API key and optionally can restrict config evaluations to specific namespaces that are needed by the client.
 
 ## Usage
 
 ### Setting up the API key and repository
 
-- Create a .env file to provide your credentials and api information to the sdk
+- Create a .env file to provide your credentials and API information to the SDK
 
 - Reference if you are using react-create-app: https://create-react-app.dev/docs/adding-custom-environment-variables/
 - Reference if you are using webpack: https://www.npmjs.com/package/dotenv-webpack
 
 ```
-REACT_APP_API_KEY=<your api key>
+REACT_APP_API_KEY=<your API key>
 REACT_APP_REPOSITORY_OWNER=<owner name>
 REACT_APP_REPOSITORY_NAME=<repo name>
 ```
 
 > **Note**
 >
-> The current react sdk usage is limited to a single repository.
+> The current React SDK usage is limited to a single repository.
 
 - Create a set of evaluations that should be available upon initial app load.  You must specify the namespace, config name, evaluation result type, and optionally provide a context.  If a context is not provided, the evaluation will result in the default value for that config.
 
@@ -98,7 +98,7 @@ new ClientContext().setInt("organization_id", 3).setString("state", "texas")
 
 ## Providers
 
-Providers setup our react-query client that will be used to store evaluations for use throughout your app.  The provider should be wrapped in your App suspense boundary.  In most cases, an ErrorBoundary would also be needed to capture and handle errors from the provider.
+Providers setup our React-Query client that will be used to store evaluations for use throughout your app.  The provider should be wrapped in your App suspense boundary.  In most cases, an ErrorBoundary would also be needed to capture and handle errors from the provider.
 
 For Reference: https://tanstack.com/query/v4/docs/react/overview
 

@@ -114,6 +114,7 @@ export function createMockClient({
       ),
     repository: repositoryKey,
     getRepoSha: async () => repositorySha,
+    close: async () => {}
   }
 
   return mockClient

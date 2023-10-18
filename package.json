@@ -1,12 +1,12 @@
 {
   "name": "@lekko/react-sdk",
-  "version": "1.0.4",
+  "version": "1.0.8-beta-3",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
     "lint": "npx prettier --write src && eslint src --fix",
-    "test": "rm -rf node_modules/js-sdk/node_modules && jest"
+    "test": "rm -rf node_modules/@lekko/js-sdk/node_modules && jest"
   },
   "dependencies": {
     "@lekko/js-sdk": "^1.0.4",

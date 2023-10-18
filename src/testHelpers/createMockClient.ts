@@ -1,10 +1,9 @@
 import { type ResolvedLekkoConfig } from "./types"
 
-import { type RepositoryKey } from "@buf/lekkodev_sdk.bufbuild_es/lekko/client/v1beta1/configuration_service_pb"
 import { getMockedValue, mapStableKeysToConfigs } from "./helpers"
 import { EvaluationType } from "../utils/types"
 import { type Any } from "@bufbuild/protobuf"
-import { type Client, type ClientContext } from "@lekko/js-sdk"
+import { type Client, type ClientContext, RepositoryKey } from "@lekko/js-sdk"
 
 interface Props {
   repositoryKey: RepositoryKey

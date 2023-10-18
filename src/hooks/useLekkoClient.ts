@@ -1,5 +1,4 @@
-import { initAPIClient, type Client } from "@lekko/js-sdk"
-import { RepositoryKey } from "@buf/lekkodev_sdk.bufbuild_es/lekko/client/v1beta1/configuration_service_pb"
+import { initAPIClient, type Client, RepositoryKey } from "@lekko/js-sdk"
 import { useSuspenseQuery } from "@suspensive/react-query"
 import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { LekkoConfigMockClientContext } from "../testHelpers/LekkoConfigMockProvider"

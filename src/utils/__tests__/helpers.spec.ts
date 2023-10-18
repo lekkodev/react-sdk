@@ -1,7 +1,6 @@
-import { ClientContext } from "@lekko/js-sdk"
+import { ClientContext, RepositoryKey } from "@lekko/js-sdk"
 import { createStableKey } from "../helpers"
 import { EvaluationType } from "../types"
-import { RepositoryKey } from "@buf/lekkodev_sdk.bufbuild_es/lekko/client/v1beta1/configuration_service_pb"
 
 const simpleConfig = {
   namespaceName: "namespace-1",

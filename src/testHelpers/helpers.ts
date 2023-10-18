@@ -1,9 +1,8 @@
 import { type ResolvedLekkoConfig } from "./types"
 
-import { type RepositoryKey } from "@buf/lekkodev_sdk.bufbuild_es/lekko/client/v1beta1/configuration_service_pb"
 import { createStableKey } from "../utils/helpers"
 import { type EvaluationType, type LekkoConfig } from "../utils/types"
-import { ClientContext } from "@lekko/js-sdk"
+import { ClientContext, RepositoryKey } from "@lekko/js-sdk"
 
 export function createStableTestKey(
   resolvedConfig: LekkoConfig,

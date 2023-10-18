@@ -1,9 +1,6 @@
 import { type LekkoConfig } from "./types"
 
-import {
-  type Value,
-  type RepositoryKey,
-} from "@buf/lekkodev_sdk.bufbuild_es/lekko/client/v1beta1/configuration_service_pb"
+import { Value, RepositoryKey } from "@lekko/js-sdk"
 
 export function isValue(obj: unknown): obj is Value {
   return typeof obj === "object" && obj !== null && "toJsonString" in obj

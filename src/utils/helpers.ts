@@ -68,7 +68,7 @@ export function getEnvironmentVariable(key: EnvVariable) {
     }
   } catch (error) {
     console.log(
-      "Neither process.env nor import.meta.env are defined, env variables are not available for the Lekko SDK",
+      "Neither process.env nor meta.env are defined, env variables are not available for the Lekko SDK",
     )
   }
 

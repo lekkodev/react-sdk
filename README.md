@@ -44,6 +44,8 @@ You will need to generate an API key and optionally can restrict config evaluati
 
 - Create a .env file to provide your credentials and API information to the SDK
 
+#### React-Create-App or Webpack:
+
 - Reference if you are using react-create-app: https://create-react-app.dev/docs/adding-custom-environment-variables/
 - Reference if you are using webpack: https://www.npmjs.com/package/dotenv-webpack
 
@@ -51,6 +53,16 @@ You will need to generate an API key and optionally can restrict config evaluati
 REACT_APP_API_KEY=<your API key>
 REACT_APP_REPOSITORY_OWNER=<owner name>
 REACT_APP_REPOSITORY_NAME=<repo name>
+```
+
+#### Vite:
+
+- Reference if you are using vite: https://vitejs.dev/guide/env-and-mode.html
+
+```
+VITE_API_KEY=<your API key>
+VITE_REPOSITORY_OWNER=<owner name>
+VITE_REPOSITORY_NAME=<repo name>
 ```
 
 > **Note**

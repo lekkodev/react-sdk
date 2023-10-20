@@ -23,3 +23,6 @@ yarn-error.log*
 .yarn/install-state.gz
 
 .npmrc
+
+# npm pack
+/*.tgz

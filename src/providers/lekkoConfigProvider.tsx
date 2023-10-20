@@ -23,13 +23,14 @@ const queryClient = new QueryClient({
 export function LekkoConfigProvider(props: Props) {
   return (
     <QueryClientProvider client={queryClient}>
-      <LekkoConfigWithoutProvider {...props} />
+      <LekkoIntermediateConfigProvider {...props} />
     </QueryClientProvider>
   )
 }
 
 // for use if your project is already using react-query
-export function LekkoConfigWithoutProvider({
+// or as a subprovider, for example, to require a set of configs after authentication when the username is known
+export function LekkoIntermediateConfigProvider({
   configRequests = [],
   children,
 }: Props) {

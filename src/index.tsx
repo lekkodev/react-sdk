@@ -1,7 +1,7 @@
 import { useLekkoConfig } from "./hooks/useLekkoConfig"
 import { useLekkoConfigDLE } from "./hooks/useLekkoConfigDLE"
 import { useLekkoConfigFetch } from "./hooks/useLekkoConfigFetch"
-import { LekkoConfigProvider } from "./providers/lekkoConfigProvider"
+import { LekkoConfigProvider, LekkoIntermediateConfigProvider } from "./providers/lekkoConfigProvider"
 import { EvaluationType } from "./utils/types"
 
 import { createMockClient } from "./testHelpers/createMockClient"
@@ -22,4 +22,5 @@ export {
   RepositoryKey,
   ClientContext,
   type Client,
+  LekkoIntermediateConfigProvider
 }

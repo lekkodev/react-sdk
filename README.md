@@ -66,7 +66,7 @@ VITE_REPOSITORY_OWNER=<owner name>
 VITE_REPOSITORY_NAME=<repo name>
 ```
 
-- Due to vite's env variables not supporting commonJS, you must pass in the Lekko settings to the provider.
+- Due to Vite's env variables not supporting commonJS, you must pass in the Lekko settings to the provider.
 
 ```
 const lekkoSettings: LekkoSettings = {

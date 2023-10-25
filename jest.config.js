@@ -11,6 +11,5 @@ module.exports = {
   ],
   transformIgnorePatterns: [
 		"node_modules/(?!(@buf)/)"
-	],
-  setupFiles: ['./globalMocks.js']
+	]
 }

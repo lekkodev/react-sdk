@@ -57,12 +57,29 @@ REACT_APP_REPOSITORY_NAME=<repo name>
 
 #### Vite:
 
-- Reference if you are using vite: https://vitejs.dev/guide/env-and-mode.html
+- First, define the Vite environment variables in a .env file
+- Environment variable reference if you are using vite: https://vitejs.dev/guide/env-and-mode.html
 
 ```
 VITE_API_KEY=<your API key>
 VITE_REPOSITORY_OWNER=<owner name>
 VITE_REPOSITORY_NAME=<repo name>
+```
+
+- Due to Vite's env variables not supporting commonJS, you must pass in the Lekko settings to the provider.
+- This may also be used if you do not want to use environment variables to provide your Lekko configuration values.
+
+```
+const lekkoSettings: LekkoSettings = {
+    apiKey: import.meta.env['VITE_API_KEY'],
+    repositoryOwner: import.meta.env['VITE_REPOSITORY_OWNER'],
+    repositoryName: import.meta.env['VITE_REPOSITORY_NAME'],
+    hostname: import.meta.env['VITE_HOSTNAME']
+}
+
+<LekkoConfigProvider settings={lekkoSettings}>
+  ...
+</LekkoConfigProvider>
 ```
 
 > **Note**

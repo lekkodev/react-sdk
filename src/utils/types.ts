@@ -15,3 +15,10 @@ export interface LekkoConfig {
   context?: ClientContext
   evaluationType: EvaluationType
 }
+
+export interface LekkoSettings {
+  apiKey?: string
+  repositoryName?: string
+  repositoryOwner?: string
+  hostname?: string
+}

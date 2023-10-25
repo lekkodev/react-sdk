@@ -1,30 +1,35 @@
-import { initAPIClient, type Client, RepositoryKey } from "@lekko/js-sdk"
+import { initAPIClient, type Client } from "@lekko/js-sdk"
 import { useSuspenseQuery } from "@suspensive/react-query"
-import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
+import {
+  DEFAULT_LEKKO_REFRESH,
+  DEFAULT_LEKKO_SETTINGS,
+} from "../utils/constants"
 import { LekkoConfigMockClientContext } from "../testHelpers/LekkoConfigMockProvider"
 import { useContext } from "react"
-import { getEnvironmentVariable } from "../utils/viteHelpers"
+import { type LekkoSettings } from "../utils/types"
+import { getEnvironmentVariable } from "../utils/envHelpers"
+import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 
 export const CLIENT_STABLE_KEY = "LekkoClient"
 
-const apiKey = getEnvironmentVariable("API_KEY")
-const repositoryOwner = getEnvironmentVariable("REPOSITORY_OWNER")
-const repositoryName = getEnvironmentVariable("REPOSITORY_NAME")
-const hostname = getEnvironmentVariable("HOSTNAME")
-
-export function getRepositoryKey() {
-  if (repositoryOwner === undefined || repositoryName === undefined) {
-    throw new Error("Missing Lekko env values")
-  }
-
-  return RepositoryKey.fromJson({
-    ownerName: repositoryOwner,
-    repoName: repositoryName,
-  })
+interface Props {
+  settings?: LekkoSettings
+  contextClient?: Client
 }
 
-export function init(contextClient?: Client): Client {
+export function init({
+  settings = DEFAULT_LEKKO_SETTINGS,
+  contextClient,
+}: Props): Client {
   if (contextClient !== undefined) return contextClient
+
+  const apiKey = settings?.apiKey ?? getEnvironmentVariable("API_KEY")
+  const repositoryOwner =
+    settings?.repositoryOwner ?? getEnvironmentVariable("REPOSITORY_OWNER")
+  const repositoryName =
+    settings?.repositoryName ?? getEnvironmentVariable("REPOSITORY_NAME")
+  const hostname = settings?.hostname ?? getEnvironmentVariable("HOSTNAME")
+
   if (
     apiKey === undefined ||
     repositoryOwner === undefined ||
@@ -42,10 +47,11 @@ export function init(contextClient?: Client): Client {
 
 export default function useLekkoClient(): Client {
   const contextClient = useContext(LekkoConfigMockClientContext)
+  const settings = useContext(LekkoSettingsContext)
 
   const { data: client } = useSuspenseQuery({
     queryKey: [CLIENT_STABLE_KEY],
-    queryFn: async () => init(contextClient),
+    queryFn: async () => init({ contextClient, settings }),
     ...DEFAULT_LEKKO_REFRESH,
   })
 

@@ -1,15 +1,15 @@
 {
   "name": "@lekko/react-sdk",
-  "version": "0.0.1-beta-6",
+  "version": "0.0.1-beta-11",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
     "lint": "npx prettier --write src && eslint src --fix",
-    "test": "rm -rf node_modules/@lekko/js-sdk/node_modules && jest"
+    "test": "jest"
   },
   "dependencies": {
-    "@lekko/js-sdk": "^0.0.1-beta-11",
+    "@lekko/js-sdk": "0.0.1-beta-15",
     "@suspensive/react": "^1.15.3",
     "@suspensive/react-query": "^1.15.3",
     "@tanstack/react-query": "^4.35.7",

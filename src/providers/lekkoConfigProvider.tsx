@@ -53,5 +53,5 @@ export function LekkoIntermediateConfigProvider({
     })),
   })
 
-  return <div>{children}</div>
+  return <>{children}</>
 }

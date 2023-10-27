@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "npx prettier --write src && eslint src --fix",
-    "test": "rm -rf node_modules/@lekko/js-sdk/node_modules && jest"
+    "test": "jest"
   },
   "dependencies": {
     "@lekko/js-sdk": "^0.0.2-beta-2",

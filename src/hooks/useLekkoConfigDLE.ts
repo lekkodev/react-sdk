@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
+import { useContext } from "react"
 import { handleLekkoErrors } from "../errors/errors"
-import { queryClient } from "../providers/lekkoConfigProvider"
-import { DEFAULT_LEKKO_REFRESH, DEFAULT_LOOKUP_KEY } from "../utils/constants"
+import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
+import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
 import { type EvaluationType, type LekkoConfig } from "../utils/types"
@@ -11,6 +12,7 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
   config: LekkoConfig<E>,
 ) {
   const client = useLekkoClient()
+  const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
   const {
     data: evaluation,
     isLoading: isEvaluationLoading,
@@ -22,7 +24,7 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
         async () => await getEvaluation(client, config),
         config,
         client.repository,
-        queryClient.getQueryData(DEFAULT_LOOKUP_KEY),
+        defaultConfigLookup,
       ),
     ...DEFAULT_LEKKO_REFRESH,
   })

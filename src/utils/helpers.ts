@@ -2,6 +2,7 @@ import {
   type ResolvedLekkoConfig,
   type EvaluationType,
   type LekkoConfig,
+  type DefaultConfigLookup,
 } from "./types"
 
 import { type Value, type RepositoryKey } from "@lekko/js-sdk"
@@ -55,21 +56,18 @@ export function createDefaultStableKey<E extends EvaluationType>(
 export function mapStableKeysToConfigs(
   configs: Array<ResolvedLekkoConfig<EvaluationType>>,
   repositoryKey: RepositoryKey,
-): Record<string, ResolvedLekkoConfig<EvaluationType>> {
-  return configs.reduce<Record<string, ResolvedLekkoConfig<EvaluationType>>>(
-    (acc, resolvedConfig) => {
-      const stableKey = createStableKey(resolvedConfig.config, repositoryKey)
-      if (acc[stableKey.join(",")] !== undefined)
-        throw new DuplicateDefaultProviderError(
-          printConfigMessage({
-            intro: "Duplicate default config provided for",
-            ...resolvedConfig.config,
-            repositoryKey,
-          }),
-        )
-      acc[stableKey.join(",")] = resolvedConfig
-      return acc
-    },
-    {},
-  )
+): DefaultConfigLookup {
+  return configs.reduce<DefaultConfigLookup>((acc, resolvedConfig) => {
+    const stableKey = createStableKey(resolvedConfig.config, repositoryKey)
+    if (acc[stableKey.join(",")] !== undefined)
+      throw new DuplicateDefaultProviderError(
+        printConfigMessage({
+          intro: "Duplicate default config provided for",
+          ...resolvedConfig.config,
+          repositoryKey,
+        }),
+      )
+    acc[stableKey.join(",")] = resolvedConfig
+    return acc
+  }, {})
 }

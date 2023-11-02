@@ -1,11 +1,10 @@
-import { type PropsWithChildren } from "react"
+import { useContext, useMemo, type PropsWithChildren } from "react"
 import {
   QueryClient,
   QueryClientProvider,
   useQueries,
-  useQuery,
 } from "@tanstack/react-query"
-import useLekkoClient from "../hooks/useLekkoClient"
+import useLekkoClient, { getRepositoryKey } from "../hooks/useLekkoClient"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey, mapStableKeysToConfigs } from "../utils/helpers"
 import {
@@ -17,14 +16,17 @@ import {
 import {
   DEFAULT_LEKKO_REFRESH,
   DEFAULT_LEKKO_SETTINGS,
-  DEFAULT_LOOKUP_KEY,
 } from "../utils/constants"
 import { LekkoSettingsContext } from "./lekkoSettingsProvider"
 import { handleLekkoErrors } from "../errors/errors"
+import LekkoDefaultConfigLookupProvider from "./lekkoDefaultConfigLookupProvider"
 
-export interface ProviderProps extends PropsWithChildren {
+export interface IntermediateProviderProps extends PropsWithChildren {
   configRequests?: Array<LekkoConfig<EvaluationType>>
   settings?: LekkoSettings
+}
+
+export interface ProviderProps extends IntermediateProviderProps {
   defaultConfigs?: Array<ResolvedLekkoConfig<EvaluationType>>
 }
 
@@ -34,14 +36,28 @@ export const queryClient = new QueryClient({
   },
 })
 
-export function LekkoConfigProvider(props: ProviderProps) {
+export function LekkoConfigProvider({
+  settings,
+  defaultConfigs,
+  children,
+}: ProviderProps) {
+  const repositoryKey = useMemo(() => getRepositoryKey(settings), [settings])
+
   return (
-    <LekkoSettingsContext.Provider
-      value={props.settings ?? DEFAULT_LEKKO_SETTINGS}
-    >
-      <QueryClientProvider client={queryClient}>
-        <LekkoIntermediateConfigProvider {...props} />
-      </QueryClientProvider>
+    <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
+      <LekkoDefaultConfigLookupProvider.Provider
+        value={
+          defaultConfigs === undefined
+            ? undefined
+            : mapStableKeysToConfigs(defaultConfigs, repositoryKey)
+        }
+      >
+        <QueryClientProvider client={queryClient}>
+          <LekkoIntermediateConfigProvider settings={settings}>
+            {children}
+          </LekkoIntermediateConfigProvider>
+        </QueryClientProvider>
+      </LekkoDefaultConfigLookupProvider.Provider>
     </LekkoSettingsContext.Provider>
   )
 }
@@ -49,16 +65,10 @@ export function LekkoConfigProvider(props: ProviderProps) {
 // or as a subprovider, for example, to require a set of configs after authentication when the username is known
 export function LekkoIntermediateConfigProvider({
   configRequests = [],
-  defaultConfigs = [],
   children,
-}: ProviderProps) {
+}: IntermediateProviderProps) {
+  const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
   const client = useLekkoClient()
-
-  const { data: backupLookup } = useQuery({
-    queryKey: DEFAULT_LOOKUP_KEY,
-    queryFn: () => mapStableKeysToConfigs(defaultConfigs, client.repository),
-    ...DEFAULT_LEKKO_REFRESH,
-  })
 
   useQueries({
     queries: configRequests.map((config) => ({
@@ -68,7 +78,7 @@ export function LekkoIntermediateConfigProvider({
           async () => await getEvaluation(client, config),
           config,
           client.repository,
-          backupLookup,
+          defaultConfigLookup,
         ),
       ...DEFAULT_LEKKO_REFRESH,
       suspense: true,

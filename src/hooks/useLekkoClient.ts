@@ -9,12 +9,31 @@ import { useContext } from "react"
 import { type LekkoSettings } from "../utils/types"
 import { getEnvironmentVariable } from "../utils/envHelpers"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
+import { RepositoryKey } from ".."
 
 export const CLIENT_STABLE_KEY = "LekkoClient"
 
 interface Props {
   settings?: LekkoSettings
   contextClient?: Client
+}
+
+export function getRepositoryKey(
+  settings: LekkoSettings = DEFAULT_LEKKO_SETTINGS,
+) {
+  const repositoryOwner =
+    settings?.repositoryOwner ?? getEnvironmentVariable("REPOSITORY_OWNER")
+  const repositoryName =
+    settings?.repositoryName ?? getEnvironmentVariable("REPOSITORY_NAME")
+
+  if (repositoryOwner === undefined || repositoryName === undefined) {
+    throw new Error("Missing Lekko repository env values")
+  }
+
+  return RepositoryKey.fromJson({
+    repoName: repositoryName,
+    ownerName: repositoryOwner,
+  })
 }
 
 export function init({
@@ -24,24 +43,17 @@ export function init({
   if (contextClient !== undefined) return contextClient
 
   const apiKey = settings?.apiKey ?? getEnvironmentVariable("API_KEY")
-  const repositoryOwner =
-    settings?.repositoryOwner ?? getEnvironmentVariable("REPOSITORY_OWNER")
-  const repositoryName =
-    settings?.repositoryName ?? getEnvironmentVariable("REPOSITORY_NAME")
+  const repositoryKey = getRepositoryKey(settings)
   const hostname = settings?.hostname ?? getEnvironmentVariable("HOSTNAME")
 
-  if (
-    apiKey === undefined ||
-    repositoryOwner === undefined ||
-    repositoryName === undefined
-  ) {
-    throw new Error("Missing Lekko env values")
+  if (apiKey === undefined) {
+    throw new Error("Missing Lekko API key values")
   }
 
   return initAPIClient({
     apiKey,
-    repositoryOwner,
-    repositoryName,
+    repositoryOwner: repositoryKey.ownerName,
+    repositoryName: repositoryKey.repoName,
     hostname,
   })
 }

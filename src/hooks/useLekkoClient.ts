@@ -35,7 +35,7 @@ export function init({
     repositoryOwner === undefined ||
     repositoryName === undefined
   ) {
-    throw new Error("Missing Lekko repository env values")
+    throw new Error("Missing Lekko env values")
   }
 
   return initAPIClient({

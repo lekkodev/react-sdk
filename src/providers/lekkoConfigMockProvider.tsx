@@ -25,7 +25,6 @@ function init({
   settings = DEFAULT_LEKKO_SETTINGS,
   defaultConfigs,
 }: InitProps): Client {
-  console.log("Initializing lekko mock provider")
   const repositoryOwner =
     settings?.repositoryOwner ?? getEnvironmentVariable("REPOSITORY_OWNER")
   const repositoryName =

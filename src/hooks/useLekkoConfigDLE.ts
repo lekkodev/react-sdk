@@ -3,7 +3,7 @@ import { handleLekkoErrors } from "../errors/errors"
 import { queryClient } from "../providers/lekkoConfigProvider"
 import { DEFAULT_LEKKO_REFRESH, DEFAULT_LOOKUP_KEY } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
-import { createDefaultStableKey, createStableKey } from "../utils/helpers"
+import { createStableKey } from "../utils/helpers"
 import { type EvaluationType, type LekkoConfig } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 
@@ -20,7 +20,8 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
     queryFn: async () =>
       await handleLekkoErrors(
         async () => await getEvaluation(client, config),
-        createDefaultStableKey(config, client.repository),
+        config,
+        client.repository,
         queryClient.getQueryData(DEFAULT_LOOKUP_KEY),
       ),
     ...DEFAULT_LEKKO_REFRESH,

@@ -1,29 +1,47 @@
-import { type EvaluationType, type ResolvedLekkoConfig } from "../utils/types"
+import {
+  type LekkoConfig,
+  type EvaluationType,
+  type ResolvedLekkoConfig,
+} from "../utils/types"
 import {
   ConfigNotFoundError,
   type ConnectError,
   NetworkError,
   NotAuthorizedError,
 } from "./types"
+import { type RepositoryKey } from "@lekko/js-sdk"
+import { getMockedValue } from "../mockHelpers/helpers"
 
 export async function handleLekkoErrors<T>(
   fetch: () => Promise<T>,
-  defaultKey?: string,
-  backupResolvedDefaultConfigs?: Record<
-    string,
-    ResolvedLekkoConfig<EvaluationType>
-  >,
+  config: LekkoConfig<EvaluationType>,
+  repositoryKey: RepositoryKey,
+  defaultConfigs?: Record<string, ResolvedLekkoConfig<EvaluationType>>,
 ): Promise<T> {
   try {
     const result = await fetch()
     return result
   } catch (error) {
-    if (
-      backupResolvedDefaultConfigs !== undefined &&
-      defaultKey !== undefined &&
-      backupResolvedDefaultConfigs[defaultKey] !== undefined
-    ) {
-      return backupResolvedDefaultConfigs[defaultKey] as T
+    console.log(
+      `Error fetching this config:\ntype: ${
+        config.evaluationType
+      }\nnamespace: ${config.namespaceName}\nconfig name: ${
+        config.configName
+      }\ncontext: ${config.context?.toString()}\nrepository: ${repositoryKey.toJsonString()}`,
+    )
+
+    if (defaultConfigs !== undefined) {
+      // catch the mocked value error if there is no match, but show underlying error to user
+      try {
+        return await getMockedValue(
+          config.evaluationType,
+          config.namespaceName,
+          config.configName,
+          config.context,
+          repositoryKey,
+          defaultConfigs,
+        )
+      } catch (err) {}
     }
 
     if ((error as ConnectError) !== undefined) {

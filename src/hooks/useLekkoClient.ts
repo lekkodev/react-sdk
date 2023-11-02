@@ -4,26 +4,22 @@ import {
   DEFAULT_LEKKO_REFRESH,
   DEFAULT_LEKKO_SETTINGS,
 } from "../utils/constants"
-import { LekkoConfigMockClientContext } from "../testHelpers/LekkoConfigMockProvider"
+import { LekkoConfigMockClientContext } from "../providers/lekkoConfigMockProvider"
 import { useContext } from "react"
 import { type LekkoSettings } from "../utils/types"
 import { getEnvironmentVariable } from "../utils/envHelpers"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
-import { NoOpProvider } from "../providers/lekkoNoOpConfigProvider"
-import { NoOpClient } from "../clients/NoOpClient"
 
 export const CLIENT_STABLE_KEY = "LekkoClient"
 
 interface Props {
   settings?: LekkoSettings
   contextClient?: Client
-  allowNoOp: boolean
 }
 
 export function init({
   settings = DEFAULT_LEKKO_SETTINGS,
   contextClient,
-  allowNoOp,
 }: Props): Client {
   if (contextClient !== undefined) return contextClient
 
@@ -34,17 +30,12 @@ export function init({
     settings?.repositoryName ?? getEnvironmentVariable("REPOSITORY_NAME")
   const hostname = settings?.hostname ?? getEnvironmentVariable("HOSTNAME")
 
-  if (!allowNoOp && apiKey === undefined) {
-    throw new Error("Missing Lekko API key")
-  }
-
-  if (repositoryOwner === undefined || repositoryName === undefined) {
+  if (
+    apiKey === undefined ||
+    repositoryOwner === undefined ||
+    repositoryName === undefined
+  ) {
     throw new Error("Missing Lekko repository env values")
-  }
-
-  // only allowed if they are using the noop client
-  if (apiKey === undefined) {
-    return new NoOpClient(repositoryOwner, repositoryName)
   }
 
   return initAPIClient({
@@ -57,12 +48,11 @@ export function init({
 
 export default function useLekkoClient(): Client {
   const contextClient = useContext(LekkoConfigMockClientContext)
-  const allowNoOp = useContext(NoOpProvider).allowNoOp
   const settings = useContext(LekkoSettingsContext)
 
   const { data: client } = useSuspenseQuery({
     queryKey: [CLIENT_STABLE_KEY],
-    queryFn: async () => init({ contextClient, settings, allowNoOp }),
+    queryFn: async () => init({ contextClient, settings }),
     ...DEFAULT_LEKKO_REFRESH,
   })
 

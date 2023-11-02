@@ -7,11 +7,7 @@ import {
 } from "@tanstack/react-query"
 import useLekkoClient from "../hooks/useLekkoClient"
 import { getEvaluation } from "../utils/evaluation"
-import {
-  createDefaultStableKey,
-  createStableKey,
-  mapStableKeysToConfigs,
-} from "../utils/helpers"
+import { createStableKey, mapStableKeysToConfigs } from "../utils/helpers"
 import {
   type LekkoSettings,
   type LekkoConfig,
@@ -29,7 +25,7 @@ import { handleLekkoErrors } from "../errors/errors"
 export interface ProviderProps extends PropsWithChildren {
   configRequests?: Array<LekkoConfig<EvaluationType>>
   settings?: LekkoSettings
-  backupResolvedDefaultConfigs?: Array<ResolvedLekkoConfig<EvaluationType>>
+  defaultConfigs?: Array<ResolvedLekkoConfig<EvaluationType>>
 }
 
 export const queryClient = new QueryClient({
@@ -53,15 +49,14 @@ export function LekkoConfigProvider(props: ProviderProps) {
 // or as a subprovider, for example, to require a set of configs after authentication when the username is known
 export function LekkoIntermediateConfigProvider({
   configRequests = [],
-  backupResolvedDefaultConfigs = [],
+  defaultConfigs = [],
   children,
 }: ProviderProps) {
   const client = useLekkoClient()
 
   const { data: backupLookup } = useQuery({
     queryKey: DEFAULT_LOOKUP_KEY,
-    queryFn: () =>
-      mapStableKeysToConfigs(backupResolvedDefaultConfigs, client.repository),
+    queryFn: () => mapStableKeysToConfigs(defaultConfigs, client.repository),
     ...DEFAULT_LEKKO_REFRESH,
   })
 
@@ -71,7 +66,8 @@ export function LekkoIntermediateConfigProvider({
       queryFn: async () =>
         await handleLekkoErrors(
           async () => await getEvaluation(client, config),
-          createDefaultStableKey(config, client.repository),
+          config,
+          client.repository,
           backupLookup,
         ),
       ...DEFAULT_LEKKO_REFRESH,

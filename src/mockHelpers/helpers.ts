@@ -6,7 +6,7 @@ import {
 } from "../utils/types"
 import { type ClientContext, type RepositoryKey } from "@lekko/js-sdk"
 
-export function createStableTestKey<E extends EvaluationType>(
+export function createStableMockKey<E extends EvaluationType>(
   resolvedConfig: LekkoConfig<E>,
   repository: RepositoryKey,
 ): string {
@@ -20,9 +20,9 @@ export async function getMockedValue<T>(
   context: ClientContext | undefined,
   repositoryKey: RepositoryKey,
   lookupMap: Record<string, ResolvedLekkoConfig<EvaluationType>>,
-  defaultLookupMap: Record<string, ResolvedLekkoConfig<EvaluationType>>,
 ): Promise<T> {
-  const key = createStableTestKey(
+  // first attempt to find a key match to our exact context if one was provided
+  const key = createStableMockKey(
     {
       namespaceName,
       configName,
@@ -36,6 +36,7 @@ export async function getMockedValue<T>(
     return await Promise.resolve(lookupMap[key].result as T)
   }
 
+  // create a key that removes the context passed in and attempts to find a default with no context
   const defaultKey = createDefaultStableKey(
     {
       namespaceName,
@@ -45,9 +46,11 @@ export async function getMockedValue<T>(
     repositoryKey,
   )
 
-  if (defaultLookupMap[defaultKey] !== undefined) {
-    return await Promise.resolve(defaultLookupMap[defaultKey].result as T)
+  if (lookupMap[defaultKey] !== undefined) {
+    return await Promise.resolve(lookupMap[defaultKey].result as T)
   }
 
-  throw new Error("No evaluation provided for this config")
+  throw new Error(
+    `No evaluation provided for this config\ntype: ${evaluationType}\nnamespace: ${namespaceName}\nconfig name: ${configName}\ncontext: ${context?.toString()}\nrepository: ${repositoryKey.toJsonString()}`,
+  )
 }

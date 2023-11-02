@@ -12,22 +12,16 @@ import { mapStableKeysToConfigs } from "../utils/helpers"
 
 interface Props {
   repositoryKey: RepositoryKey
-  resolvedConfigs: Array<ResolvedLekkoConfig<EvaluationType>>
-  resolvedDefaultConfigs?: Array<ResolvedLekkoConfig<EvaluationType>>
+  defaultConfigs: Array<ResolvedLekkoConfig<EvaluationType>>
   repositorySha?: string
 }
 
 export function createMockClient({
   repositoryKey,
-  resolvedConfigs,
-  resolvedDefaultConfigs = [],
+  defaultConfigs,
   repositorySha = "sha123",
 }: Props): Client {
-  const lookupMap = mapStableKeysToConfigs(resolvedConfigs, repositoryKey)
-  const defaultLookupMap = mapStableKeysToConfigs(
-    resolvedDefaultConfigs,
-    repositoryKey,
-  )
+  const lookupMap = mapStableKeysToConfigs(defaultConfigs, repositoryKey)
 
   const mockClient = {
     getBool: async (
@@ -42,7 +36,6 @@ export function createMockClient({
         context,
         repositoryKey,
         lookupMap,
-        defaultLookupMap,
       ),
     getString: async (
       namespaceName: string,
@@ -56,7 +49,6 @@ export function createMockClient({
         context,
         repositoryKey,
         lookupMap,
-        defaultLookupMap,
       ),
     getInt: async (
       namespaceName: string,
@@ -70,7 +62,6 @@ export function createMockClient({
         context,
         repositoryKey,
         lookupMap,
-        defaultLookupMap,
       )
       return BigInt(mockedValue)
     },
@@ -86,7 +77,6 @@ export function createMockClient({
         context,
         repositoryKey,
         lookupMap,
-        defaultLookupMap,
       ),
     getJSON: async (
       namespaceName: string,
@@ -101,7 +91,6 @@ export function createMockClient({
         context,
         repositoryKey,
         lookupMap,
-        defaultLookupMap,
       ),
     getProto: async (
       namespaceName: string,
@@ -115,7 +104,6 @@ export function createMockClient({
         context,
         repositoryKey,
         lookupMap,
-        defaultLookupMap,
       ),
     repository: repositoryKey,
     getRepoSha: async () => repositorySha,

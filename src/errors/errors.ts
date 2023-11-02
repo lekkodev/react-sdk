@@ -23,11 +23,13 @@ export async function handleLekkoErrors<T>(
     const result = await fetch()
     return result
   } catch (error) {
-    printConfigMessage({
-      intro: "Error fetching this config",
-      ...config,
-      repositoryKey,
-    })
+    console.log(
+      printConfigMessage({
+        intro: "Error fetching this config",
+        ...config,
+        repositoryKey,
+      }),
+    )
 
     if (defaultConfigs !== undefined) {
       // catch the mocked value error if there is no match, but show underlying error to user

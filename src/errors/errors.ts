@@ -31,6 +31,17 @@ export async function handleLekkoErrors<T>(
       }),
     )
 
+    if ((error as ConnectError) !== undefined) {
+      if ((error as ConnectError).code === 16) {
+        throw new NotAuthorizedError(
+          "Access to this method is not authorized, please check your API key or repository access",
+        )
+      }
+      if ((error as ConnectError).rawMessage === "Feature not found") {
+        throw new ConfigNotFoundError("Config does not exist")
+      }
+    }
+
     if (defaultConfigs !== undefined) {
       // catch the mocked value error if there is no match, but show underlying error to user
       try {
@@ -45,18 +56,8 @@ export async function handleLekkoErrors<T>(
       } catch (err) {}
     }
 
-    if ((error as ConnectError) !== undefined) {
-      if ((error as ConnectError).code === 16) {
-        throw new NotAuthorizedError(
-          "Access to this method is not authorized, please check your API key or repository access",
-        )
-      }
-      if ((error as ConnectError).rawMessage === "Failed to fetch") {
-        throw new NetworkError("Failed to connect to Lekko API")
-      }
-      if ((error as ConnectError).rawMessage === "Feature not found") {
-        throw new ConfigNotFoundError("Config does not exist")
-      }
+    if ((error as ConnectError)?.rawMessage === "Failed to fetch") {
+      throw new NetworkError("Failed to connect to Lekko API")
     }
 
     throw error

@@ -1,4 +1,8 @@
-import { type EvaluationType, type LekkoConfig } from "./types"
+import {
+  type ResolvedLekkoConfig,
+  type EvaluationType,
+  type LekkoConfig,
+} from "./types"
 
 import { type Value, type RepositoryKey } from "@lekko/js-sdk"
 
@@ -36,4 +40,22 @@ export function createStableKey<E extends EvaluationType>(
 export function assertExhaustive(value: never): never {
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   throw new Error(`Unhandled case: ${value}`)
+}
+
+export function createDefaultStableKey<E extends EvaluationType>(
+  config: LekkoConfig<E>,
+  repository: RepositoryKey,
+): string {
+  return `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}_${config.evaluationType}`
+}
+
+export function mapStableKeysToConfigs(
+  configs: ResolvedLekkoConfig<EvaluationType>[],
+  repository: RepositoryKey,
+): Record<string, ResolvedLekkoConfig<EvaluationType>> {
+  return configs.reduce<Record<string, ResolvedLekkoConfig<EvaluationType>>>((acc, resolvedConfig) => {
+    const stableKey = createDefaultStableKey(resolvedConfig.config, repository)
+    acc[stableKey] = resolvedConfig
+    return acc
+  }, {})
 }

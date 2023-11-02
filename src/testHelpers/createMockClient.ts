@@ -1,6 +1,6 @@
-import { type ResolvedLekkoConfig } from "./types"
+import { type ResolvedLekkoConfig } from "../utils/types"
 
-import { getMockedValue, mapStableKeysToConfigs } from "./helpers"
+import { getMockedValue } from "./helpers"
 import { EvaluationType } from "../utils/types"
 import { type Any } from "@bufbuild/protobuf"
 import {
@@ -8,11 +8,12 @@ import {
   type ClientContext,
   type RepositoryKey,
 } from "@lekko/js-sdk"
+import { mapStableKeysToConfigs } from "../utils/helpers"
 
 interface Props {
   repositoryKey: RepositoryKey
-  resolvedConfigs: ResolvedLekkoConfig[]
-  resolvedDefaultConfigs?: ResolvedLekkoConfig[]
+  resolvedConfigs: ResolvedLekkoConfig<EvaluationType>[]
+  resolvedDefaultConfigs?: ResolvedLekkoConfig<EvaluationType>[]
   repositorySha?: string
 }
 

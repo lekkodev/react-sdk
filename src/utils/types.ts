@@ -44,4 +44,3 @@ export interface ResolvedLekkoConfig<E extends EvaluationType> {
   config: LekkoConfig<E>
   result: EvaluationResult<E>
 }
-  

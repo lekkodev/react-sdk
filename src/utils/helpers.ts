@@ -50,12 +50,18 @@ export function createDefaultStableKey<E extends EvaluationType>(
 }
 
 export function mapStableKeysToConfigs(
-  configs: ResolvedLekkoConfig<EvaluationType>[],
+  configs: Array<ResolvedLekkoConfig<EvaluationType>>,
   repository: RepositoryKey,
 ): Record<string, ResolvedLekkoConfig<EvaluationType>> {
-  return configs.reduce<Record<string, ResolvedLekkoConfig<EvaluationType>>>((acc, resolvedConfig) => {
-    const stableKey = createDefaultStableKey(resolvedConfig.config, repository)
-    acc[stableKey] = resolvedConfig
-    return acc
-  }, {})
+  return configs.reduce<Record<string, ResolvedLekkoConfig<EvaluationType>>>(
+    (acc, resolvedConfig) => {
+      const stableKey = createDefaultStableKey(
+        resolvedConfig.config,
+        repository,
+      )
+      acc[stableKey] = resolvedConfig
+      return acc
+    },
+    {},
+  )
 }

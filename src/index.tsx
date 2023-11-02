@@ -9,10 +9,11 @@ import {
 import { createMockClient } from "./testHelpers/createMockClient"
 import { LekkoConfigMockProvider } from "./testHelpers/LekkoConfigMockProvider"
 import { ClientContext, type Client, RepositoryKey } from "@lekko/js-sdk"
-import LekkoNoOpConfigProvider from './providers/lekkoNoOpConfigProvider' 
+import LekkoNoOpConfigProvider from "./providers/lekkoNoOpConfigProvider"
 
 export type { LekkoConfig } from "./utils/types"
 export * from "./utils/types"
+export * from "./errors/types"
 
 export {
   useLekkoConfig,
@@ -25,5 +26,5 @@ export {
   ClientContext,
   type Client,
   LekkoIntermediateConfigProvider,
-  LekkoNoOpConfigProvider
+  LekkoNoOpConfigProvider,
 }

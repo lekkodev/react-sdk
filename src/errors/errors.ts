@@ -1,4 +1,4 @@
-import { EvaluationType, type ResolvedLekkoConfig } from "../utils/types"
+import { type EvaluationType, type ResolvedLekkoConfig } from "../utils/types"
 import {
   ConfigNotFoundError,
   type ConnectError,
@@ -9,7 +9,10 @@ import {
 export async function handleLekkoErrors<T>(
   fetch: () => Promise<T>,
   defaultKey?: string,
-  backupResolvedDefaultConfigs?: Record<string, ResolvedLekkoConfig<EvaluationType>>,
+  backupResolvedDefaultConfigs?: Record<
+    string,
+    ResolvedLekkoConfig<EvaluationType>
+  >,
 ): Promise<T> {
   try {
     const result = await fetch()

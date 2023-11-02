@@ -12,8 +12,8 @@ import { mapStableKeysToConfigs } from "../utils/helpers"
 
 interface Props {
   repositoryKey: RepositoryKey
-  resolvedConfigs: ResolvedLekkoConfig<EvaluationType>[]
-  resolvedDefaultConfigs?: ResolvedLekkoConfig<EvaluationType>[]
+  resolvedConfigs: Array<ResolvedLekkoConfig<EvaluationType>>
+  resolvedDefaultConfigs?: Array<ResolvedLekkoConfig<EvaluationType>>
   repositorySha?: string
 }
 

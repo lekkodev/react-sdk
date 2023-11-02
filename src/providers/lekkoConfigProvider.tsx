@@ -3,6 +3,7 @@ import {
   QueryClient,
   QueryClientProvider,
   useQueries,
+  useQuery,
 } from "@tanstack/react-query"
 import useLekkoClient from "../hooks/useLekkoClient"
 import { getEvaluation } from "../utils/evaluation"
@@ -15,7 +16,7 @@ import {
   type LekkoSettings,
   type LekkoConfig,
   type EvaluationType,
-  ResolvedLekkoConfig,
+  type ResolvedLekkoConfig,
 } from "../utils/types"
 import {
   DEFAULT_LEKKO_REFRESH,
@@ -23,7 +24,6 @@ import {
   DEFAULT_LOOKUP_KEY,
 } from "../utils/constants"
 import { LekkoSettingsContext } from "./lekkoSettingsProvider"
-import { useQuery } from "react-query"
 import { handleLekkoErrors } from "../errors/errors"
 
 export interface ProviderProps extends PropsWithChildren {
@@ -63,7 +63,6 @@ export function LekkoIntermediateConfigProvider({
     queryFn: () =>
       mapStableKeysToConfigs(backupResolvedDefaultConfigs, client.repository),
     ...DEFAULT_LEKKO_REFRESH,
-    suspense: true,
   })
 
   useQueries({

@@ -5,6 +5,7 @@ import {
   type LekkoConfig,
 } from "../utils/types"
 import { type ClientContext, type RepositoryKey } from "@lekko/js-sdk"
+import { printConfigMessage } from "../errors/printers"
 
 export function createStableMockKey<E extends EvaluationType>(
   resolvedConfig: LekkoConfig<E>,
@@ -51,6 +52,13 @@ export async function getMockedValue<T>(
   }
 
   throw new Error(
-    `No evaluation provided for this config\ntype: ${evaluationType}\nnamespace: ${namespaceName}\nconfig name: ${configName}\ncontext: ${context?.toString()}\nrepository: ${repositoryKey.toJsonString()}`,
+    printConfigMessage({
+      intro: "No evaluation provided for this config",
+      evaluationType,
+      namespaceName,
+      configName,
+      context,
+      repositoryKey,
+    }),
   )
 }

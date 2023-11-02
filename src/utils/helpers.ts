@@ -5,6 +5,8 @@ import {
 } from "./types"
 
 import { type Value, type RepositoryKey } from "@lekko/js-sdk"
+import { DuplicateDefaultProviderError } from "../errors/types"
+import { printConfigMessage } from "../errors/printers"
 
 export function isValue(obj: unknown): obj is Value {
   return typeof obj === "object" && obj !== null && "toJsonString" in obj
@@ -52,11 +54,19 @@ export function createDefaultStableKey<E extends EvaluationType>(
 
 export function mapStableKeysToConfigs(
   configs: Array<ResolvedLekkoConfig<EvaluationType>>,
-  repository: RepositoryKey,
+  repositoryKey: RepositoryKey,
 ): Record<string, ResolvedLekkoConfig<EvaluationType>> {
   return configs.reduce<Record<string, ResolvedLekkoConfig<EvaluationType>>>(
     (acc, resolvedConfig) => {
-      const stableKey = createStableKey(resolvedConfig.config, repository)
+      const stableKey = createStableKey(resolvedConfig.config, repositoryKey)
+      if (acc[stableKey.join(",")] !== undefined)
+        throw new DuplicateDefaultProviderError(
+          printConfigMessage({
+            intro: "Duplicate default config provided for",
+            ...resolvedConfig.config,
+            repositoryKey,
+          }),
+        )
       acc[stableKey.join(",")] = resolvedConfig
       return acc
     },

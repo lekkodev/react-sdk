@@ -11,6 +11,7 @@ import {
 } from "./types"
 import { type RepositoryKey } from "@lekko/js-sdk"
 import { getMockedValue } from "../mockHelpers/helpers"
+import { printConfigMessage } from "./printers"
 
 export async function handleLekkoErrors<T>(
   fetch: () => Promise<T>,
@@ -22,13 +23,11 @@ export async function handleLekkoErrors<T>(
     const result = await fetch()
     return result
   } catch (error) {
-    console.log(
-      `Error fetching this config:\ntype: ${
-        config.evaluationType
-      }\nnamespace: ${config.namespaceName}\nconfig name: ${
-        config.configName
-      }\ncontext: ${config.context?.toString()}\nrepository: ${repositoryKey.toJsonString()}`,
-    )
+    printConfigMessage({
+      intro: "Error fetching this config",
+      ...config,
+      repositoryKey,
+    })
 
     if (defaultConfigs !== undefined) {
       // catch the mocked value error if there is no match, but show underlying error to user

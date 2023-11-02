@@ -39,7 +39,7 @@ export function init({
   }
 
   if (repositoryOwner === undefined || repositoryName === undefined) {
-    throw new Error("Missing Lekko env values")
+    throw new Error("Missing Lekko repository env values")
   }
 
   // only allowed if they are using the noop client

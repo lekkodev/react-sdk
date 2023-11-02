@@ -2,10 +2,12 @@ import { useQuery } from "@tanstack/react-query"
 import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
-import { type LekkoConfig } from "../utils/types"
+import { type EvaluationType, type LekkoConfig } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 
-export function useLekkoConfigDLE(config: LekkoConfig) {
+export function useLekkoConfigDLE<E extends EvaluationType>(
+  config: LekkoConfig<E>,
+) {
   const client = useLekkoClient()
   const {
     data: evaluation,

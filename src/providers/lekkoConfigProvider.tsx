@@ -7,7 +7,11 @@ import {
 import useLekkoClient from "../hooks/useLekkoClient"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
-import { type LekkoSettings, type LekkoConfig } from "../utils/types"
+import {
+  type LekkoSettings,
+  type LekkoConfig,
+  type EvaluationType,
+} from "../utils/types"
 import {
   DEFAULT_LEKKO_REFRESH,
   DEFAULT_LEKKO_SETTINGS,
@@ -15,7 +19,7 @@ import {
 import { LekkoSettingsContext } from "./lekkoSettingsProvider"
 
 interface Props extends PropsWithChildren {
-  configRequests?: LekkoConfig[]
+  configRequests?: Array<LekkoConfig<EvaluationType>>
   settings?: LekkoSettings
 }
 

@@ -1,11 +1,13 @@
 import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
-import { type LekkoConfig } from "../utils/types"
+import { type EvaluationType, type LekkoConfig } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 import { useSuspenseQuery } from "@suspensive/react-query"
 
-export function useLekkoConfig(config: LekkoConfig) {
+export function useLekkoConfig<E extends EvaluationType>(
+  config: LekkoConfig<E>,
+) {
   const client = useLekkoClient()
   const { data: evaluation } = useSuspenseQuery({
     queryKey: createStableKey(config, client.repository),

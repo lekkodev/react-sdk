@@ -4,8 +4,8 @@ import { createStableKey } from "../utils/helpers"
 import { type EvaluationType, type LekkoConfig } from "../utils/types"
 import { ClientContext, type RepositoryKey } from "@lekko/js-sdk"
 
-export function createStableTestKey(
-  resolvedConfig: LekkoConfig,
+export function createStableTestKey<E extends EvaluationType>(
+  resolvedConfig: LekkoConfig<E>,
   repository: RepositoryKey,
 ): string {
   return createStableKey(resolvedConfig, repository).join(",")

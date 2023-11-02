@@ -1,4 +1,4 @@
-import { type LekkoConfig } from "./types"
+import { type EvaluationType, type LekkoConfig } from "./types"
 
 import { type Value, type RepositoryKey } from "@lekko/js-sdk"
 
@@ -6,8 +6,8 @@ export function isValue(obj: unknown): obj is Value {
   return typeof obj === "object" && obj !== null && "toJsonString" in obj
 }
 
-export function createStableKey(
-  config: LekkoConfig,
+export function createStableKey<E extends EvaluationType>(
+  config: LekkoConfig<E>,
   repository: RepositoryKey,
 ): string[] {
   const contextKeyParts: string[] =

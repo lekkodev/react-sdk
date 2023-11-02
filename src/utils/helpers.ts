@@ -46,7 +46,8 @@ export function createDefaultStableKey<E extends EvaluationType>(
   config: LekkoConfig<E>,
   repository: RepositoryKey,
 ): string {
-  return `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}_${config.evaluationType}`
+  // __ after configName represents an empty context
+  return `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}__${config.evaluationType}`
 }
 
 export function mapStableKeysToConfigs(
@@ -55,11 +56,8 @@ export function mapStableKeysToConfigs(
 ): Record<string, ResolvedLekkoConfig<EvaluationType>> {
   return configs.reduce<Record<string, ResolvedLekkoConfig<EvaluationType>>>(
     (acc, resolvedConfig) => {
-      const stableKey = createDefaultStableKey(
-        resolvedConfig.config,
-        repository,
-      )
-      acc[stableKey] = resolvedConfig
+      const stableKey = createStableKey(resolvedConfig.config, repository)
+      acc[stableKey.join(",")] = resolvedConfig
       return acc
     },
     {},

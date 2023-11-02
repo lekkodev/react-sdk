@@ -1,10 +1,10 @@
-import { createStableKey } from "../utils/helpers"
+import { createDefaultStableKey, createStableKey } from "../utils/helpers"
 import {
   type ResolvedLekkoConfig,
   type EvaluationType,
   type LekkoConfig,
 } from "../utils/types"
-import { ClientContext, type RepositoryKey } from "@lekko/js-sdk"
+import { type ClientContext, type RepositoryKey } from "@lekko/js-sdk"
 
 export function createStableTestKey<E extends EvaluationType>(
   resolvedConfig: LekkoConfig<E>,
@@ -36,11 +36,10 @@ export async function getMockedValue<T>(
     return await Promise.resolve(lookupMap[key].result as T)
   }
 
-  const defaultKey = createStableTestKey(
+  const defaultKey = createDefaultStableKey(
     {
       namespaceName,
       configName,
-      context: new ClientContext(),
       evaluationType,
     },
     repositoryKey,

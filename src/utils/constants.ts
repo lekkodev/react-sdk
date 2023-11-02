@@ -7,3 +7,5 @@ export const DEFAULT_LEKKO_REFRESH = {
 }
 
 export const DEFAULT_LEKKO_SETTINGS = {}
+
+export const DEFAULT_LOOKUP_KEY = ["LekkoDefaultLookup"]

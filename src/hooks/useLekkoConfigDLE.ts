@@ -1,11 +1,15 @@
 import { useQuery } from "@tanstack/react-query"
-import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
+import { handleLekkoErrors } from "../errors/errors"
+import { queryClient } from "../providers/lekkoConfigProvider"
+import { DEFAULT_LEKKO_REFRESH, DEFAULT_LOOKUP_KEY } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
-import { type LekkoConfig } from "../utils/types"
+import { type EvaluationType, type LekkoConfig } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 
-export function useLekkoConfigDLE(config: LekkoConfig) {
+export function useLekkoConfigDLE<E extends EvaluationType>(
+  config: LekkoConfig<E>,
+) {
   const client = useLekkoClient()
   const {
     data: evaluation,
@@ -13,7 +17,13 @@ export function useLekkoConfigDLE(config: LekkoConfig) {
     error,
   } = useQuery({
     queryKey: createStableKey(config, client.repository),
-    queryFn: async () => await getEvaluation(client, config),
+    queryFn: async () =>
+      await handleLekkoErrors(
+        async () => await getEvaluation(client, config),
+        config,
+        client.repository,
+        queryClient.getQueryData(DEFAULT_LOOKUP_KEY),
+      ),
     ...DEFAULT_LEKKO_REFRESH,
   })
 

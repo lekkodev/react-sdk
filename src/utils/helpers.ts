@@ -1,13 +1,19 @@
-import { type LekkoConfig } from "./types"
+import {
+  type ResolvedLekkoConfig,
+  type EvaluationType,
+  type LekkoConfig,
+} from "./types"
 
 import { type Value, type RepositoryKey } from "@lekko/js-sdk"
+import { DuplicateDefaultProviderError } from "../errors/types"
+import { printConfigMessage } from "../errors/printers"
 
 export function isValue(obj: unknown): obj is Value {
   return typeof obj === "object" && obj !== null && "toJsonString" in obj
 }
 
-export function createStableKey(
-  config: LekkoConfig,
+export function createStableKey<E extends EvaluationType>(
+  config: LekkoConfig<E>,
   repository: RepositoryKey,
 ): string[] {
   const contextKeyParts: string[] =
@@ -36,4 +42,34 @@ export function createStableKey(
 export function assertExhaustive(value: never): never {
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   throw new Error(`Unhandled case: ${value}`)
+}
+
+export function createDefaultStableKey<E extends EvaluationType>(
+  config: LekkoConfig<E>,
+  repository: RepositoryKey,
+): string {
+  // __ after configName represents an empty context
+  return `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}__${config.evaluationType}`
+}
+
+export function mapStableKeysToConfigs(
+  configs: Array<ResolvedLekkoConfig<EvaluationType>>,
+  repositoryKey: RepositoryKey,
+): Record<string, ResolvedLekkoConfig<EvaluationType>> {
+  return configs.reduce<Record<string, ResolvedLekkoConfig<EvaluationType>>>(
+    (acc, resolvedConfig) => {
+      const stableKey = createStableKey(resolvedConfig.config, repositoryKey)
+      if (acc[stableKey.join(",")] !== undefined)
+        throw new DuplicateDefaultProviderError(
+          printConfigMessage({
+            intro: "Duplicate default config provided for",
+            ...resolvedConfig.config,
+            repositoryKey,
+          }),
+        )
+      acc[stableKey.join(",")] = resolvedConfig
+      return acc
+    },
+    {},
+  )
 }

@@ -3,29 +3,38 @@ import {
   QueryClient,
   QueryClientProvider,
   useQueries,
+  useQuery,
 } from "@tanstack/react-query"
 import useLekkoClient from "../hooks/useLekkoClient"
 import { getEvaluation } from "../utils/evaluation"
-import { createStableKey } from "../utils/helpers"
-import { type LekkoSettings, type LekkoConfig } from "../utils/types"
+import { createStableKey, mapStableKeysToConfigs } from "../utils/helpers"
+import {
+  type LekkoSettings,
+  type LekkoConfig,
+  type EvaluationType,
+  type ResolvedLekkoConfig,
+} from "../utils/types"
 import {
   DEFAULT_LEKKO_REFRESH,
   DEFAULT_LEKKO_SETTINGS,
+  DEFAULT_LOOKUP_KEY,
 } from "../utils/constants"
 import { LekkoSettingsContext } from "./lekkoSettingsProvider"
+import { handleLekkoErrors } from "../errors/errors"
 
-interface Props extends PropsWithChildren {
-  configRequests?: LekkoConfig[]
+export interface ProviderProps extends PropsWithChildren {
+  configRequests?: Array<LekkoConfig<EvaluationType>>
   settings?: LekkoSettings
+  defaultConfigs?: Array<ResolvedLekkoConfig<EvaluationType>>
 }
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: DEFAULT_LEKKO_REFRESH,
   },
 })
 
-export function LekkoConfigProvider(props: Props) {
+export function LekkoConfigProvider(props: ProviderProps) {
   return (
     <LekkoSettingsContext.Provider
       value={props.settings ?? DEFAULT_LEKKO_SETTINGS}
@@ -40,14 +49,27 @@ export function LekkoConfigProvider(props: Props) {
 // or as a subprovider, for example, to require a set of configs after authentication when the username is known
 export function LekkoIntermediateConfigProvider({
   configRequests = [],
+  defaultConfigs = [],
   children,
-}: Props) {
+}: ProviderProps) {
   const client = useLekkoClient()
+
+  const { data: backupLookup } = useQuery({
+    queryKey: DEFAULT_LOOKUP_KEY,
+    queryFn: () => mapStableKeysToConfigs(defaultConfigs, client.repository),
+    ...DEFAULT_LEKKO_REFRESH,
+  })
 
   useQueries({
     queries: configRequests.map((config) => ({
       queryKey: createStableKey(config, client.repository),
-      queryFn: async () => await getEvaluation(client, config),
+      queryFn: async () =>
+        await handleLekkoErrors(
+          async () => await getEvaluation(client, config),
+          config,
+          client.repository,
+          backupLookup,
+        ),
       ...DEFAULT_LEKKO_REFRESH,
       suspense: true,
     })),

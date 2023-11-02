@@ -4,7 +4,7 @@ import {
   DEFAULT_LEKKO_REFRESH,
   DEFAULT_LEKKO_SETTINGS,
 } from "../utils/constants"
-import { LekkoConfigMockClientContext } from "../testHelpers/LekkoConfigMockProvider"
+import { LekkoConfigMockClientContext } from "../providers/lekkoConfigMockProvider"
 import { useContext } from "react"
 import { type LekkoSettings } from "../utils/types"
 import { getEnvironmentVariable } from "../utils/envHelpers"
@@ -37,6 +37,7 @@ export function init({
   ) {
     throw new Error("Missing Lekko env values")
   }
+
   return initAPIClient({
     apiKey,
     repositoryOwner,

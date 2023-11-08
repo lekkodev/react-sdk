@@ -1,5 +1,7 @@
-import { useContext, useMemo, type PropsWithChildren } from "react"
+import { Suspense, useContext, useRef, type PropsWithChildren } from "react"
 import {
+  DehydratedState,
+  HydrationBoundary,
   QueryClient,
   QueryClientProvider,
   useQueries,
@@ -12,6 +14,7 @@ import {
   type LekkoConfig,
   type EvaluationType,
   type ResolvedLekkoConfig,
+  DefaultConfigLookup,
 } from "../utils/types"
 import {
   DEFAULT_LEKKO_REFRESH,
@@ -20,6 +23,7 @@ import {
 import { LekkoSettingsContext } from "./lekkoSettingsProvider"
 import { handleLekkoErrors } from "../errors/errors"
 import LekkoDefaultConfigLookupProvider from "./lekkoDefaultConfigLookupProvider"
+import { ReactQueryStreamedHydration } from "../react-query-next-experimental/src"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
   configRequests?: Array<LekkoConfig<EvaluationType>>
@@ -28,37 +32,56 @@ export interface IntermediateProviderProps extends PropsWithChildren {
 
 export interface ProviderProps extends IntermediateProviderProps {
   defaultConfigs?: Array<ResolvedLekkoConfig<EvaluationType>>
+  dehydratedState?: DehydratedState
 }
-
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: DEFAULT_LEKKO_REFRESH,
-  },
-})
 
 export function LekkoConfigProvider({
   settings,
   defaultConfigs,
+  dehydratedState,
   children,
 }: ProviderProps) {
-  const repositoryKey = useMemo(() => getRepositoryKey(settings), [settings])
+  const queryClientRef = useRef<QueryClient | null>(null)
+  
+  if (queryClientRef.current === null) {
+    queryClientRef.current = new QueryClient({
+      defaultOptions: {
+        queries: DEFAULT_LEKKO_REFRESH,
+      },
+    })
+  }
+    
+  const lookupRef = useRef<DefaultConfigLookup | null | undefined>(null)
+
+  if (lookupRef.current === null) {
+    lookupRef.current = defaultConfigs === undefined
+      ? undefined
+      : mapStableKeysToConfigs(defaultConfigs, getRepositoryKey(settings))
+  }
+
+  // should never happen after sync init function
+  if (lookupRef.current === null || queryClientRef.current === null) {
+    return <>{children}</>
+  }
 
   return (
-    <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
-      <LekkoDefaultConfigLookupProvider.Provider
-        value={
-          defaultConfigs === undefined
-            ? undefined
-            : mapStableKeysToConfigs(defaultConfigs, repositoryKey)
-        }
-      >
-        <QueryClientProvider client={queryClient}>
-          <LekkoIntermediateConfigProvider settings={settings}>
-            {children}
-          </LekkoIntermediateConfigProvider>
-        </QueryClientProvider>
-      </LekkoDefaultConfigLookupProvider.Provider>
-    </LekkoSettingsContext.Provider>
+    <Suspense>
+      <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
+        <LekkoDefaultConfigLookupProvider.Provider
+          value={lookupRef.current}
+        >
+          <QueryClientProvider client={queryClientRef.current}>
+            <HydrationBoundary state={dehydratedState ?? {}}>
+              <ReactQueryStreamedHydration queryClient={queryClientRef.current}>
+                <LekkoIntermediateConfigProvider settings={settings}>
+                  {children}
+                </LekkoIntermediateConfigProvider>
+              </ReactQueryStreamedHydration>
+            </HydrationBoundary>
+          </QueryClientProvider>
+        </LekkoDefaultConfigLookupProvider.Provider>
+      </LekkoSettingsContext.Provider>
+    </Suspense>
   )
 }
 
@@ -66,6 +89,7 @@ export function LekkoConfigProvider({
 export function LekkoIntermediateConfigProvider({
   configRequests = [],
   children,
+  settings,
 }: IntermediateProviderProps) {
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
   const client = useLekkoClient()
@@ -81,7 +105,7 @@ export function LekkoIntermediateConfigProvider({
           defaultConfigLookup,
         ),
       ...DEFAULT_LEKKO_REFRESH,
-      suspense: true,
+      suspense: !!settings?.nonBlockingProvider,
     })),
   })
 

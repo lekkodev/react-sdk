@@ -1,5 +1,4 @@
 import { initAPIClient, type Client } from "@lekko/js-sdk"
-import { useSuspenseQuery } from "@suspensive/react-query"
 import {
   DEFAULT_LEKKO_REFRESH,
   DEFAULT_LEKKO_SETTINGS,
@@ -10,6 +9,7 @@ import { type LekkoSettings } from "../utils/types"
 import { getEnvironmentVariable } from "../utils/envHelpers"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import { RepositoryKey } from ".."
+import { useSuspenseQuery } from "@tanstack/react-query"
 
 export const CLIENT_STABLE_KEY = "LekkoClient"
 

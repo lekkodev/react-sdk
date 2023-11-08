@@ -38,6 +38,7 @@ export interface LekkoSettings {
   repositoryName?: string
   repositoryOwner?: string
   hostname?: string
+  nonBlockingProvider?: boolean
 }
 
 export interface ResolvedLekkoConfig<E extends EvaluationType> {

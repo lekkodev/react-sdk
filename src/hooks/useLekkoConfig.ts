@@ -3,10 +3,10 @@ import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
 import { type EvaluationType, type LekkoConfig } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
-import { useSuspenseQuery } from "@suspensive/react-query"
 import { handleLekkoErrors } from "../errors/errors"
 import { useContext } from "react"
 import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
+import { useSuspenseQuery } from "@tanstack/react-query"
 
 export function useLekkoConfig<E extends EvaluationType>(
   config: LekkoConfig<E>,

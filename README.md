@@ -172,13 +172,14 @@ const produductionFeatureConfig = {
     new Context().setString('env', /* function to retrieve current environment */),
     evaluationType: EvaluationType.BOOL,
 }
-
-<LekkoConfigProvider configRequests={[productionFeatureConfig]}>
-  {/* Your app's routing and layout components */}
-</LekkoConfigProvider>
+<Suspense fallback={<>Loading...</>}>
+  <LekkoConfigProvider configRequests={[productionFeatureConfig]}>
+    {/* Your app's routing and layout components */}
+  </LekkoConfigProvider>
+</Suspense>
 ```
 
-The `LekkoConfigProvider` only needs to be surrounded by a suspense boundary if it is fetching config evaluations.  If not, only the `LekkoIntermediateConfigProvider` needs a suspense boundary.
+The `LekkoConfigProvider` only needs to be surrounded by a suspense boundary if it is fetching config evaluations.  If not, only the `LekkoIntermediateConfigProvider` needs a suspense boundary.  Other than config fetching, the primary setup functionality of the `LekkoConfigProvider` is syncrhonous.
 
 ### Step 3: Implement Authentication Handling
 

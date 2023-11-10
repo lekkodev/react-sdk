@@ -28,17 +28,15 @@ export function createMockClient({
       namespaceName: string,
       configName: string,
       context: ClientContext | undefined,
-    ) => {
-      console.log('getting bool')
-      return await getMockedValue<boolean>(
+    ) =>
+      await getMockedValue<boolean>(
         EvaluationType.BOOL,
         namespaceName,
         configName,
         context,
         repositoryKey,
         lookupMap,
-      )
-    },
+      ),
     getString: async (
       namespaceName: string,
       configName: string,

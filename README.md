@@ -91,9 +91,11 @@ import { LekkoConfigProvider } from '@lekko/react-sdk';
 
 const App = () => {
   return (
-    <LekkoConfigProvider settings={lekkoSettings}>
-      {/* Rest of your application */}
-    </LekkoConfigProvider>
+    <Suspense fallback={<>Loading...</>}>
+      <LekkoConfigProvider settings={lekkoSettings}>
+        {/* Rest of your application */}
+      </LekkoConfigProvider>
+    </Suspense>
   );
 };
 ```
@@ -108,9 +110,11 @@ import { LekkoConfigProvider } from '@lekko/react-sdk';
 const App = () => {
   // No need to pass settings if using environment variables
   return (
-    <LekkoConfigProvider>
-      {/* Your app components go here */}
-    </LekkoConfigProvider>
+    <Suspense fallback={<>Loading...</>}>
+      <LekkoConfigProvider>
+        {/* Your app components go here */}
+      </LekkoConfigProvider>
+    </Suspense>
   );
 };
 ```
@@ -150,12 +154,31 @@ const lekkoSettings = {
 
 const App = () => {
   return (
-    <LekkoConfigProvider settings={lekkoSettings}>
-      {/* Your app's routing and layout components */}
-    </LekkoConfigProvider>
+    <Suspense fallback={<>Loading...</>}>
+      <LekkoConfigProvider settings={lekkoSettings}>
+        {/* Your app's routing and layout components */}
+      </LekkoConfigProvider>
+    </Suspense>
   );
 };
 ```
+
+The top level LekkoConfigProvider can fetch configs that are known without addition context information, such as flags that are based on the environment (prod/staging/local).
+
+```
+const produductionFeatureConfig = {
+    namespaceName: 'frontend',
+    configName: 'production-feature',
+    new Context().setString('env', /* function to retrieve current environment */),
+    evaluationType: EvaluationType.BOOL,
+}
+
+<LekkoConfigProvider configRequests={[productionFeatureConfig]}>
+  {/* Your app's routing and layout components */}
+</LekkoConfigProvider>
+```
+
+The `LekkoConfigProvider` only needs to be surrounded by a suspense boundary if it is fetching config evaluations.  If not, only the `LekkoIntermediateConfigProvider` needs a suspense boundary.
 
 ### Step 3: Implement Authentication Handling
 
@@ -213,21 +236,23 @@ const lekkoSettings = {
 
 const App = () => {
   return (
-    <LekkoConfigProvider settings={lekkoSettings}>
-      <Router>
-        <Suspense fallback={<Loader />}>
-          <Routes>
-            <Route path="/" element={<PublicComponent />} />
-            <Route path="/profile" element={
-              <RequireAuth>
-                <ProfileComponent />
-              </RequireAuth>
-            } />
-            {/* Define other routes here */}
-          </Routes>
-        </Suspense>
-      </Router>
-    </LekkoConfigProvider>
+    <Suspense fallback={<>Loading...</>}>
+      <LekkoConfigProvider settings={lekkoSettings}>
+        <Router>
+          <Suspense fallback={<Loader />}>
+            <Routes>
+              <Route path="/" element={<PublicComponent />} />
+              <Route path="/profile" element={
+                <RequireAuth>
+                  <ProfileComponent />
+                </RequireAuth>
+              } />
+              {/* Define other routes here */}
+            </Routes>
+          </Suspense>
+        </Router>
+      </LekkoConfigProvider>
+    </Suspense>
   );
 };
 
@@ -467,18 +492,26 @@ To further enhance reliability, the SDK allows you to specify default configurat
 Here's how you can provide default configurations:
 
 ```
-const defaultFeatureFlags = {
-  'feature-a': true, // Default value for 'feature-a' in case of network failure
-  'feature-b': false, // Default value for 'feature-b'
-  // Additional default values as needed
-};
+const defaultConfigs = [
+  {
+    config: {
+      namespaceName: 'frontend',
+      configName: 'feature-a',
+      evaluationType: EvaluationType.BOOL,
+    },
+    result: true, // Mocked result for this feature flag
+  },
+  // Add more flags as necessary
+];
 
-<LekkoConfigProvider settings={lekkoSettings} defaultConfigs={defaultFeatureFlags}>
-  {/* Application components */}
-</LekkoConfigProvider>
+<Suspense fallback={<>Loading...</>}>
+  <LekkoConfigProvider settings={lekkoSettings} defaultConfigs={defaultConfigs}>
+    {/* Application components */}
+  </LekkoConfigProvider>
+</Suspense>
 ```
 
-In this example, `defaultFeatureFlags` provides a map of feature flags to their default values, which the SDK will use if it cannot retrieve the current evaluations due to network issues.  However, defaults will not be used if there are Authentication issues or the config specified does not exist after successfully connecting with the Lekko API.
+In this example, `defaultConfigs` provides a list of configs with their default result values, which the SDK will use if it cannot retrieve the current evaluations due to network issues.  However, defaults will not be used if there are Authentication issues or the config specified does not exist after successfully connecting with the Lekko API.
 
 ## Caching and State Management
 
@@ -554,9 +587,11 @@ const initialFeatureFlags = [
 
 const App = () => {
   return (
-    <LekkoConfigProvider settings={lekkoSettings} configRequests={initialFeatureFlags}>
-      {/* Your application's components */}
-    </LekkoConfigProvider>
+    <Suspense fallback={<>Loading...</>}>
+      <LekkoConfigProvider settings={lekkoSettings} configRequests={initialFeatureFlags}>
+        {/* Your application's components */}
+      </LekkoConfigProvider>
+    </Suspense>
   );
 };
 ```
@@ -575,9 +610,11 @@ Adhering to best practices while using the Lekko React SDK is key to building a 
 
 ```
 // Prefetch feature flags when the application initializes
-<LekkoConfigProvider settings={lekkoSettings} configRequests={initialFeatureFlags}>
-  {/* Application components */}
-</LekkoConfigProvider>
+<Suspense fallback={<>Loading...</>}>
+  <LekkoConfigProvider settings={lekkoSettings} configRequests={initialFeatureFlags}>
+    {/* Application components */}
+  </LekkoConfigProvider>
+</Suspense>
 ```
 
 -   **Parallel Fetching**: Fetching feature flags in parallel during the initial load of your application can significantly improve startup times and user experience. By issuing parallel network requests, you ensure that all necessary data is loaded and cached as quickly as possible.
@@ -679,9 +716,11 @@ const DashboardComponent = () => {
   ];
 
   return (
-    <LekkoIntermediateConfigProvider configRequests={dashboardFlags}>
-      {/* Dashboard components */}
-    </LekkoIntermediateConfigProvider>
+    <Suspense fallback={<>Loading...</>}>
+      <LekkoIntermediateConfigProvider configRequests={dashboardFlags}>
+        {/* Dashboard components */}
+      </LekkoIntermediateConfigProvider>
+    </Suspense>
   );
 };
 ```

@@ -2,7 +2,6 @@ import {
   useContext,
   useRef,
   type PropsWithChildren,
-  Suspense,
   type ReactNode,
 } from "react"
 import useLekkoClient, { getRepositoryKey, init } from "../hooks/useLekkoClient"
@@ -43,6 +42,12 @@ export interface ProviderProps extends IntermediateProviderProps {
   dehydratedState?: DehydratedState
 }
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: DEFAULT_LEKKO_REFRESH,
+  },
+})
+
 export function LekkoConfigProvider({
   settings,
   defaultConfigs,
@@ -57,16 +62,6 @@ export function LekkoConfigProvider({
     lekkoClientRef.current = init({ settings })
   }
 
-  const queryClientRef = useRef<QueryClient | null>(null)
-
-  if (queryClientRef.current === null) {
-    queryClientRef.current = new QueryClient({
-      defaultOptions: {
-        queries: DEFAULT_LEKKO_REFRESH,
-      },
-    })
-  }
-
   const lookupRef = useRef<DefaultConfigLookup | null | undefined>(null)
 
   if (lookupRef.current === null) {
@@ -77,11 +72,7 @@ export function LekkoConfigProvider({
   }
 
   // should never happen after sync init function
-  if (
-    lookupRef.current === null ||
-    queryClientRef.current === null ||
-    lekkoClientRef === null
-  ) {
+  if (lookupRef.current === null || lekkoClientRef === null) {
     return <>{children}</>
   }
 
@@ -89,25 +80,14 @@ export function LekkoConfigProvider({
     <LekkoClientContext.Provider value={lekkoClientRef.current}>
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
         <LekkoDefaultConfigLookupProvider.Provider value={lookupRef.current}>
-          <QueryClientProvider client={queryClientRef.current}>
+          <QueryClientProvider client={queryClient}>
             <HydrationBoundary state={dehydratedState ?? {}}>
-              {fallback !== undefined ? (
-                <Suspense fallback={fallback}>
-                  <LekkoIntermediateConfigProvider
-                    settings={settings}
-                    configRequests={configRequests}
-                  >
-                    {children}
-                  </LekkoIntermediateConfigProvider>
-                </Suspense>
-              ) : (
-                <LekkoIntermediateConfigProvider
-                  settings={settings}
-                  configRequests={configRequests}
-                >
-                  {children}
-                </LekkoIntermediateConfigProvider>
-              )}
+              <LekkoIntermediateConfigProvider
+                settings={settings}
+                configRequests={configRequests}
+              >
+                {children}
+              </LekkoIntermediateConfigProvider>
             </HydrationBoundary>
           </QueryClientProvider>
         </LekkoDefaultConfigLookupProvider.Provider>

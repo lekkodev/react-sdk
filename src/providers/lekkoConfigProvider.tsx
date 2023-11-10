@@ -1,9 +1,4 @@
-import {
-  useContext,
-  useRef,
-  type PropsWithChildren,
-  type ReactNode,
-} from "react"
+import { useContext, useRef, type PropsWithChildren } from "react"
 import useLekkoClient, { getRepositoryKey, init } from "../hooks/useLekkoClient"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey, mapStableKeysToConfigs } from "../utils/helpers"
@@ -34,7 +29,6 @@ import { LekkoClientContext } from "./lekkoClientContext"
 export interface IntermediateProviderProps extends PropsWithChildren {
   configRequests?: Array<LekkoConfig<EvaluationType>>
   settings?: LekkoSettings
-  fallback?: ReactNode
 }
 
 export interface ProviderProps extends IntermediateProviderProps {
@@ -42,7 +36,7 @@ export interface ProviderProps extends IntermediateProviderProps {
   dehydratedState?: DehydratedState
 }
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: DEFAULT_LEKKO_REFRESH,
   },
@@ -53,7 +47,6 @@ export function LekkoConfigProvider({
   defaultConfigs,
   dehydratedState,
   configRequests,
-  fallback,
   children,
 }: ProviderProps) {
   const lekkoClientRef = useRef<Client | null>(null)

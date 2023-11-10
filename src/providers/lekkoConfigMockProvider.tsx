@@ -1,18 +1,16 @@
 import { type Client, RepositoryKey } from "@lekko/js-sdk"
 import { useRef, type PropsWithChildren } from "react"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClientProvider } from "@tanstack/react-query"
 import {
   type EvaluationType,
   type ResolvedLekkoConfig,
   type LekkoSettings,
 } from "../utils/types"
-import {
-  DEFAULT_LEKKO_REFRESH,
-  DEFAULT_LEKKO_SETTINGS,
-} from "../utils/constants"
+import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { createMockClient } from "../mockHelpers/createMockClient"
 import { getEnvironmentVariable } from "../utils/envHelpers"
 import { LekkoClientContext } from "./lekkoClientContext"
+import { queryClient } from "./lekkoConfigProvider"
 
 interface InitProps extends PropsWithChildren {
   settings?: LekkoSettings
@@ -53,16 +51,6 @@ export function LekkoConfigMockProvider({
   defaultConfigs,
   children,
 }: MockProps) {
-  const queryClientRef = useRef<QueryClient | null>(null)
-
-  if (queryClientRef.current === null) {
-    queryClientRef.current = new QueryClient({
-      defaultOptions: {
-        queries: DEFAULT_LEKKO_REFRESH,
-      },
-    })
-  }
-
   const clientRef = useRef<Client | null>(null)
 
   if (clientRef.current === null) {
@@ -70,15 +58,13 @@ export function LekkoConfigMockProvider({
   }
 
   // should never happen after sync init function
-  if (clientRef.current === null || queryClientRef.current === null) {
+  if (clientRef.current === null) {
     return <>{children}</>
   }
 
   return (
     <LekkoClientContext.Provider value={clientRef.current}>
-      <QueryClientProvider client={queryClientRef.current}>
-        {children}
-      </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </LekkoClientContext.Provider>
   )
 }

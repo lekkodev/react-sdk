@@ -40,5 +40,7 @@ export class LekkoHydrater {
     )
 
     this.dehydratedState = dehydrate(queryClient)
+
+    queryClient.clear()
   }
 }

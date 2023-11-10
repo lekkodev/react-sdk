@@ -1,12 +1,5 @@
-import { Suspense, useContext, useRef, type PropsWithChildren } from "react"
-import {
-  DehydratedState,
-  HydrationBoundary,
-  QueryClient,
-  QueryClientProvider,
-  useQueries,
-} from "@tanstack/react-query"
-import useLekkoClient, { getRepositoryKey } from "../hooks/useLekkoClient"
+import { useContext, useRef, type PropsWithChildren, Suspense } from "react"
+import useLekkoClient, { getRepositoryKey, init } from "../hooks/useLekkoClient"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey, mapStableKeysToConfigs } from "../utils/helpers"
 import {
@@ -23,7 +16,9 @@ import {
 import { LekkoSettingsContext } from "./lekkoSettingsProvider"
 import { handleLekkoErrors } from "../errors/errors"
 import LekkoDefaultConfigLookupProvider from "./lekkoDefaultConfigLookupProvider"
-import { ReactQueryStreamedHydration } from "../react-query-next-experimental/src"
+import { DehydratedState, HydrationBoundary, QueryClient, QueryClientProvider, useQueries } from "@tanstack/react-query"
+import { Client } from "@lekko/js-sdk"
+import { LekkoClientContext } from "./lekkoClientContext"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
   configRequests?: Array<LekkoConfig<EvaluationType>>
@@ -39,8 +34,15 @@ export function LekkoConfigProvider({
   settings,
   defaultConfigs,
   dehydratedState,
+  configRequests,
   children,
 }: ProviderProps) {
+  const lekkoClientRef = useRef<Client | null>(null)
+
+  if (!lekkoClientRef.current) {
+    lekkoClientRef.current = init({ settings })
+  }
+
   const queryClientRef = useRef<QueryClient | null>(null)
   
   if (queryClientRef.current === null) {
@@ -60,28 +62,26 @@ export function LekkoConfigProvider({
   }
 
   // should never happen after sync init function
-  if (lookupRef.current === null || queryClientRef.current === null) {
+  if (lookupRef.current === null || queryClientRef.current === null || lekkoClientRef === null) {
     return <>{children}</>
   }
 
   return (
-    <Suspense>
-      <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
-        <LekkoDefaultConfigLookupProvider.Provider
-          value={lookupRef.current}
-        >
-          <QueryClientProvider client={queryClientRef.current}>
-            <HydrationBoundary state={dehydratedState ?? {}}>
-              <ReactQueryStreamedHydration queryClient={queryClientRef.current}>
-                <LekkoIntermediateConfigProvider settings={settings}>
-                  {children}
-                </LekkoIntermediateConfigProvider>
-              </ReactQueryStreamedHydration>
-            </HydrationBoundary>
-          </QueryClientProvider>
-        </LekkoDefaultConfigLookupProvider.Provider>
-      </LekkoSettingsContext.Provider>
-    </Suspense>
+      <LekkoClientContext.Provider value={lekkoClientRef.current}>
+        <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
+          <LekkoDefaultConfigLookupProvider.Provider
+            value={lookupRef.current}
+          >
+            <QueryClientProvider client={queryClientRef.current}>
+              <HydrationBoundary state={dehydratedState ?? {}}>
+                  <LekkoIntermediateConfigProvider settings={settings} configRequests={configRequests}>
+                      {children}
+                  </LekkoIntermediateConfigProvider>
+              </HydrationBoundary>
+            </QueryClientProvider>
+          </LekkoDefaultConfigLookupProvider.Provider>
+        </LekkoSettingsContext.Provider>
+      </LekkoClientContext.Provider>
   )
 }
 
@@ -105,7 +105,7 @@ export function LekkoIntermediateConfigProvider({
           defaultConfigLookup,
         ),
       ...DEFAULT_LEKKO_REFRESH,
-      suspense: !!settings?.nonBlockingProvider,
+      suspense: !!settings?.nonBlockingProvider
     })),
   })
 

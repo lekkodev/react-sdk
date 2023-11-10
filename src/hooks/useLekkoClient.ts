@@ -1,17 +1,13 @@
 import { initAPIClient, type Client } from "@lekko/js-sdk"
 import {
-  DEFAULT_LEKKO_REFRESH,
   DEFAULT_LEKKO_SETTINGS,
 } from "../utils/constants"
-import { LekkoConfigMockClientContext } from "../providers/lekkoConfigMockProvider"
 import { useContext } from "react"
 import { type LekkoSettings } from "../utils/types"
 import { getEnvironmentVariable } from "../utils/envHelpers"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import { RepositoryKey } from ".."
-import { useSuspenseQuery } from "@tanstack/react-query"
-
-export const CLIENT_STABLE_KEY = "LekkoClient"
+import { LekkoClientContext } from "../providers/lekkoClientContext"
 
 interface Props {
   settings?: LekkoSettings
@@ -59,21 +55,8 @@ export function init({
 }
 
 export default function useLekkoClient(): Client {
-  const contextClient = useContext(LekkoConfigMockClientContext)
+  const contextClient = useContext(LekkoClientContext)
   const settings = useContext(LekkoSettingsContext)
 
-  const { data: client } = useSuspenseQuery({
-    queryKey: [CLIENT_STABLE_KEY],
-    queryFn: async () => init({ contextClient, settings }),
-    ...DEFAULT_LEKKO_REFRESH,
-  })
-
-  if (contextClient !== undefined) {
-    return contextClient
-  }
-
-  if (client === undefined) {
-    throw new Error("Cannot initialize client")
-  }
-  return client
+  return init({ contextClient, settings })
 }

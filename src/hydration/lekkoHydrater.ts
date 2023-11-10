@@ -28,8 +28,6 @@ export class LekkoHydrater {
                 queryKey: key,
                 queryFn: async () => await getEvaluation(this.client, config)
             })
-            console.log('getting result')
-            console.log(result)
             return result
         }))
         

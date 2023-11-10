@@ -490,7 +490,7 @@ Caching is a critical feature of the Lekko SDK, which helps in minimizing networ
 
 -   **Stable Keys**: The SDK generates stable keys for feature flag evaluations, ensuring that repeated requests for the same flag with the same context don't trigger unnecessary network calls.
 -   **Cache Configuration**: By default, the SDK caches the evaluations for the lifetime of the page session. The cache is not cleared until the page is reloaded or the user navigates away.
-- 
+
 ### Stable Keys and Context Order
 
 The Lekko SDK utilizes stable keys to uniquely identify feature flag evaluations. A stable key is generated based on the combination of the feature flag's name and the context provided for the evaluation. This key ensures that the order of context attributes does not affect the cache, enabling consistent and reliable caching behavior.
@@ -524,7 +524,7 @@ State management within the SDK revolves around maintaining the current state of
 
 -   **Precaching**: Whenever possible, pre-fetch feature flag evaluations early in your application's lifecycle to fill the cache proactively.
 -   **Suspense Boundaries**: Use Suspense boundaries around components that rely on feature flags to handle loading states gracefully and maintain a seamless user experience.
-- 
+
 ### Leveraging Providers for Parallel Fetching
 
 To optimize the performance of your application, it is recommended to leverage the `LekkoConfigProvider` and `LekkoIntermediateConfigProvider` for prefetching feature flag evaluations. These providers are designed to fetch configurations in parallel, which can significantly reduce the time it takes to get the flags when they're needed.
@@ -670,6 +670,7 @@ const FeatureFlagLayeringComponent = () => {
 
 In large applications, it's important to optimize performance by selectively fetching flags only for the components that need them. Use the `LekkoIntermediateConfigProvider` to fetch flags for specific sections of your application:
 
+```
 const DashboardComponent = () => {
   const dashboardFlags = [
     { /* ...config for dashboard feature A */ },
@@ -683,6 +684,7 @@ const DashboardComponent = () => {
     </LekkoIntermediateConfigProvider>
   );
 };
+```
 
 ## Advanced Usage: Type Safety in Feature Flag Evaluations
 

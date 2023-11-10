@@ -1,7 +1,5 @@
 import { initAPIClient, type Client } from "@lekko/js-sdk"
-import {
-  DEFAULT_LEKKO_SETTINGS,
-} from "../utils/constants"
+import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { useContext } from "react"
 import { type LekkoSettings } from "../utils/types"
 import { getEnvironmentVariable } from "../utils/envHelpers"

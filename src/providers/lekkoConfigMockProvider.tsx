@@ -6,7 +6,10 @@ import {
   type ResolvedLekkoConfig,
   type LekkoSettings,
 } from "../utils/types"
-import { DEFAULT_LEKKO_REFRESH, DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
+import {
+  DEFAULT_LEKKO_REFRESH,
+  DEFAULT_LEKKO_SETTINGS,
+} from "../utils/constants"
 import { createMockClient } from "../mockHelpers/createMockClient"
 import { getEnvironmentVariable } from "../utils/envHelpers"
 import { LekkoClientContext } from "./lekkoClientContext"
@@ -51,7 +54,7 @@ export function LekkoConfigMockProvider({
   children,
 }: MockProps) {
   const queryClientRef = useRef<QueryClient | null>(null)
-  
+
   if (queryClientRef.current === null) {
     queryClientRef.current = new QueryClient({
       defaultOptions: {
@@ -73,7 +76,9 @@ export function LekkoConfigMockProvider({
 
   return (
     <LekkoClientContext.Provider value={clientRef.current}>
-      <QueryClientProvider client={queryClientRef.current}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClientRef.current}>
+        {children}
+      </QueryClientProvider>
     </LekkoClientContext.Provider>
   )
 }

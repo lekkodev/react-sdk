@@ -8,6 +8,7 @@ import {
   type EvaluationType,
   type ResolvedLekkoConfig,
   type DefaultConfigLookup,
+  type EditableResolvedLekkoConfig,
 } from "../utils/types"
 import {
   DEFAULT_LEKKO_REFRESH,
@@ -89,6 +90,11 @@ export function LekkoConfigProvider({
   )
 }
 
+// need to add individual config usage as well
+export let CONFIG_REQUESTS_HISTORY: Array<
+  EditableResolvedLekkoConfig<EvaluationType>
+> = []
+
 // or as a subprovider, for example, to require a set of configs after authentication when the username is known
 export function LekkoIntermediateConfigProvider({
   configRequests = [],
@@ -113,5 +119,42 @@ export function LekkoIntermediateConfigProvider({
     })),
   })
 
+  const editableRequests = configRequests.map((config) => {
+    const key = createStableKey(config, client.repository)
+    const result = queryClient.getQueryData(key)
+    return {
+      config,
+      result,
+      key,
+    }
+  })
+
+  CONFIG_REQUESTS_HISTORY = CONFIG_REQUESTS_HISTORY.concat(editableRequests)
+
   return <>{children}</>
+}
+
+// so other files can set the history
+export function setRequestsHistory(
+  history: Array<EditableResolvedLekkoConfig<EvaluationType>>,
+) {
+  CONFIG_REQUESTS_HISTORY = history
+}
+
+export function upsertHistoryItem<E extends EvaluationType>(
+  newConfig: EditableResolvedLekkoConfig<E>,
+) {
+  const index = CONFIG_REQUESTS_HISTORY.findIndex(
+    (config) => JSON.stringify(config.key) === JSON.stringify(newConfig.key),
+  )
+
+  if (index !== -1) {
+    CONFIG_REQUESTS_HISTORY = [
+      ...CONFIG_REQUESTS_HISTORY.slice(0, index),
+      newConfig,
+      ...CONFIG_REQUESTS_HISTORY.slice(index + 1),
+    ]
+  } else {
+    CONFIG_REQUESTS_HISTORY = [...CONFIG_REQUESTS_HISTORY, newConfig]
+  }
 }

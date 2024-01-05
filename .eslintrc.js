@@ -36,6 +36,7 @@ module.exports = {
     ],
     "rules": {
         "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-explicit-any": "off",
         "react/jsx-uses-react": "off",
         "react/react-in-jsx-scope": "off",
         "indent": ['error', 2],

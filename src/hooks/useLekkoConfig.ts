@@ -7,14 +7,16 @@ import { handleLekkoErrors } from "../errors/errors"
 import { useContext } from "react"
 import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
 import { useSuspenseQuery } from "@tanstack/react-query"
+import { upsertHistoryItem } from "../providers/lekkoConfigProvider"
 
 export function useLekkoConfig<E extends EvaluationType>(
   config: LekkoConfig<E>,
 ) {
   const client = useLekkoClient()
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
+  const queryKey = createStableKey(config, client.repository)
   const { data: evaluation } = useSuspenseQuery({
-    queryKey: createStableKey(config, client.repository),
+    queryKey,
     queryFn: async () =>
       await handleLekkoErrors(
         async () => await getEvaluation(client, config),
@@ -23,6 +25,12 @@ export function useLekkoConfig<E extends EvaluationType>(
         defaultConfigLookup,
       ),
     ...DEFAULT_LEKKO_REFRESH,
+  })
+
+  upsertHistoryItem({
+    key: queryKey,
+    result: evaluation,
+    config,
   })
 
   return evaluation

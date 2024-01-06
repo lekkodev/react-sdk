@@ -53,7 +53,7 @@ function handleExtensionMessage(event: ExtensionMessage) {
       queryClient.setQueryData(JSON.parse(key), value)
     })
     const history = CONFIG_REQUESTS_HISTORY.map((config) => {
-      const newResult = event.data.configs[JSON.stringify(config.key)]
+      const newResult = event.data?.configs[JSON.stringify(config.key)]
       return newResult === undefined
         ? config
         : {

@@ -7,7 +7,7 @@ import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
 import { type EvaluationType, type LekkoConfig } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
-import { upsertHistoryItem } from "../providers/lekkoConfigProvider"
+import { upsertHistoryItem } from "../utils/overrides"
 
 export function useLekkoConfigDLE<E extends EvaluationType>(
   config: LekkoConfig<E>,

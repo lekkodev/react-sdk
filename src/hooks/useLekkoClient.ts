@@ -8,16 +8,18 @@ import {
   REQUEST_CONFIGS_RESPONSE,
   SAVE_CONFIGS_RESPONSE,
   type ExtensionMessage,
+  SAVE_CONTEXT,
+  SAVE_CONTEXT_RESPONSE,
 } from "../utils/types"
 import { getEnvironmentVariable } from "../utils/envHelpers"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import { RepositoryKey } from ".."
 import { LekkoClientContext } from "../providers/lekkoClientContext"
-import {
-  CONFIG_REQUESTS_HISTORY,
-  queryClient,
-  setRequestsHistory,
-} from "../providers/lekkoConfigProvider"
+
+import { getEvaluation } from "../utils/evaluation"
+import { getCombinedContext } from "../utils/context"
+import { CONFIG_REQUESTS_HISTORY, CONTEXT_HISTORY, CONTEXT_OVERRIDES, setContextOverrides, setRequestsHistory, upsertHistoryItem } from "../utils/overrides"
+import { queryClient } from "../providers/lekkoConfigProvider"
 
 interface Props {
   settings?: LekkoSettings
@@ -42,10 +44,10 @@ export function getRepositoryKey(
   })
 }
 
-function handleExtensionMessage(event: ExtensionMessage) {
+async function handleExtensionMessage(client: Client, event: ExtensionMessage) {
   if (event.data !== undefined && event.data.type === REQUEST_CONFIGS) {
     window.postMessage(
-      { configs: CONFIG_REQUESTS_HISTORY, type: REQUEST_CONFIGS_RESPONSE },
+      { configs: CONFIG_REQUESTS_HISTORY, context: getCombinedContext(CONTEXT_HISTORY, CONTEXT_OVERRIDES), type: REQUEST_CONFIGS_RESPONSE },
       "*",
     )
   } else if (event.data !== undefined && event.data.type === SAVE_CONFIGS) {
@@ -63,6 +65,29 @@ function handleExtensionMessage(event: ExtensionMessage) {
     })
     setRequestsHistory(history)
     window.postMessage({ configs: history, type: SAVE_CONFIGS_RESPONSE }, "*")
+  } else if (event.data !== undefined && event.data.type === SAVE_CONTEXT) {
+    // copy in case it changes during reqs
+    const historyItems = [...CONFIG_REQUESTS_HISTORY]
+    setContextOverrides(event.data?.context)
+    const evaluations = await Promise.all(historyItems.map(history => {
+      return getEvaluation(client, history.config)
+    }))
+    // attempt to set them all more simultaneously instead of after each eval completes
+    historyItems.forEach((historyItem, index) => {
+      queryClient.setQueryData(historyItem.key, evaluations[index])
+      upsertHistoryItem({
+        ...historyItem,
+        config: {
+          ...historyItem.config,
+          context: getCombinedContext(historyItem.config.context, CONTEXT_OVERRIDES)
+        },
+        result: evaluations[index]
+      })
+    })
+    window.postMessage(
+      { configs: CONFIG_REQUESTS_HISTORY, context: getCombinedContext(CONTEXT_HISTORY, CONTEXT_OVERRIDES), type: SAVE_CONTEXT_RESPONSE },
+      "*",
+    )
   }
 }
 
@@ -80,14 +105,16 @@ export function init({
     throw new Error("Missing Lekko API key values")
   }
 
-  window.addEventListener("message", handleExtensionMessage)
-
-  return initAPIClient({
+  const client = initAPIClient({
     apiKey,
     repositoryOwner: repositoryKey.ownerName,
     repositoryName: repositoryKey.repoName,
     hostname,
   })
+
+  window.addEventListener("message", (event: ExtensionMessage) => handleExtensionMessage(client, event))
+
+  return client
 }
 
 export default function useLekkoClient(): Client {

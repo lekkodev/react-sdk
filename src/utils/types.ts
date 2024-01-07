@@ -61,6 +61,8 @@ export const REQUEST_CONFIGS = "REQUEST_CONFIGS"
 export const SAVE_CONFIGS = "SAVE_CONFIGS"
 export const REQUEST_CONFIGS_RESPONSE = "REQUEST_CONFIGS_RESPONSE"
 export const SAVE_CONFIGS_RESPONSE = "SAVE_CONFIGS_RESPONSE"
+export const SAVE_CONTEXT = "SAVE_CONTEXT"
+export const SAVE_CONTEXT_RESPONSE = "SAVE_CONTEXT_RESPONSE"
 
 export interface ExtensionMessage {
   data?: Record<string, any>

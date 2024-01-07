@@ -124,7 +124,9 @@ export function LekkoIntermediateConfigProvider({
     }
   })
 
-  editableRequests.forEach(historyItem => upsertHistoryItem(historyItem))
+  editableRequests.forEach((historyItem) => {
+    upsertHistoryItem(historyItem)
+  })
 
   return <>{children}</>
 }

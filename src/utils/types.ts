@@ -64,6 +64,8 @@ export const SAVE_CONFIGS_RESPONSE = "SAVE_CONFIGS_RESPONSE"
 export const SAVE_CONTEXT = "SAVE_CONTEXT"
 export const SAVE_CONTEXT_RESPONSE = "SAVE_CONTEXT_RESPONSE"
 
+export type ExtensionMessageData = Record<string, any>
+
 export interface ExtensionMessage {
-  data?: Record<string, any>
+  data?: ExtensionMessageData
 }

@@ -12,7 +12,12 @@ export async function getEvaluation<E extends EvaluationType>(
   client: Client,
   config: LekkoConfig<E>,
 ): Promise<EvaluationResult<E>> {
-  const { namespaceName, configName, context: configContext, evaluationType } = config
+  const {
+    namespaceName,
+    configName,
+    context: configContext,
+    evaluationType,
+  } = config
 
   const context = getCombinedContext(configContext, CONTEXT_OVERRIDES)
 

@@ -52,8 +52,10 @@ export function init({
     hostname,
   })
 
-  window.addEventListener("message", async (event: ExtensionMessage) => {
-    await handleExtensionMessage(client, event);
+  window.addEventListener("message", (event: ExtensionMessage) => {
+    handleExtensionMessage(client, event).catch((error) => {
+      console.error(error)
+    })
   })
 
   return client

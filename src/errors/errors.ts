@@ -40,7 +40,7 @@ export async function handleLekkoErrors<T>(
           "Access to this method is not authorized, please check your API key or repository access",
         )
       }
-      if (cError.code === 5) {
+      if (cError.rawMessage === "Feature not found") {
         throw new ConfigNotFoundError("Config does not exist")
       }
     }

@@ -43,17 +43,21 @@ export function getRepositoryKey(
 }
 
 function handleExtensionMessage(event: ExtensionMessage) {
-  if (event.data !== undefined && event.data.type === REQUEST_CONFIGS) {
+  const eventData = event.data
+  if (eventData !== undefined && eventData.type === REQUEST_CONFIGS) {
     window.postMessage(
       { configs: CONFIG_REQUESTS_HISTORY, type: REQUEST_CONFIGS_RESPONSE },
       "*",
     )
-  } else if (event.data !== undefined && event.data.type === SAVE_CONFIGS) {
-    Object.entries(event.data.configs).forEach(([key, value]) => {
+  } else if (eventData !== undefined && eventData.type === SAVE_CONFIGS) {
+    const data = eventData
+    if (data === undefined)
+      throw new Error("Incorrect message format for save configs")
+    Object.entries(eventData.configs).forEach(([key, value]) => {
       queryClient.setQueryData(JSON.parse(key), value)
     })
     const history = CONFIG_REQUESTS_HISTORY.map((config) => {
-      const newResult = event.data?.configs[JSON.stringify(config.key)]
+      const newResult = data.configs[JSON.stringify(config.key)]
       return newResult === undefined
         ? config
         : {

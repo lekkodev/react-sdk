@@ -62,6 +62,23 @@ export const SAVE_CONFIGS = "SAVE_CONFIGS"
 export const REQUEST_CONFIGS_RESPONSE = "REQUEST_CONFIGS_RESPONSE"
 export const SAVE_CONFIGS_RESPONSE = "SAVE_CONFIGS_RESPONSE"
 
+interface BaseMessageData {
+  type: string
+}
+
+export interface RequestConfigsMessageData extends BaseMessageData {
+  type: "REQUEST_CONFIGS"
+}
+
+export interface SaveConfigsMessageData extends BaseMessageData {
+  type: "SAVE_CONFIGS"
+  // this type can be number | string | boolean | json (any)
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  configs: Record<string, any>
+}
+
+type ExtensionMessageData = RequestConfigsMessageData | SaveConfigsMessageData
+
 export interface ExtensionMessage {
-  data?: Record<string, any>
+  data?: ExtensionMessageData
 }

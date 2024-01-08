@@ -10,20 +10,22 @@ import {
 } from "./overrides"
 import {
   type ExtensionMessage,
-  type ExtensionMessageData,
   REQUEST_CONFIGS,
   REQUEST_CONFIGS_RESPONSE,
   SAVE_CONFIGS,
   SAVE_CONFIGS_RESPONSE,
   SAVE_CONTEXT,
   SAVE_CONTEXT_RESPONSE,
+  type RequestConfigsMessageData,
+  type SaveConfigsMessageData,
+  type SaveContextMessageData,
 } from "./types"
 import { getEvaluation } from "./evaluation"
 import { type Client } from "@lekko/js-sdk"
 
 async function handleRequestConfigs(
   client: Client,
-  data: ExtensionMessageData,
+  data: RequestConfigsMessageData,
 ) {
   window.postMessage(
     {
@@ -35,7 +37,7 @@ async function handleRequestConfigs(
   )
 }
 
-async function handleSaveConfigs(client: Client, data: ExtensionMessageData) {
+async function handleSaveConfigs(client: Client, data: SaveConfigsMessageData) {
   Object.entries(data.configs).forEach(([key, value]) => {
     queryClient.setQueryData(JSON.parse(key), value)
   })
@@ -49,7 +51,7 @@ async function handleSaveConfigs(client: Client, data: ExtensionMessageData) {
   window.postMessage({ configs: history, type: SAVE_CONFIGS_RESPONSE }, "*")
 }
 
-async function handleSaveContext(client: Client, data: ExtensionMessageData) {
+async function handleSaveContext(client: Client, data: SaveContextMessageData) {
   const historyItems = [...CONFIG_REQUESTS_HISTORY]
   setContextOverrides(data.context)
   const evaluations = await Promise.all(
@@ -87,17 +89,30 @@ export async function handleExtensionMessage(
   client: Client,
   event: ExtensionMessage,
 ) {
-  if (event.data !== undefined) {
-    switch (event.data.type) {
-    case REQUEST_CONFIGS:
-      await handleRequestConfigs(client, event.data)
+  const eventData = event.data
+  if (eventData !== undefined) {
+    switch (eventData.type) {
+    case REQUEST_CONFIGS: {
+      const requestConfigsData = eventData
+      if (requestConfigsData === undefined)
+        throw new Error("Invalid message format for request-configs")
+      await handleRequestConfigs(client, eventData)
       break
-    case SAVE_CONFIGS:
-      await handleSaveConfigs(client, event.data)
+    }
+    case SAVE_CONFIGS: {
+      const saveConfigsData = eventData
+      if (saveConfigsData === undefined)
+        throw new Error("Invalid message format for save-configs")
+      await handleSaveConfigs(client, eventData)
       break
-    case SAVE_CONTEXT:
-      await handleSaveContext(client, event.data)
+    }
+    case SAVE_CONTEXT: {
+      const saveContextData = eventData
+      if (saveContextData === undefined)
+        throw new Error("Invalid message format for save-context")
+      await handleSaveContext(client, eventData)
       break
+    }
     }
   }
 }

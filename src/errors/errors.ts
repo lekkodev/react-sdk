@@ -31,14 +31,16 @@ export async function handleLekkoErrors<T>(
       }),
     )
 
+    const cError = error as ConnectError
+
     // handle authentication and config not found errors regardless of defaults
-    if ((error as ConnectError) !== undefined) {
-      if ((error as ConnectError).code === 16) {
+    if (cError !== undefined) {
+      if (cError.code === 16) {
         throw new NotAuthorizedError(
           "Access to this method is not authorized, please check your API key or repository access",
         )
       }
-      if ((error as ConnectError).rawMessage === "Feature not found") {
+      if (cError.code === 5) {
         throw new ConfigNotFoundError("Config does not exist")
       }
     }
@@ -57,7 +59,7 @@ export async function handleLekkoErrors<T>(
       } catch (err) {}
     }
 
-    if ((error as ConnectError)?.rawMessage === "Failed to fetch") {
+    if (cError?.rawMessage === "Failed to fetch") {
       throw new NetworkError("Failed to connect to Lekko API")
     }
 

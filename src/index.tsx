@@ -9,7 +9,6 @@ import {
 import { createMockClient } from "./mockHelpers/createMockClient"
 import { LekkoConfigMockProvider } from "./providers/lekkoConfigMockProvider"
 import { ClientContext, type Client, RepositoryKey } from "@lekko/js-sdk"
-import { LekkoHydrater } from "./hydration/lekkoHydrater"
 import { type DehydratedState } from "@tanstack/react-query"
 
 export type { LekkoConfig } from "./utils/types"
@@ -27,6 +26,5 @@ export {
   ClientContext,
   type Client,
   LekkoIntermediateConfigProvider,
-  LekkoHydrater,
   type DehydratedState,
 }

@@ -4,6 +4,10 @@ import {
   CONFIG_REQUESTS_HISTORY,
   CONTEXT_HISTORY,
   CONTEXT_OVERRIDES,
+  isUsingPersistedState,
+  persistConfigEvaluations,
+  persistDefaultContext,
+  resetExtensionChanges,
   setContextOverrides,
   setRequestsHistory,
   upsertHistoryItem,
@@ -19,6 +23,12 @@ import {
   type RequestConfigsMessageData,
   type SaveConfigsMessageData,
   type SaveContextMessageData,
+  RESET_CHANGES_RESPONSE,
+  type ResetChangesMessageData,
+  RESET_CHANGES,
+  REQUEST_IS_USING_PERSISTED_STATE,
+  type RequestIsUsingPersistedStateMessageData,
+  REQUEST_IS_USING_PERSISTED_STATE_RESPONSE,
 } from "./types"
 import { getEvaluation } from "./evaluation"
 import { type Client } from "@lekko/js-sdk"
@@ -37,6 +47,19 @@ async function handleRequestConfigs(
   )
 }
 
+async function handleRequestIsUsingPersistedState(
+  client: Client,
+  data: RequestIsUsingPersistedStateMessageData,
+) {
+  window.postMessage(
+    {
+      isUsingPersistedState: isUsingPersistedState(),
+      type: REQUEST_IS_USING_PERSISTED_STATE_RESPONSE,
+    },
+    "*",
+  )
+}
+
 async function handleSaveConfigs(client: Client, data: SaveConfigsMessageData) {
   Object.entries(data.configs).forEach(([key, value]) => {
     queryClient.setQueryData(JSON.parse(key), value)
@@ -48,6 +71,9 @@ async function handleSaveConfigs(client: Client, data: SaveConfigsMessageData) {
   })
 
   setRequestsHistory(history)
+
+  if (data.persistChanges) persistConfigEvaluations(data.configs)
+
   window.postMessage({ configs: history, type: SAVE_CONFIGS_RESPONSE }, "*")
 }
 
@@ -75,11 +101,42 @@ async function handleSaveContext(client: Client, data: SaveContextMessageData) {
     })
   })
 
+  if (data.persistChanges) persistDefaultContext()
+
   window.postMessage(
     {
       configs: CONFIG_REQUESTS_HISTORY,
       context: getCombinedContext(CONTEXT_HISTORY, CONTEXT_OVERRIDES),
       type: SAVE_CONTEXT_RESPONSE,
+    },
+    "*",
+  )
+}
+
+async function handleReset(client: Client, data: ResetChangesMessageData) {
+  resetExtensionChanges()
+
+  const historyItems = [...CONFIG_REQUESTS_HISTORY]
+
+  const evaluations = await Promise.all(
+    historyItems.map(
+      async (history) => await getEvaluation(client, history.config),
+    ),
+  )
+
+  historyItems.forEach((historyItem, index) => {
+    queryClient.setQueryData(historyItem.key, evaluations[index])
+    upsertHistoryItem({
+      ...historyItem,
+      result: evaluations[index],
+    })
+  })
+
+  window.postMessage(
+    {
+      configs: CONFIG_REQUESTS_HISTORY,
+      context: CONTEXT_HISTORY,
+      type: RESET_CHANGES_RESPONSE,
     },
     "*",
   )
@@ -93,24 +150,23 @@ export async function handleExtensionMessage(
   if (eventData !== undefined) {
     switch (eventData.type) {
     case REQUEST_CONFIGS: {
-      const requestConfigsData = eventData
-      if (requestConfigsData === undefined)
-        throw new Error("Invalid message format for request-configs")
       await handleRequestConfigs(client, eventData)
       break
     }
     case SAVE_CONFIGS: {
-      const saveConfigsData = eventData
-      if (saveConfigsData === undefined)
-        throw new Error("Invalid message format for save-configs")
       await handleSaveConfigs(client, eventData)
       break
     }
     case SAVE_CONTEXT: {
-      const saveContextData = eventData
-      if (saveContextData === undefined)
-        throw new Error("Invalid message format for save-context")
       await handleSaveContext(client, eventData)
+      break
+    }
+    case REQUEST_IS_USING_PERSISTED_STATE: {
+      await handleRequestIsUsingPersistedState(client, eventData)
+      break
+    }
+    case RESET_CHANGES: {
+      await handleReset(client, eventData)
       break
     }
     }

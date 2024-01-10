@@ -25,7 +25,11 @@ import {
 } from "@tanstack/react-query"
 import { type Client } from "@lekko/js-sdk"
 import { LekkoClientContext } from "./lekkoClientContext"
-import { upsertHistoryItem } from "../utils/overrides"
+import {
+  loadDefaultContext,
+  loadPersistedEvaluations,
+  upsertHistoryItem,
+} from "../utils/overrides"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
   configRequests?: Array<LekkoConfig<EvaluationType>>
@@ -64,6 +68,9 @@ export function LekkoConfigProvider({
         ? undefined
         : mapStableKeysToConfigs(defaultConfigs, getRepositoryKey(settings))
   }
+
+  loadDefaultContext()
+  loadPersistedEvaluations()
 
   // should never happen after sync init function
   if (lookupRef.current === null || lekkoClientRef === null) {

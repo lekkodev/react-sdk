@@ -1,6 +1,11 @@
 import { ClientContext } from "@lekko/js-sdk"
-import { type EditableResolvedLekkoConfig, type EvaluationType } from "./types"
+import {
+  type ConfigResults,
+  type EditableResolvedLekkoConfig,
+  type EvaluationType,
+} from "./types"
 import { getCombinedContext } from "./context"
+import { queryClient } from "../providers/lekkoConfigProvider"
 
 export let CONFIG_REQUESTS_HISTORY: Array<
   EditableResolvedLekkoConfig<EvaluationType>
@@ -16,8 +21,9 @@ export function setRequestsHistory(
   CONFIG_REQUESTS_HISTORY = history
 }
 
-export function setContextOverrides(context: ClientContext) {
-  CONTEXT_OVERRIDES = getCombinedContext(CONTEXT_OVERRIDES, context)
+export function setContextOverrides(context: ClientContext, force?: boolean) {
+  CONTEXT_OVERRIDES =
+    force === true ? context : getCombinedContext(CONTEXT_OVERRIDES, context)
 }
 
 export function upsertHistoryItem<E extends EvaluationType>(
@@ -48,4 +54,48 @@ export function upsertHistoryItem<E extends EvaluationType>(
   } else {
     CONFIG_REQUESTS_HISTORY = [...CONFIG_REQUESTS_HISTORY, newConfig]
   }
+}
+
+const LEKKO_CONTEXT_OVERRIDES = "LEKKO_CONTEXT_OVERRIDES"
+const LEKKO_CONFIG_EVALUATIONS = "LEKKO_CONFIG_EVALUATIONS"
+
+export function persistDefaultContext() {
+  localStorage.setItem(
+    LEKKO_CONTEXT_OVERRIDES,
+    JSON.stringify(CONTEXT_OVERRIDES),
+  )
+}
+
+export function loadDefaultContext() {
+  const overrides = localStorage.getItem(LEKKO_CONTEXT_OVERRIDES)
+  if (overrides !== null) {
+    setContextOverrides(JSON.parse(overrides))
+  }
+}
+
+export function persistConfigEvaluations(configs: ConfigResults) {
+  localStorage.setItem(LEKKO_CONFIG_EVALUATIONS, JSON.stringify(configs))
+}
+
+export function loadPersistedEvaluations() {
+  const configs = localStorage.getItem(LEKKO_CONFIG_EVALUATIONS)
+  if (configs !== null) {
+    Object.entries(JSON.parse(configs)).forEach(([key, value]) => {
+      queryClient.setQueryData(JSON.parse(key), value)
+    })
+  }
+}
+
+export function resetExtensionChanges() {
+  localStorage.removeItem(LEKKO_CONTEXT_OVERRIDES)
+  setContextOverrides(new ClientContext(), true)
+  localStorage.removeItem(LEKKO_CONFIG_EVALUATIONS)
+  loadPersistedEvaluations()
+}
+
+export function isUsingPersistedState() {
+  return (
+    localStorage.getItem(LEKKO_CONFIG_EVALUATIONS) !== null ||
+    localStorage.getItem(LEKKO_CONTEXT_OVERRIDES) !== null
+  )
 }

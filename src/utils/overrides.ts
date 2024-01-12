@@ -4,7 +4,7 @@ import {
   type EditableResolvedLekkoConfig,
   type EvaluationType,
 } from "./types"
-import { getCombinedContext } from "./context"
+import { getCombinedContext, parseContext } from "./context"
 import { queryClient } from "../providers/lekkoConfigProvider"
 
 export let CONFIG_REQUESTS_HISTORY: Array<
@@ -29,9 +29,12 @@ export function setContextOverrides(context: ClientContext, force?: boolean) {
 export function upsertHistoryItem<E extends EvaluationType>(
   newConfig: EditableResolvedLekkoConfig<E>,
 ) {
-   // only keep 1 copy of each config regardless of context changes
+  // only keep 1 copy of each config regardless of context changes
   const index = CONFIG_REQUESTS_HISTORY.findIndex((evaluatedConfig) => {
-    return `${evaluatedConfig.config.namespaceName}-${evaluatedConfig.config.configName}` === `${newConfig.config.namespaceName}-${newConfig.config.configName}`
+    return (
+      `${evaluatedConfig.config.namespaceName}-${evaluatedConfig.config.configName}` ===
+      `${newConfig.config.namespaceName}-${newConfig.config.configName}`
+    )
   })
 
   if (newConfig.config.context !== undefined) {
@@ -70,7 +73,7 @@ export function persistDefaultContext() {
 export function loadDefaultContext() {
   const overrides = localStorage.getItem(LEKKO_CONTEXT_OVERRIDES)
   if (overrides !== null) {
-    setContextOverrides(JSON.parse(overrides))
+    setContextOverrides(parseContext(JSON.parse(overrides)))
   }
 }
 

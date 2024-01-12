@@ -29,8 +29,9 @@ export function setContextOverrides(context: ClientContext, force?: boolean) {
 export function upsertHistoryItem<E extends EvaluationType>(
   newConfig: EditableResolvedLekkoConfig<E>,
 ) {
-  const index = CONFIG_REQUESTS_HISTORY.findIndex((config) => {
-    return JSON.stringify(config.key) === JSON.stringify(newConfig.key)
+   // only keep 1 copy of each config regardless of context changes
+  const index = CONFIG_REQUESTS_HISTORY.findIndex((evaluatedConfig) => {
+    return `${evaluatedConfig.config.namespaceName}-${evaluatedConfig.config.configName}` === `${newConfig.config.namespaceName}-${newConfig.config.configName}`
   })
 
   if (newConfig.config.context !== undefined) {

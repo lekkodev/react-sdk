@@ -1,5 +1,5 @@
 import { queryClient } from "../providers/lekkoConfigProvider"
-import { getCombinedContext } from "./context"
+import { getCombinedContext, getContextJSON, getHistoryJSON, parseContext } from "./context"
 import {
   CONFIG_REQUESTS_HISTORY,
   CONTEXT_HISTORY,
@@ -39,8 +39,8 @@ async function handleRequestConfigs(
 ) {
   window.postMessage(
     {
-      configs: CONFIG_REQUESTS_HISTORY,
-      context: getCombinedContext(CONTEXT_HISTORY, CONTEXT_OVERRIDES),
+      configs: getHistoryJSON(CONFIG_REQUESTS_HISTORY),
+      context: getContextJSON(getCombinedContext(CONTEXT_HISTORY, CONTEXT_OVERRIDES)),
       type: REQUEST_CONFIGS_RESPONSE,
     },
     "*",
@@ -51,6 +51,7 @@ async function handleRequestIsUsingPersistedState(
   client: Client,
   data: RequestIsUsingPersistedStateMessageData,
 ) {
+  console.log('handling persisted state request')
   window.postMessage(
     {
       isUsingPersistedState: isUsingPersistedState(),
@@ -74,12 +75,12 @@ async function handleSaveConfigs(client: Client, data: SaveConfigsMessageData) {
 
   if (data.persistChanges) persistConfigEvaluations(data.configs)
 
-  window.postMessage({ configs: history, type: SAVE_CONFIGS_RESPONSE }, "*")
+  window.postMessage({ configs: getHistoryJSON(history), type: SAVE_CONFIGS_RESPONSE }, "*")
 }
 
 async function handleSaveContext(client: Client, data: SaveContextMessageData) {
   const historyItems = [...CONFIG_REQUESTS_HISTORY]
-  setContextOverrides(data.context)
+  setContextOverrides(parseContext(data.context))
   const evaluations = await Promise.all(
     historyItems.map(
       async (history) => await getEvaluation(client, history.config),
@@ -105,8 +106,8 @@ async function handleSaveContext(client: Client, data: SaveContextMessageData) {
 
   window.postMessage(
     {
-      configs: CONFIG_REQUESTS_HISTORY,
-      context: getCombinedContext(CONTEXT_HISTORY, CONTEXT_OVERRIDES),
+      configs: getHistoryJSON(CONFIG_REQUESTS_HISTORY),
+      context: getContextJSON(getCombinedContext(CONTEXT_HISTORY, CONTEXT_OVERRIDES)),
       type: SAVE_CONTEXT_RESPONSE,
     },
     "*",
@@ -134,8 +135,8 @@ async function handleReset(client: Client, data: ResetChangesMessageData) {
 
   window.postMessage(
     {
-      configs: CONFIG_REQUESTS_HISTORY,
-      context: CONTEXT_HISTORY,
+      configs: getHistoryJSON(CONFIG_REQUESTS_HISTORY),
+      context: getContextJSON(CONTEXT_HISTORY),
       type: RESET_CHANGES_RESPONSE,
     },
     "*",

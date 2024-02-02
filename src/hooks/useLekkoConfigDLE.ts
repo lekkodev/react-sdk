@@ -1,29 +1,40 @@
 import { useQuery } from "@tanstack/react-query"
+import { useContext } from "react"
 import { handleLekkoErrors } from "../errors/errors"
-import { queryClient } from "../providers/lekkoConfigProvider"
-import { DEFAULT_LEKKO_REFRESH, DEFAULT_LOOKUP_KEY } from "../utils/constants"
+import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
+import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
 import { type EvaluationType, type LekkoConfig } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
+import { upsertHistoryItem } from "../providers/lekkoConfigProvider"
 
 export function useLekkoConfigDLE<E extends EvaluationType>(
   config: LekkoConfig<E>,
 ) {
   const client = useLekkoClient()
+  const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
+  const queryKey = createStableKey(config, client.repository)
   const {
     data: evaluation,
     isLoading: isEvaluationLoading,
     error,
   } = useQuery({
-    queryKey: createStableKey(config, client.repository),
-    queryFn: async () =>
-      await handleLekkoErrors(
+    queryKey,
+    queryFn: async () => {
+      const result = await handleLekkoErrors(
         async () => await getEvaluation(client, config),
         config,
         client.repository,
-        queryClient.getQueryData(DEFAULT_LOOKUP_KEY),
-      ),
+        defaultConfigLookup,
+      )
+      upsertHistoryItem({
+        key: queryKey,
+        result,
+        config,
+      })
+      return result
+    },
     ...DEFAULT_LEKKO_REFRESH,
   })
 

@@ -1,6 +1,6 @@
 import { type Client, RepositoryKey } from "@lekko/js-sdk"
-import { createContext, useRef, type PropsWithChildren } from "react"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { useRef, type PropsWithChildren } from "react"
+import { QueryClientProvider } from "@tanstack/react-query"
 import {
   type EvaluationType,
   type ResolvedLekkoConfig,
@@ -9,12 +9,8 @@ import {
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { createMockClient } from "../mockHelpers/createMockClient"
 import { getEnvironmentVariable } from "../utils/envHelpers"
-
-const queryClient = new QueryClient()
-
-export const LekkoConfigMockClientContext = createContext<Client | undefined>(
-  undefined,
-)
+import { LekkoClientContext } from "./lekkoClientContext"
+import { queryClient } from "./lekkoConfigProvider"
 
 interface InitProps extends PropsWithChildren {
   settings?: LekkoSettings
@@ -67,8 +63,8 @@ export function LekkoConfigMockProvider({
   }
 
   return (
-    <LekkoConfigMockClientContext.Provider value={clientRef.current}>
+    <LekkoClientContext.Provider value={clientRef.current}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </LekkoConfigMockClientContext.Provider>
+    </LekkoClientContext.Provider>
   )
 }

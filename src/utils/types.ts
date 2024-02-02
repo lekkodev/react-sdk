@@ -38,9 +38,47 @@ export interface LekkoSettings {
   repositoryName?: string
   repositoryOwner?: string
   hostname?: string
+  nonBlockingProvider?: boolean
 }
 
 export interface ResolvedLekkoConfig<E extends EvaluationType> {
   config: LekkoConfig<E>
   result: EvaluationResult<E>
+}
+
+export interface EditableResolvedLekkoConfig<E extends EvaluationType> {
+  config: LekkoConfig<E>
+  result: EvaluationResult<E>
+  key: string[]
+}
+
+export type DefaultConfigLookup = Record<
+  string,
+  ResolvedLekkoConfig<EvaluationType>
+>
+
+export const REQUEST_CONFIGS = "REQUEST_CONFIGS"
+export const SAVE_CONFIGS = "SAVE_CONFIGS"
+export const REQUEST_CONFIGS_RESPONSE = "REQUEST_CONFIGS_RESPONSE"
+export const SAVE_CONFIGS_RESPONSE = "SAVE_CONFIGS_RESPONSE"
+
+interface BaseMessageData {
+  type: string
+}
+
+export interface RequestConfigsMessageData extends BaseMessageData {
+  type: "REQUEST_CONFIGS"
+}
+
+export interface SaveConfigsMessageData extends BaseMessageData {
+  type: "SAVE_CONFIGS"
+  // this type can be number | string | boolean | json (any)
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  configs: Record<string, any>
+}
+
+type ExtensionMessageData = RequestConfigsMessageData | SaveConfigsMessageData
+
+export interface ExtensionMessage {
+  data?: ExtensionMessageData
 }

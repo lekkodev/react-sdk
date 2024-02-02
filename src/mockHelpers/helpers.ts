@@ -1,8 +1,8 @@
 import { createDefaultStableKey, createStableKey } from "../utils/helpers"
 import {
-  type ResolvedLekkoConfig,
   type EvaluationType,
   type LekkoConfig,
+  type DefaultConfigLookup,
 } from "../utils/types"
 import { type ClientContext, type RepositoryKey } from "@lekko/js-sdk"
 import { printConfigMessage } from "../errors/printers"
@@ -20,7 +20,7 @@ export async function getMockedValue<T>(
   configName: string,
   context: ClientContext | undefined,
   repositoryKey: RepositoryKey,
-  lookupMap: Record<string, ResolvedLekkoConfig<EvaluationType>>,
+  lookupMap: DefaultConfigLookup,
 ): Promise<T> {
   // first attempt to find a key match to our exact context if one was provided
   const key = createStableMockKey(

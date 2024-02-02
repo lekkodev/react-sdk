@@ -1,11 +1,10 @@
 {
   "name": "@lekko/react-sdk",
-  "version": "0.4.6",
+  "version": "0.4.8",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
     "build": "rm -rf dist/ && tsc",
-    "localbuild": "yarn build && cp -r ./ ../supaglue/node_modules/@lekko/react-sdk",
     "lint": "npx prettier --write src && eslint src --fix",
     "test": "jest"
   },

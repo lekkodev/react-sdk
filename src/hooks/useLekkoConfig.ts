@@ -7,7 +7,7 @@ import { handleLekkoErrors } from "../errors/errors"
 import { useContext } from "react"
 import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { upsertHistoryItem } from "../providers/lekkoConfigProvider"
+import { upsertHistoryItem } from "../utils/overrides"
 
 export function useLekkoConfig<E extends EvaluationType>(
   config: LekkoConfig<E>,

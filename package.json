@@ -1,6 +1,6 @@
 {
   "name": "@lekko/react-sdk",
-  "version": "0.4.8",
+  "version": "0.4.10",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {

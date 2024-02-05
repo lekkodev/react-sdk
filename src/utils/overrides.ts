@@ -44,12 +44,10 @@ export function upsertHistoryItem<E extends EvaluationType>(
     )
   }
 
-
   if (index !== -1) {
     // the key contains the context and config info
     if (
-      newConfig.key !==
-      CONFIG_REQUESTS_HISTORY[index].key || 
+      newConfig.key !== CONFIG_REQUESTS_HISTORY[index].key ||
       CONFIG_REQUESTS_HISTORY[index].result !== newConfig.result
     ) {
       CONFIG_REQUESTS_HISTORY = [

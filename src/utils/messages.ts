@@ -43,7 +43,6 @@ async function handleRequestConfigs(
   client: Client,
   data: RequestConfigsMessageData,
 ) {
-  console.log(getHistoryJSON(CONFIG_REQUESTS_HISTORY))
   window.postMessage(
     {
       configs: getHistoryJSON(CONFIG_REQUESTS_HISTORY),

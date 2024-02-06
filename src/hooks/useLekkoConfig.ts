@@ -28,7 +28,7 @@ export function useLekkoConfig<E extends EvaluationType>(
   const backgroundRefetch =
     options?.backgroundRefetch === undefined
       ? settings.backgroundRefetch
-      : options?.backgroundRefetch
+      : options.backgroundRefetch
 
   const { data: evaluation } = useSuspenseQuery({
     queryKey,

@@ -28,7 +28,7 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
   const backgroundRefetch =
     options?.backgroundRefetch === undefined
       ? settings.backgroundRefetch
-      : options?.backgroundRefetch
+      : options.backgroundRefetch
 
   const {
     data: evaluation,

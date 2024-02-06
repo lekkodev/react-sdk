@@ -46,8 +46,17 @@ export function getContextJSON(
 }
 
 function getHistoryItemJSON(item: EditableResolvedLekkoConfig<EvaluationType>) {
+  let result: any = item.result
+  // need to reparse this everywhere
+  if (typeof item.result === "bigint") {
+    result = {
+      type: "bigint",
+      value: item.result.toString(),
+    }
+  }
   return {
     ...item,
+    result,
     config: {
       ...item.config,
       context: getContextJSON(item.config.context),

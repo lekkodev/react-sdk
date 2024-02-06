@@ -4,7 +4,7 @@ import {
   type EditableResolvedLekkoConfig,
   type EvaluationType,
 } from "./types"
-import { getCombinedContext, parseContext } from "./context"
+import { getCombinedContext, getContextJSON, parseContext } from "./context"
 import { queryClient } from "../providers/lekkoConfigProvider"
 
 export let CONFIG_REQUESTS_HISTORY: Array<
@@ -24,6 +24,15 @@ export function setRequestsHistory(
 export function setContextOverrides(context: ClientContext, force?: boolean) {
   CONTEXT_OVERRIDES =
     force === true ? context : getCombinedContext(CONTEXT_OVERRIDES, context)
+}
+
+export function getHistoryItem(namespaceName: string, configName: string) {
+  return CONFIG_REQUESTS_HISTORY.find((evaluatedConfig) => {
+    return (
+      evaluatedConfig.config.namespaceName === namespaceName &&
+      evaluatedConfig.config.configName === configName
+    )
+  })
 }
 
 export function upsertHistoryItem<E extends EvaluationType>(

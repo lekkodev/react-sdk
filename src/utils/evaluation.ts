@@ -35,11 +35,12 @@ export async function getEvaluation<E extends EvaluationType>(
       context,
     )) as EvaluationResult<E>
   case EvaluationType.INT:
-    return (await client.getInt(
+    const result = (await client.getInt(
       namespaceName,
       configName,
       context,
     )) as EvaluationResult<E>
+    return result
   case EvaluationType.STRING:
     return (await client.getString(
       namespaceName,

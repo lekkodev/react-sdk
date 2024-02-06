@@ -23,7 +23,7 @@ export type EvaluationResult<E extends EvaluationType> =
     : E extends EvaluationType.FLOAT
     ? number
     : E extends EvaluationType.INT
-    ? number
+    ? bigint
     : E extends EvaluationType.STRING
     ? string
     : E extends EvaluationType.JSON
@@ -39,6 +39,7 @@ export interface LekkoSettings {
   repositoryOwner?: string
   hostname?: string
   nonBlockingProvider?: boolean
+  backgroundRefetch?: boolean
 }
 
 export interface ResolvedLekkoConfig<E extends EvaluationType> {
@@ -112,4 +113,8 @@ type ExtensionMessageData =
 
 export interface ExtensionMessage {
   data?: ExtensionMessageData
+}
+
+export interface ConfigOptions {
+  backgroundRefetch?: boolean
 }

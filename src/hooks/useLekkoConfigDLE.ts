@@ -5,16 +5,24 @@ import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfi
 import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
-import { type EvaluationType, type LekkoConfig } from "../utils/types"
+import {
+  type ConfigOptions,
+  type EvaluationType,
+  type LekkoConfig,
+} from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
-import { upsertHistoryItem } from "../utils/overrides"
+import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
 
 export function useLekkoConfigDLE<E extends EvaluationType>(
   config: LekkoConfig<E>,
+  options?: ConfigOptions,
 ) {
   const client = useLekkoClient()
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
   const queryKey = createStableKey(config, client.repository)
+
+  const historyItem = getHistoryItem(config.namespaceName, config.configName)
+
   const {
     data: evaluation,
     isLoading: isEvaluationLoading,
@@ -36,6 +44,11 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
       return result
     },
     ...DEFAULT_LEKKO_REFRESH,
+    ...(options?.backgroundRefetch === true
+      ? {
+        placeholderData: historyItem?.result,
+      }
+      : {}),
   })
 
   return {

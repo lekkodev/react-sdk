@@ -306,6 +306,19 @@ const lekkoSettings = {
 
 When using this option, you will need to handle the loading and error states within your components. This approach is beneficial if you want to ensure that your application remains interactive while feature flags are being fetched.
 
+### Background Refetch
+
+If a config has already been fetched and cached and the context changes, this option will temporarily use the value of the previous config evaluation until the fetch for the new value has finished.  This prevents suspense boundaries or loaders from being triggered, but can cause render flickering once the new result is fetched and cached, if the value differs.
+
+This is best used when the change in context value is a setting that most likely will not affect the evaluated result such as a project id changing when the evaluation result primarily relies on the username.
+
+```
+const lekkoSettings = {
+  // ...other settings
+  backgroundRefetch: true,
+};
+```
+
 ### Using `useLekkoConfigDLE`
 
 For applications where you have chosen not to use Suspense boundaries, the `useLekkoConfigDLE` hook allows you to handle loading and error states explicitly within your components:
@@ -371,6 +384,29 @@ function MyInputComponent() {
     </div>
   );
 }
+```
+
+### Config settings
+
+useLekkoConfig and useLekkoConfigDLE take an optional config settings object.  This can specify the backgroundRefetch parameter that will override the provider settings object specification of this value or provide the value if it was not given globally for all configuration evaluations.
+
+```
+const { evaluation: featureFlag, isEvaluationLoading, error } = useLekkoConfigDLE({
+    namespaceName: 'frontend',
+    configName: 'new-dashboard-feature',
+    evaluationType: 'BOOL',
+}, {
+  backgroundRefetch: true
+});
+
+const evaluation = useLekkoConfig({
+    namespaceName: 'frontend',
+    configName: 'new-dashboard-feature',
+    evaluationType: 'BOOL',
+}, {
+  backgroundRefetch: true
+});
+
 ```
 
 ### Next.js Server-side rendering
@@ -809,6 +845,7 @@ function useLekkoConfig<E extends EvaluationType>(config: LekkoConfig<E>): Evalu
 -   **Parameters**:
     
     -   `config`: An object containing the `namespaceName`, `configName`, `evaluationType`, and an optional `context`.
+    -    `settings`: An optional object containing `backgroundRefetch`
 -   **Return Type**: `EvaluationResult<E>`, where `E` is the specified `EvaluationType`.
     
 
@@ -827,6 +864,7 @@ function useLekkoConfigDLE<E extends EvaluationType>(config: LekkoConfig<E>): {
 -   **Parameters**:
     
     -   `config`: An object containing the `namespaceName`, `configName`, `evaluationType`, and an optional `context`.
+    -    `settings`: An optional object containing `backgroundRefetch`
 -   **Return Type**: An object containing the `evaluation`, `isEvaluationLoading`, and `error`.
     
 
@@ -900,6 +938,17 @@ interface LekkoSettings {
   repositoryName: string;
   hostname?: string;
   nonBlockingProvider?: boolean;
+  backgroundRefetch?: boolean;
+}
+```
+
+#### `ConfigSettings`
+
+Specifies the settings used for config evaluation.
+
+```
+interface ConfigSettings {
+  backgroundRefetch?: boolean;
 }
 ```
 

@@ -4,7 +4,7 @@ import {
   type EditableResolvedLekkoConfig,
   type EvaluationType,
 } from "./types"
-import { getCombinedContext, getContextJSON, parseContext } from "./context"
+import { getCombinedContext, parseContext } from "./context"
 import { queryClient } from "../providers/lekkoConfigProvider"
 
 export let CONFIG_REQUESTS_HISTORY: Array<

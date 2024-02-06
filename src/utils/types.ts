@@ -88,9 +88,13 @@ export interface RequestIsUsingPersistedStateMessageData
   type: "REQUEST_IS_USING_PERSISTED_STATE"
 }
 
-// this type can be number | string | boolean | json (any)
-// eslint-disable-next-line  @typescript-eslint/no-explicit-any
-export type ConfigResults = Record<string, any>
+interface Result {
+  // this type can be number | string | boolean | json (any)
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  value: any
+  evaluationType: EvaluationType
+}
+export type ConfigResults = Record<string, Result>
 
 export interface SaveConfigsMessageData extends BaseMessageData {
   type: "SAVE_CONFIGS"

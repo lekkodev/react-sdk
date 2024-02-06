@@ -25,7 +25,10 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
   const queryKey = createStableKey(config, client.repository)
 
   const historyItem = getHistoryItem(config.namespaceName, config.configName)
-  const backgroundRefetch = options?.backgroundRefetch === undefined ? settings.backgroundRefetch : options?.backgroundRefetch
+  const backgroundRefetch =
+    options?.backgroundRefetch === undefined
+      ? settings.backgroundRefetch
+      : options?.backgroundRefetch
 
   const {
     data: evaluation,

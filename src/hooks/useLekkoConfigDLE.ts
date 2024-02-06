@@ -12,6 +12,7 @@ import {
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
+import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 
 export function useLekkoConfigDLE<E extends EvaluationType>(
   config: LekkoConfig<E>,
@@ -19,9 +20,12 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
 ) {
   const client = useLekkoClient()
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
+  const settings = useContext(LekkoSettingsContext)
+
   const queryKey = createStableKey(config, client.repository)
 
   const historyItem = getHistoryItem(config.namespaceName, config.configName)
+  const backgroundRefetch = options?.backgroundRefetch === undefined ? settings.backgroundRefetch : options?.backgroundRefetch
 
   const {
     data: evaluation,
@@ -44,7 +48,7 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
       return result
     },
     ...DEFAULT_LEKKO_REFRESH,
-    ...(options?.backgroundRefetch === true
+    ...(backgroundRefetch === true
       ? {
         placeholderData: historyItem?.result,
       }

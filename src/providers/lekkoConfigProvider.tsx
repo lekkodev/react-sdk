@@ -103,7 +103,6 @@ export function LekkoIntermediateConfigProvider({
   children,
   settings,
 }: IntermediateProviderProps) {
-  console.log("in provider")
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
   const client = useLekkoClient()
 

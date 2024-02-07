@@ -122,3 +122,9 @@ export interface ExtensionMessage {
 export interface ConfigOptions {
   backgroundRefetch?: boolean
 }
+
+export interface ConfigResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any
+  evaluationType: EvaluationType
+}

@@ -1,8 +1,9 @@
 import { ClientContext } from "@lekko/js-sdk"
 import {
+  EvaluationType,
   type ConfigResults,
   type EditableResolvedLekkoConfig,
-  type EvaluationType,
+  type ConfigResult,
 } from "./types"
 import { getCombinedContext, parseContext } from "./context"
 import { queryClient } from "../providers/lekkoConfigProvider"
@@ -94,7 +95,12 @@ export function persistConfigEvaluations(configs: ConfigResults) {
 export function loadPersistedEvaluations() {
   const configs = localStorage.getItem(LEKKO_CONFIG_EVALUATIONS)
   if (configs !== null) {
-    Object.entries(JSON.parse(configs)).forEach(([key, value]) => {
+    Object.entries(JSON.parse(configs)).forEach(([key, result]) => {
+      const cResult = result as ConfigResult
+      let value = cResult?.value
+      if (cResult?.evaluationType === EvaluationType.INT) {
+        value = BigInt(value)
+      }
       queryClient.setQueryData(JSON.parse(key), value)
     })
   }

@@ -79,7 +79,8 @@ async function handleSaveConfigs(client: Client, data: SaveConfigsMessageData) {
 
   const history = CONFIG_REQUESTS_HISTORY.map((config) => {
     const newResult = data.configs[JSON.stringify(config.key)]
-    return newResult === undefined ? config : { ...config, result: newResult }
+    const value = newResult?.value
+    return value === undefined ? config : { ...config, result: value }
   })
 
   setRequestsHistory(history)

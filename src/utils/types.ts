@@ -88,7 +88,7 @@ export interface RequestIsUsingPersistedStateMessageData
   type: "REQUEST_IS_USING_PERSISTED_STATE"
 }
 
-interface Result {
+export interface Result {
   // this type can be number | string | boolean | json (any)
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   value: any
@@ -121,10 +121,4 @@ export interface ExtensionMessage {
 
 export interface ConfigOptions {
   backgroundRefetch?: boolean
-}
-
-export interface ConfigResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any
-  evaluationType: EvaluationType
 }

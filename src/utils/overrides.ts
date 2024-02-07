@@ -3,7 +3,7 @@ import {
   EvaluationType,
   type ConfigResults,
   type EditableResolvedLekkoConfig,
-  type ConfigResult,
+  type Result,
 } from "./types"
 import { getCombinedContext, parseContext } from "./context"
 import { queryClient } from "../providers/lekkoConfigProvider"
@@ -96,7 +96,7 @@ export function loadPersistedEvaluations() {
   const configs = localStorage.getItem(LEKKO_CONFIG_EVALUATIONS)
   if (configs !== null) {
     Object.entries(JSON.parse(configs)).forEach(([key, result]) => {
-      const cResult = result as ConfigResult
+      const cResult = result as Result
       let value = cResult?.value
       if (cResult?.evaluationType === EvaluationType.INT) {
         value = BigInt(value)

@@ -1,8 +1,9 @@
 import { ClientContext } from "@lekko/js-sdk"
 import {
+  EvaluationType,
   type ConfigResults,
   type EditableResolvedLekkoConfig,
-  type EvaluationType,
+  type Result,
 } from "./types"
 import { getCombinedContext, parseContext } from "./context"
 import { queryClient } from "../providers/lekkoConfigProvider"
@@ -26,6 +27,15 @@ export function setContextOverrides(context: ClientContext, force?: boolean) {
     force === true ? context : getCombinedContext(CONTEXT_OVERRIDES, context)
 }
 
+export function getHistoryItem(namespaceName: string, configName: string) {
+  return CONFIG_REQUESTS_HISTORY.find((evaluatedConfig) => {
+    return (
+      evaluatedConfig.config.namespaceName === namespaceName &&
+      evaluatedConfig.config.configName === configName
+    )
+  })
+}
+
 export function upsertHistoryItem<E extends EvaluationType>(
   newConfig: EditableResolvedLekkoConfig<E>,
 ) {
@@ -45,9 +55,10 @@ export function upsertHistoryItem<E extends EvaluationType>(
   }
 
   if (index !== -1) {
+    // the key contains the context and config info
     if (
-      JSON.stringify(CONFIG_REQUESTS_HISTORY[index]) !==
-      JSON.stringify(newConfig)
+      newConfig.key !== CONFIG_REQUESTS_HISTORY[index].key ||
+      CONFIG_REQUESTS_HISTORY[index].result !== newConfig.result
     ) {
       CONFIG_REQUESTS_HISTORY = [
         ...CONFIG_REQUESTS_HISTORY.slice(0, index),
@@ -84,7 +95,12 @@ export function persistConfigEvaluations(configs: ConfigResults) {
 export function loadPersistedEvaluations() {
   const configs = localStorage.getItem(LEKKO_CONFIG_EVALUATIONS)
   if (configs !== null) {
-    Object.entries(JSON.parse(configs)).forEach(([key, value]) => {
+    Object.entries(JSON.parse(configs)).forEach(([key, result]) => {
+      const cResult = result as Result
+      let value = cResult?.value
+      if (cResult?.evaluationType === EvaluationType.INT) {
+        value = BigInt(value)
+      }
       queryClient.setQueryData(JSON.parse(key), value)
     })
   }

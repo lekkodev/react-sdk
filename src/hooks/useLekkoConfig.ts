@@ -1,20 +1,30 @@
 import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
-import { type EvaluationType, type LekkoConfig } from "../utils/types"
+import {
+  type ConfigOptions,
+  type EvaluationType,
+  type LekkoConfig,
+} from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 import { handleLekkoErrors } from "../errors/errors"
 import { useContext } from "react"
 import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { upsertHistoryItem } from "../utils/overrides"
+import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
+import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 
 export function useLekkoConfig<E extends EvaluationType>(
   config: LekkoConfig<E>,
+  options?: ConfigOptions,
 ) {
   const client = useLekkoClient()
+  const settings = { ...useContext(LekkoSettingsContext), ...options }
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
   const queryKey = createStableKey(config, client.repository)
+
+  const historyItem = getHistoryItem(config.namespaceName, config.configName)
+
   const { data: evaluation } = useSuspenseQuery({
     queryKey,
     queryFn: async () =>
@@ -25,6 +35,11 @@ export function useLekkoConfig<E extends EvaluationType>(
         defaultConfigLookup,
       ),
     ...DEFAULT_LEKKO_REFRESH,
+    ...(settings.backgroundRefetch === true
+      ? {
+        placeholderData: historyItem?.result,
+      }
+      : {}),
   })
 
   upsertHistoryItem({

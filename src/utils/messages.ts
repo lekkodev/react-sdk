@@ -34,6 +34,7 @@ import {
   REQUEST_IS_USING_PERSISTED_STATE,
   type RequestIsUsingPersistedStateMessageData,
   REQUEST_IS_USING_PERSISTED_STATE_RESPONSE,
+  EvaluationType,
 } from "./types"
 import { getEvaluation } from "./evaluation"
 import { type Client } from "@lekko/js-sdk"
@@ -68,13 +69,18 @@ async function handleRequestIsUsingPersistedState(
 }
 
 async function handleSaveConfigs(client: Client, data: SaveConfigsMessageData) {
-  Object.entries(data.configs).forEach(([key, value]) => {
+  Object.entries(data.configs).forEach(([key, result]) => {
+    let value = result.value
+    if (result.evaluationType === EvaluationType.INT) {
+      value = BigInt(value)
+    }
     queryClient.setQueryData(JSON.parse(key), value)
   })
 
   const history = CONFIG_REQUESTS_HISTORY.map((config) => {
     const newResult = data.configs[JSON.stringify(config.key)]
-    return newResult === undefined ? config : { ...config, result: newResult }
+    const value = newResult?.value
+    return value === undefined ? config : { ...config, result: value }
   })
 
   setRequestsHistory(history)

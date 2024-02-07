@@ -1,5 +1,5 @@
 import { ClientContext, Value } from "@lekko/js-sdk"
-import { type EditableResolvedLekkoConfig, type EvaluationType } from "./types"
+import { EvaluationType, type EditableResolvedLekkoConfig } from "./types"
 
 export function getCombinedContext(
   context: ClientContext | undefined,
@@ -45,9 +45,22 @@ export function getContextJSON(
   return json
 }
 
+function getResultJSON(item: EditableResolvedLekkoConfig<EvaluationType>) {
+  switch (item.config.evaluationType) {
+  case EvaluationType.INT:
+    return item.result.toString()
+  case EvaluationType.PROTO:
+    // unsupported
+    return ""
+  default:
+    return item.result
+  }
+}
+
 function getHistoryItemJSON(item: EditableResolvedLekkoConfig<EvaluationType>) {
   return {
     ...item,
+    result: getResultJSON(item),
     config: {
       ...item.config,
       context: getContextJSON(item.config.context),

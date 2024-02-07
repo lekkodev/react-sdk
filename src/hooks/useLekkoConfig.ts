@@ -19,16 +19,11 @@ export function useLekkoConfig<E extends EvaluationType>(
   options?: ConfigOptions,
 ) {
   const client = useLekkoClient()
-  const settings = useContext(LekkoSettingsContext)
+  const settings = { ...useContext(LekkoSettingsContext), ...options }
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
   const queryKey = createStableKey(config, client.repository)
 
   const historyItem = getHistoryItem(config.namespaceName, config.configName)
-
-  const backgroundRefetch =
-    options?.backgroundRefetch === undefined
-      ? settings.backgroundRefetch
-      : options.backgroundRefetch
 
   const { data: evaluation } = useSuspenseQuery({
     queryKey,
@@ -40,7 +35,7 @@ export function useLekkoConfig<E extends EvaluationType>(
         defaultConfigLookup,
       ),
     ...DEFAULT_LEKKO_REFRESH,
-    ...(backgroundRefetch === true
+    ...(settings.backgroundRefetch === true
       ? {
         placeholderData: historyItem?.result,
       }

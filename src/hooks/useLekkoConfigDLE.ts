@@ -20,16 +20,11 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
 ) {
   const client = useLekkoClient()
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
-  const settings = useContext(LekkoSettingsContext)
+  const settings = { ...useContext(LekkoSettingsContext), ...options }
 
   const queryKey = createStableKey(config, client.repository)
 
   const historyItem = getHistoryItem(config.namespaceName, config.configName)
-  const backgroundRefetch =
-    options?.backgroundRefetch === undefined
-      ? settings.backgroundRefetch
-      : options.backgroundRefetch
-
   const {
     data: evaluation,
     isLoading: isEvaluationLoading,
@@ -51,7 +46,7 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
       return result
     },
     ...DEFAULT_LEKKO_REFRESH,
-    ...(backgroundRefetch === true
+    ...(settings.backgroundRefetch === true
       ? {
         placeholderData: historyItem?.result,
       }

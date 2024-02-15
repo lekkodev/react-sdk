@@ -1,4 +1,4 @@
-import { useContext, useRef, type PropsWithChildren } from "react"
+import { useContext, useRef, type PropsWithChildren, useEffect } from "react"
 import useLekkoClient, { getRepositoryKey, init } from "../hooks/useLekkoClient"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey, mapStableKeysToConfigs } from "../utils/helpers"
@@ -22,7 +22,7 @@ import {
   QueryClient,
   QueryClientProvider,
   useQueries,
-  useQuery,
+  useQueryClient,
 } from "@tanstack/react-query"
 import { ClientContext, type Client } from "@lekko/js-sdk"
 import { LekkoClientContext } from "./lekkoClientContext"
@@ -31,7 +31,7 @@ import {
   loadPersistedEvaluations,
   upsertHistoryItem,
 } from "../utils/overrides"
-import { getCombinedContext } from "../utils/context"
+import { getCombinedContext, getContextJSON } from "../utils/context"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
   configRequests?: Array<LekkoConfig<EvaluationType>>
@@ -45,12 +45,6 @@ export interface ProviderProps extends IntermediateProviderProps {
   globalContext?: ClientContext
 }
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: DEFAULT_LEKKO_REFRESH,
-  },
-})
-
 export function LekkoConfigProvider({
   settings,
   defaultConfigs,
@@ -61,8 +55,16 @@ export function LekkoConfigProvider({
 }: ProviderProps) {
   const lekkoClientRef = useRef<Client | null>(null)
 
+  const queryClient = useQueryClient(
+    new QueryClient({
+      defaultOptions: {
+        queries: DEFAULT_LEKKO_REFRESH,
+      },
+    }),
+  )
+
   if (lekkoClientRef.current === null) {
-    lekkoClientRef.current = init({ settings })
+    lekkoClientRef.current = init({ settings, queryClient })
   }
 
   const lookupRef = useRef<DefaultConfigLookup | null | undefined>(null)
@@ -75,7 +77,7 @@ export function LekkoConfigProvider({
   }
 
   loadDefaultContext()
-  loadPersistedEvaluations()
+  loadPersistedEvaluations(queryClient)
 
   // should never happen after sync init function
   if (lookupRef.current === null || lekkoClientRef === null) {
@@ -103,10 +105,6 @@ export function LekkoConfigProvider({
   )
 }
 
-export function setGlobalContext(globalContext: ClientContext) {
-  queryClient.setQueryData(["lekkoGlobalContext"], globalContext)
-}
-
 // or as a subprovider, for example, to require a set of configs after authentication when the username is known
 export function LekkoIntermediateConfigProvider({
   configRequests = [],
@@ -114,11 +112,12 @@ export function LekkoIntermediateConfigProvider({
   settings,
   globalContext = new ClientContext(),
 }: IntermediateProviderProps) {
-  useQuery({
-    queryKey: ["lekkoGlobalContext"],
-    queryFn: () => globalContext,
-    ...DEFAULT_LEKKO_REFRESH,
-  })
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    queryClient.setQueryData(["lekkoGlobalContext"], globalContext)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getContextJSON(globalContext)])
 
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
   const client = useLekkoClient()

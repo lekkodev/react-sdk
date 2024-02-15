@@ -4,7 +4,6 @@ import { useLekkoConfigFetch } from "./hooks/useLekkoConfigFetch"
 import {
   LekkoConfigProvider,
   LekkoIntermediateConfigProvider,
-  setGlobalContext,
 } from "./providers/lekkoConfigProvider"
 
 import { createMockClient } from "./mockHelpers/createMockClient"
@@ -29,6 +28,5 @@ export {
   type Client,
   LekkoIntermediateConfigProvider,
   type DehydratedState,
-  setGlobalContext,
   getContextJSON,
 }

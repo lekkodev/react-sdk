@@ -7,10 +7,12 @@ import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import { RepositoryKey } from ".."
 import { LekkoClientContext } from "../providers/lekkoClientContext"
 import { handleExtensionMessage } from "../utils/messages"
+import { type QueryClient, useQueryClient } from "@tanstack/react-query"
 
 interface Props {
   settings?: LekkoSettings
   contextClient?: Client
+  queryClient: QueryClient
 }
 
 export function getRepositoryKey(
@@ -34,6 +36,7 @@ export function getRepositoryKey(
 export function init({
   settings = DEFAULT_LEKKO_SETTINGS,
   contextClient,
+  queryClient,
 }: Props): Client {
   if (contextClient !== undefined) return contextClient
 
@@ -53,7 +56,7 @@ export function init({
   })
 
   window.addEventListener("message", (event: ExtensionMessage) => {
-    handleExtensionMessage(client, event).catch((error) => {
+    handleExtensionMessage(client, queryClient, event).catch((error) => {
       console.error(error)
     })
   })
@@ -64,6 +67,7 @@ export function init({
 export default function useLekkoClient(): Client {
   const contextClient = useContext(LekkoClientContext)
   const settings = useContext(LekkoSettingsContext)
+  const queryClient = useQueryClient()
 
-  return init({ contextClient, settings })
+  return init({ contextClient, settings, queryClient })
 }

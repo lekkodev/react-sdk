@@ -10,20 +10,19 @@ import useLekkoClient from "./useLekkoClient"
 import { handleLekkoErrors } from "../errors/errors"
 import { useContext } from "react"
 import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query"
 import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import { getCombinedContext } from "../utils/context"
 import { type ClientContext } from "@lekko/js-sdk"
-import { queryClient } from "../providers/lekkoConfigProvider"
 
 export function useLekkoConfig<E extends EvaluationType>(
   config: LekkoConfig<E>,
   options?: ConfigOptions,
 ) {
-  const globalContext: ClientContext | undefined = queryClient.getQueryData([
-    "lekkoGlobalContext",
-  ])
+  const globalContext: ClientContext | undefined = useQuery({
+    queryKey: ["lekkoGlobalContext"],
+  }).data as ClientContext | undefined
 
   const combinedConfig = {
     ...config,

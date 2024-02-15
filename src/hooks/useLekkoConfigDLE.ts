@@ -14,16 +14,15 @@ import useLekkoClient from "./useLekkoClient"
 import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import { getCombinedContext } from "../utils/context"
-import { queryClient } from "../providers/lekkoConfigProvider"
 import { type ClientContext } from "@lekko/js-sdk"
 
 export function useLekkoConfigDLE<E extends EvaluationType>(
   config: LekkoConfig<E>,
   options?: ConfigOptions,
 ) {
-  const globalContext: ClientContext | undefined = queryClient.getQueryData([
-    "lekkoGlobalContext",
-  ])
+  const globalContext: ClientContext | undefined = useQuery({
+    queryKey: ["lekkoGlobalContext"],
+  }).data as ClientContext | undefined
 
   const combinedConfig = {
     ...config,

@@ -1,4 +1,10 @@
-import { useContext, useRef, type PropsWithChildren, useEffect } from "react"
+import {
+  useContext,
+  useRef,
+  type PropsWithChildren,
+  useEffect,
+  useCallback,
+} from "react"
 import useLekkoClient, { getRepositoryKey, init } from "../hooks/useLekkoClient"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey, mapStableKeysToConfigs } from "../utils/helpers"
@@ -32,6 +38,7 @@ import {
   upsertHistoryItem,
 } from "../utils/overrides"
 import { getCombinedContext, getContextJSON } from "../utils/context"
+import { LekkoGlobalContext } from "./lekkoGlobalContext"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
   configRequests?: Array<LekkoConfig<EvaluationType>>
@@ -79,6 +86,13 @@ export function LekkoConfigProvider({
   loadDefaultContext()
   loadPersistedEvaluations(queryClient)
 
+  const setGlobalContext = useCallback(
+    (globalContext: ClientContext) => {
+      queryClient.setQueryData(["lekkoGlobalContext"], globalContext)
+    },
+    [queryClient],
+  )
+
   // should never happen after sync init function
   if (lookupRef.current === null || lekkoClientRef === null) {
     return <>{children}</>
@@ -89,15 +103,17 @@ export function LekkoConfigProvider({
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
         <LekkoDefaultConfigLookupProvider.Provider value={lookupRef.current}>
           <QueryClientProvider client={queryClient}>
-            <HydrationBoundary state={dehydratedState ?? {}}>
-              <LekkoIntermediateConfigProvider
-                settings={settings}
-                configRequests={configRequests}
-                globalContext={globalContext}
-              >
-                {children}
-              </LekkoIntermediateConfigProvider>
-            </HydrationBoundary>
+            <LekkoGlobalContext.Provider value={{ setGlobalContext }}>
+              <HydrationBoundary state={dehydratedState ?? {}}>
+                <LekkoIntermediateConfigProvider
+                  settings={settings}
+                  configRequests={configRequests}
+                  globalContext={globalContext}
+                >
+                  {children}
+                </LekkoIntermediateConfigProvider>
+              </HydrationBoundary>
+            </LekkoGlobalContext.Provider>
           </QueryClientProvider>
         </LekkoDefaultConfigLookupProvider.Provider>
       </LekkoSettingsContext.Provider>
@@ -113,9 +129,10 @@ export function LekkoIntermediateConfigProvider({
   globalContext = new ClientContext(),
 }: IntermediateProviderProps) {
   const queryClient = useQueryClient()
+  const { setGlobalContext } = useContext(LekkoGlobalContext)
 
   useEffect(() => {
-    queryClient.setQueryData(["lekkoGlobalContext"], globalContext)
+    setGlobalContext(globalContext)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getContextJSON(globalContext)])
 

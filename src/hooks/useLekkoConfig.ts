@@ -13,24 +13,39 @@ import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfi
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
+import { getCombinedContext } from "../utils/context"
+import { type ClientContext } from "@lekko/js-sdk"
+import { queryClient } from "../providers/lekkoConfigProvider"
 
 export function useLekkoConfig<E extends EvaluationType>(
   config: LekkoConfig<E>,
   options?: ConfigOptions,
 ) {
+  const globalContext: ClientContext | undefined = queryClient.getQueryData([
+    "lekkoGlobalContext",
+  ])
+
+  const combinedConfig = {
+    ...config,
+    context: getCombinedContext(globalContext, config.context),
+  }
+
   const client = useLekkoClient()
   const settings = { ...useContext(LekkoSettingsContext), ...options }
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
-  const queryKey = createStableKey(config, client.repository)
+  const queryKey = createStableKey(combinedConfig, client.repository)
 
-  const historyItem = getHistoryItem(config.namespaceName, config.configName)
+  const historyItem = getHistoryItem(
+    combinedConfig.namespaceName,
+    combinedConfig.configName,
+  )
 
   const { data: evaluation } = useSuspenseQuery({
     queryKey,
     queryFn: async () =>
       await handleLekkoErrors(
-        async () => await getEvaluation(client, config),
-        config,
+        async () => await getEvaluation(client, combinedConfig),
+        combinedConfig,
         client.repository,
         defaultConfigLookup,
       ),
@@ -45,7 +60,7 @@ export function useLekkoConfig<E extends EvaluationType>(
   upsertHistoryItem({
     key: queryKey,
     result: evaluation,
-    config,
+    config: combinedConfig,
   })
 
   return evaluation

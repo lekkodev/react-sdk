@@ -22,23 +22,27 @@ import {
   QueryClient,
   QueryClientProvider,
   useQueries,
+  useQuery,
 } from "@tanstack/react-query"
-import { type Client } from "@lekko/js-sdk"
+import { ClientContext, type Client } from "@lekko/js-sdk"
 import { LekkoClientContext } from "./lekkoClientContext"
 import {
   loadDefaultContext,
   loadPersistedEvaluations,
   upsertHistoryItem,
 } from "../utils/overrides"
+import { getCombinedContext } from "../utils/context"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
   configRequests?: Array<LekkoConfig<EvaluationType>>
   settings?: LekkoSettings
+  globalContext?: ClientContext
 }
 
 export interface ProviderProps extends IntermediateProviderProps {
   defaultConfigs?: Array<ResolvedLekkoConfig<EvaluationType>>
   dehydratedState?: DehydratedState
+  globalContext?: ClientContext
 }
 
 export const queryClient = new QueryClient({
@@ -52,6 +56,7 @@ export function LekkoConfigProvider({
   defaultConfigs,
   dehydratedState,
   configRequests,
+  globalContext,
   children,
 }: ProviderProps) {
   const lekkoClientRef = useRef<Client | null>(null)
@@ -86,6 +91,7 @@ export function LekkoConfigProvider({
               <LekkoIntermediateConfigProvider
                 settings={settings}
                 configRequests={configRequests}
+                globalContext={globalContext}
               >
                 {children}
               </LekkoIntermediateConfigProvider>
@@ -97,28 +103,45 @@ export function LekkoConfigProvider({
   )
 }
 
+export function setGlobalContext(globalContext: ClientContext) {
+  queryClient.setQueryData(["lekkoGlobalContext"], globalContext)
+}
+
 // or as a subprovider, for example, to require a set of configs after authentication when the username is known
 export function LekkoIntermediateConfigProvider({
   configRequests = [],
   children,
   settings,
+  globalContext = new ClientContext(),
 }: IntermediateProviderProps) {
+  useQuery({
+    queryKey: ["lekkoGlobalContext"],
+    queryFn: () => globalContext,
+    ...DEFAULT_LEKKO_REFRESH,
+  })
+
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
   const client = useLekkoClient()
 
   useQueries({
-    queries: configRequests.map((config) => ({
-      queryKey: createStableKey(config, client.repository),
-      queryFn: async () =>
-        await handleLekkoErrors(
-          async () => await getEvaluation(client, config),
-          config,
-          client.repository,
-          defaultConfigLookup,
-        ),
-      ...DEFAULT_LEKKO_REFRESH,
-      suspense: settings?.nonBlockingProvider !== true,
-    })),
+    queries: configRequests.map((config) => {
+      const combinedConfig = {
+        ...config,
+        context: getCombinedContext(globalContext, config.context),
+      }
+      return {
+        queryKey: createStableKey(combinedConfig, client.repository),
+        queryFn: async () =>
+          await handleLekkoErrors(
+            async () => await getEvaluation(client, combinedConfig),
+            combinedConfig,
+            client.repository,
+            defaultConfigLookup,
+          ),
+        ...DEFAULT_LEKKO_REFRESH,
+        suspense: settings?.nonBlockingProvider !== true,
+      }
+    }),
   })
 
   const editableRequests = configRequests.map((config) => {

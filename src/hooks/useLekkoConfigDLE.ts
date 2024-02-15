@@ -13,18 +13,33 @@ import {
 import useLekkoClient from "./useLekkoClient"
 import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
+import { getCombinedContext } from "../utils/context"
+import { queryClient } from "../providers/lekkoConfigProvider"
+import { type ClientContext } from "@lekko/js-sdk"
 
 export function useLekkoConfigDLE<E extends EvaluationType>(
   config: LekkoConfig<E>,
   options?: ConfigOptions,
 ) {
+  const globalContext: ClientContext | undefined = queryClient.getQueryData([
+    "lekkoGlobalContext",
+  ])
+
+  const combinedConfig = {
+    ...config,
+    context: getCombinedContext(globalContext, config.context),
+  }
+
   const client = useLekkoClient()
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
   const settings = { ...useContext(LekkoSettingsContext), ...options }
 
-  const queryKey = createStableKey(config, client.repository)
+  const queryKey = createStableKey(combinedConfig, client.repository)
 
-  const historyItem = getHistoryItem(config.namespaceName, config.configName)
+  const historyItem = getHistoryItem(
+    combinedConfig.namespaceName,
+    combinedConfig.configName,
+  )
   const {
     data: evaluation,
     isLoading: isEvaluationLoading,
@@ -33,15 +48,15 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
     queryKey,
     queryFn: async () => {
       const result = await handleLekkoErrors(
-        async () => await getEvaluation(client, config),
-        config,
+        async () => await getEvaluation(client, combinedConfig),
+        combinedConfig,
         client.repository,
         defaultConfigLookup,
       )
       upsertHistoryItem({
         key: queryKey,
         result,
-        config,
+        config: combinedConfig,
       })
       return result
     },

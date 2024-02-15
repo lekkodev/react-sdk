@@ -3,10 +3,11 @@ import { EvaluationType, type EditableResolvedLekkoConfig } from "./types"
 
 export function getCombinedContext(
   context: ClientContext | undefined,
-  overrides: ClientContext,
+  overrides: ClientContext | undefined,
 ) {
-  if (context === undefined) return overrides
   const combined = new ClientContext()
+  if (context === undefined) return overrides ?? combined
+  if (overrides === undefined) return context ?? combined
   combined.data = {
     ...context.data,
     ...overrides.data,

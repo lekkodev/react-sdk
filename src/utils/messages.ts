@@ -1,4 +1,3 @@
-import { queryClient } from "../providers/lekkoConfigProvider"
 import {
   getCombinedContext,
   getContextJSON,
@@ -38,6 +37,7 @@ import {
 } from "./types"
 import { getEvaluation } from "./evaluation"
 import { type Client } from "@lekko/js-sdk"
+import { type QueryClient } from "@tanstack/react-query"
 
 async function handleRequestConfigs(
   client: Client,
@@ -68,7 +68,11 @@ async function handleRequestIsUsingPersistedState(
   )
 }
 
-async function handleSaveConfigs(client: Client, data: SaveConfigsMessageData) {
+async function handleSaveConfigs(
+  client: Client,
+  data: SaveConfigsMessageData,
+  queryClient: QueryClient,
+) {
   Object.entries(data.configs).forEach(([key, result]) => {
     let value = result.value
     if (result.evaluationType === EvaluationType.INT) {
@@ -93,7 +97,11 @@ async function handleSaveConfigs(client: Client, data: SaveConfigsMessageData) {
   )
 }
 
-async function handleSaveContext(client: Client, data: SaveContextMessageData) {
+async function handleSaveContext(
+  client: Client,
+  data: SaveContextMessageData,
+  queryClient: QueryClient,
+) {
   const historyItems = [...CONFIG_REQUESTS_HISTORY]
   setContextOverrides(parseContext(data.context))
   const evaluations = await Promise.all(
@@ -131,8 +139,12 @@ async function handleSaveContext(client: Client, data: SaveContextMessageData) {
   )
 }
 
-async function handleReset(client: Client, data: ResetChangesMessageData) {
-  resetExtensionChanges()
+async function handleReset(
+  client: Client,
+  data: ResetChangesMessageData,
+  queryClient: QueryClient,
+) {
+  resetExtensionChanges(queryClient)
 
   const historyItems = [...CONFIG_REQUESTS_HISTORY]
 
@@ -162,6 +174,7 @@ async function handleReset(client: Client, data: ResetChangesMessageData) {
 
 export async function handleExtensionMessage(
   client: Client,
+  queryClient: QueryClient,
   event: ExtensionMessage,
 ) {
   const eventData = event.data
@@ -172,11 +185,11 @@ export async function handleExtensionMessage(
       break
     }
     case SAVE_CONFIGS: {
-      await handleSaveConfigs(client, eventData)
+      await handleSaveConfigs(client, eventData, queryClient)
       break
     }
     case SAVE_CONTEXT: {
-      await handleSaveContext(client, eventData)
+      await handleSaveContext(client, eventData, queryClient)
       break
     }
     case REQUEST_IS_USING_PERSISTED_STATE: {
@@ -184,7 +197,7 @@ export async function handleExtensionMessage(
       break
     }
     case RESET_CHANGES: {
-      await handleReset(client, eventData)
+      await handleReset(client, eventData, queryClient)
       break
     }
     }

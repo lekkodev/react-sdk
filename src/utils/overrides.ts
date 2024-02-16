@@ -6,7 +6,7 @@ import {
   type Result,
 } from "./types"
 import { getCombinedContext, parseContext } from "./context"
-import { queryClient } from "../providers/lekkoConfigProvider"
+import { type QueryClient } from "@tanstack/react-query"
 
 export let CONFIG_REQUESTS_HISTORY: Array<
   EditableResolvedLekkoConfig<EvaluationType>
@@ -92,7 +92,7 @@ export function persistConfigEvaluations(configs: ConfigResults) {
   localStorage.setItem(LEKKO_CONFIG_EVALUATIONS, JSON.stringify(configs))
 }
 
-export function loadPersistedEvaluations() {
+export function loadPersistedEvaluations(queryClient: QueryClient) {
   const configs = localStorage.getItem(LEKKO_CONFIG_EVALUATIONS)
   if (configs !== null) {
     Object.entries(JSON.parse(configs)).forEach(([key, result]) => {
@@ -106,11 +106,11 @@ export function loadPersistedEvaluations() {
   }
 }
 
-export function resetExtensionChanges() {
+export function resetExtensionChanges(queryClient: QueryClient) {
   localStorage.removeItem(LEKKO_CONTEXT_OVERRIDES)
   setContextOverrides(new ClientContext(), true)
   localStorage.removeItem(LEKKO_CONFIG_EVALUATIONS)
-  loadPersistedEvaluations()
+  loadPersistedEvaluations(queryClient)
 }
 
 export function isUsingPersistedState() {

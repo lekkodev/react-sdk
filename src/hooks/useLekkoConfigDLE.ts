@@ -6,6 +6,7 @@ import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
 import {
+  type EvaluationResult,
   type ConfigOptions,
   type EvaluationType,
   type LekkoConfig,
@@ -45,6 +46,7 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
     error,
   } = useQuery({
     queryKey,
+    // @ts-expect-error For some reason TS thinks the queryFn has to be QueryFunction<E, ...> instead of QueryFunction<EvaluationResult<E>, ...>
     queryFn: async () => {
       const result = await handleLekkoErrors(
         async () => await getEvaluation(client, combinedConfig),
@@ -62,8 +64,10 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
     ...DEFAULT_LEKKO_REFRESH,
     ...(settings.backgroundRefetch === true
       ? {
-        placeholderData: historyItem?.result,
-      }
+          placeholderData: historyItem?.result as
+            | EvaluationResult<E>
+            | undefined,
+        }
       : {}),
   })
 

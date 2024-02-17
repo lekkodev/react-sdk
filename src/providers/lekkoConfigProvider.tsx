@@ -14,6 +14,8 @@ import {
   type EvaluationType,
   type ResolvedLekkoConfig,
   type DefaultConfigLookup,
+  type EvaluationResult,
+  type EditableResolvedLekkoConfig,
 } from "../utils/types"
 import {
   DEFAULT_LEKKO_REFRESH,
@@ -160,15 +162,23 @@ export function LekkoIntermediateConfigProvider({
     }),
   })
 
-  const editableRequests = configRequests.map((config) => {
-    const key = createStableKey(config, client.repository)
-    const result = queryClient.getQueryData(key)
-    return {
-      config,
-      result,
-      key,
-    }
-  })
+  const editableRequests = configRequests
+    .map((config) => {
+      const key = createStableKey(config, client.repository)
+      const result =
+        queryClient.getQueryData<EvaluationResult<EvaluationType>>(key)
+      return {
+        config,
+        result,
+        key,
+      }
+    })
+    .filter(
+      (
+        historyItem,
+      ): historyItem is EditableResolvedLekkoConfig<EvaluationType> =>
+        historyItem.result !== undefined,
+    )
 
   editableRequests.forEach((historyItem) => {
     upsertHistoryItem(historyItem)

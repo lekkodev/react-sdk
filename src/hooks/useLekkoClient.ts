@@ -4,7 +4,7 @@ import { useContext } from "react"
 import { type LekkoSettings, type ExtensionMessage } from "../utils/types"
 import { getEnvironmentVariable } from "../utils/envHelpers"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
-import { RepositoryKey } from ".."
+import { RepositoryKey } from "@lekko/js-sdk"
 import { LekkoClientContext } from "../providers/lekkoClientContext"
 import { handleExtensionMessage } from "../utils/messages"
 import { type QueryClient, useQueryClient } from "@tanstack/react-query"
@@ -53,6 +53,7 @@ export function init({
     repositoryOwner: repositoryKey.ownerName,
     repositoryName: repositoryKey.repoName,
     hostname,
+    localPath: settings.localPath,
   })
 
   window.addEventListener("message", (event: ExtensionMessage) => {

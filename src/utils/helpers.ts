@@ -20,17 +20,17 @@ export function createStableKey<E extends EvaluationType>(
   const contextKeyParts: string[] =
     config.context !== undefined
       ? Object.entries(config.context.data)
-        .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
-        .map(([key, value]) => {
-          if (isValue(value)) {
-            return `${key}:${value.toJsonString()}`
-          } else {
-            console.error(
-              `Value associated with key ${key} does not have a toJsonString method`,
-            )
-            return `${key}:${JSON.stringify(value)}`
-          }
-        })
+          .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+          .map(([key, value]) => {
+            if (isValue(value)) {
+              return `${key}:${value.toJsonString()}`
+            } else {
+              console.error(
+                `Value associated with key ${key} does not have a toJsonString method`,
+              )
+              return `${key}:${JSON.stringify(value)}`
+            }
+          })
       : []
 
   const contextKey = contextKeyParts.join("_")

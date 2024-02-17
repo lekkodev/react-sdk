@@ -34,6 +34,7 @@ import {
   type RequestIsUsingPersistedStateMessageData,
   REQUEST_IS_USING_PERSISTED_STATE_RESPONSE,
   EvaluationType,
+  type EvaluationResult,
 } from "./types"
 import { getEvaluation } from "./evaluation"
 import { type Client } from "@lekko/js-sdk"
@@ -74,9 +75,9 @@ async function handleSaveConfigs(
   queryClient: QueryClient,
 ) {
   Object.entries(data.configs).forEach(([key, result]) => {
-    let value = result.value
+    let value: EvaluationResult<EvaluationType> = result.value
     if (result.evaluationType === EvaluationType.INT) {
-      value = BigInt(value)
+      value = BigInt(result.value)
     }
     queryClient.setQueryData(JSON.parse(key), value)
   })
@@ -180,26 +181,26 @@ export async function handleExtensionMessage(
   const eventData = event.data
   if (eventData !== undefined) {
     switch (eventData.type) {
-    case REQUEST_CONFIGS: {
-      await handleRequestConfigs(client, eventData)
-      break
-    }
-    case SAVE_CONFIGS: {
-      await handleSaveConfigs(client, eventData, queryClient)
-      break
-    }
-    case SAVE_CONTEXT: {
-      await handleSaveContext(client, eventData, queryClient)
-      break
-    }
-    case REQUEST_IS_USING_PERSISTED_STATE: {
-      await handleRequestIsUsingPersistedState(client, eventData)
-      break
-    }
-    case RESET_CHANGES: {
-      await handleReset(client, eventData, queryClient)
-      break
-    }
+      case REQUEST_CONFIGS: {
+        await handleRequestConfigs(client, eventData)
+        break
+      }
+      case SAVE_CONFIGS: {
+        await handleSaveConfigs(client, eventData, queryClient)
+        break
+      }
+      case SAVE_CONTEXT: {
+        await handleSaveContext(client, eventData, queryClient)
+        break
+      }
+      case REQUEST_IS_USING_PERSISTED_STATE: {
+        await handleRequestIsUsingPersistedState(client, eventData)
+        break
+      }
+      case RESET_CHANGES: {
+        await handleReset(client, eventData, queryClient)
+        break
+      }
     }
   }
 }

@@ -3,9 +3,9 @@ import {
   EvaluationType,
   type ConfigResults,
   type EditableResolvedLekkoConfig,
-  type Result,
+  type EvaluationResult,
 } from "./types"
-import { getCombinedContext, parseContext } from "./context"
+import { getCombinedContext } from "./context"
 import { type QueryClient } from "@tanstack/react-query"
 
 export let CONFIG_REQUESTS_HISTORY: Array<
@@ -84,7 +84,7 @@ export function persistDefaultContext() {
 export function loadDefaultContext() {
   const overrides = localStorage.getItem(LEKKO_CONTEXT_OVERRIDES)
   if (overrides !== null) {
-    setContextOverrides(parseContext(JSON.parse(overrides)))
+    setContextOverrides(JSON.parse(overrides) as ClientContext)
   }
 }
 
@@ -95,14 +95,16 @@ export function persistConfigEvaluations(configs: ConfigResults) {
 export function loadPersistedEvaluations(queryClient: QueryClient) {
   const configs = localStorage.getItem(LEKKO_CONFIG_EVALUATIONS)
   if (configs !== null) {
-    Object.entries(JSON.parse(configs)).forEach(([key, result]) => {
-      const cResult = result as Result
-      let value = cResult?.value
-      if (cResult?.evaluationType === EvaluationType.INT) {
-        value = BigInt(value)
-      }
-      queryClient.setQueryData(JSON.parse(key), value)
-    })
+    Object.entries(JSON.parse(configs) as ConfigResults).forEach(
+      ([key, result]) => {
+        const cResult = result
+        let value: EvaluationResult<EvaluationType> = cResult?.value
+        if (cResult?.evaluationType === EvaluationType.INT) {
+          value = BigInt(cResult.value)
+        }
+        queryClient.setQueryData(JSON.parse(key), value)
+      },
+    )
   }
 }
 

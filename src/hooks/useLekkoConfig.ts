@@ -51,8 +51,8 @@ export function useLekkoConfig<E extends EvaluationType>(
     ...DEFAULT_LEKKO_REFRESH,
     ...(settings.backgroundRefetch === true
       ? {
-        placeholderData: historyItem?.result,
-      }
+          placeholderData: historyItem?.result,
+        }
       : {}),
   })
 

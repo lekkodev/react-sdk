@@ -22,43 +22,43 @@ export async function getEvaluation<E extends EvaluationType>(
   const context = getCombinedContext(configContext, CONTEXT_OVERRIDES)
 
   switch (evaluationType) {
-  case EvaluationType.BOOL:
-    return (await client.getBool(
-      namespaceName,
-      configName,
-      context,
-    )) as EvaluationResult<E>
-  case EvaluationType.FLOAT:
-    return (await client.getFloat(
-      namespaceName,
-      configName,
-      context,
-    )) as EvaluationResult<E>
-  case EvaluationType.INT:
-    return (await client.getInt(
-      namespaceName,
-      configName,
-      context,
-    )) as EvaluationResult<E>
-  case EvaluationType.STRING:
-    return (await client.getString(
-      namespaceName,
-      configName,
-      context,
-    )) as EvaluationResult<E>
-  case EvaluationType.JSON:
-    return (await client.getJSON(
-      namespaceName,
-      configName,
-      context,
-    )) as EvaluationResult<E>
-  case EvaluationType.PROTO:
-    return (await client.getProto(
-      namespaceName,
-      configName,
-      context,
-    )) as EvaluationResult<E>
-  default:
-    return assertExhaustive(evaluationType)
+    case EvaluationType.BOOL:
+      return (await client.getBool(
+        namespaceName,
+        configName,
+        context,
+      )) as EvaluationResult<E>
+    case EvaluationType.FLOAT:
+      return (await client.getFloat(
+        namespaceName,
+        configName,
+        context,
+      )) as EvaluationResult<E>
+    case EvaluationType.INT:
+      return (await client.getInt(
+        namespaceName,
+        configName,
+        context,
+      )) as EvaluationResult<E>
+    case EvaluationType.STRING:
+      return (await client.getString(
+        namespaceName,
+        configName,
+        context,
+      )) as EvaluationResult<E>
+    case EvaluationType.JSON:
+      return (await client.getJSON(
+        namespaceName,
+        configName,
+        context,
+      )) as EvaluationResult<E>
+    case EvaluationType.PROTO:
+      return (await client.getProto(
+        namespaceName,
+        configName,
+        context,
+      )) as EvaluationResult<E>
+    default:
+      return assertExhaustive(evaluationType)
   }
 }

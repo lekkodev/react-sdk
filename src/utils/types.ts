@@ -10,6 +10,23 @@ export enum EvaluationType {
   PROTO = "Proto",
 }
 
+export type JSONValue =
+  | number
+  | string
+  | boolean
+  | null
+  | JSONObject
+  | JSONValue[]
+// Can't use Record here due to circular reference
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions, @typescript-eslint/consistent-indexed-object-style
+export type JSONObject = {
+  [key: string]: JSONValue
+}
+
+export interface JSONClientContext {
+  data: JSONObject
+}
+
 export interface LekkoConfig<E extends EvaluationType> {
   namespaceName: string
   configName: string
@@ -21,25 +38,33 @@ export type EvaluationResult<E extends EvaluationType> =
   E extends EvaluationType.BOOL
     ? boolean
     : E extends EvaluationType.FLOAT
-    ? number
-    : E extends EvaluationType.INT
-    ? bigint
-    : E extends EvaluationType.STRING
-    ? string
-    : E extends EvaluationType.JSON
-    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      any
-    : E extends EvaluationType.PROTO
-    ? Any
-    : never
+      ? number
+      : E extends EvaluationType.INT
+        ? bigint
+        : E extends EvaluationType.STRING
+          ? string
+          : E extends EvaluationType.JSON
+            ? JSONObject
+            : E extends EvaluationType.PROTO
+              ? Any
+              : never
 
 export interface LekkoSettings {
   apiKey?: string
   repositoryName?: string
   repositoryOwner?: string
+  /**
+   * For local development. A URL of a running Lekko config server.
+   */
   hostname?: string
   nonBlockingProvider?: boolean
   backgroundRefetch?: boolean
+  /**
+   * For local development in conjunction with a locally running Lekko config
+   * server. Pass the path to a config repository on the local filesystem.
+   * If omitted, a default location will be used.
+   */
+  localPath?: string
 }
 
 export interface ResolvedLekkoConfig<E extends EvaluationType> {
@@ -88,12 +113,23 @@ export interface RequestIsUsingPersistedStateMessageData
   type: "REQUEST_IS_USING_PERSISTED_STATE"
 }
 
-export interface Result {
-  // this type can be number | string | boolean | json (any)
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  value: any
-  evaluationType: EvaluationType
-}
+export type Result =
+  | {
+      value: string
+      evaluationType: EvaluationType.STRING
+    }
+  | {
+      value: number
+      evaluationType: EvaluationType.INT | EvaluationType.FLOAT
+    }
+  | {
+      value: boolean
+      evaluationType: EvaluationType.BOOL
+    }
+  | {
+      value: JSONObject
+      evaluationType: EvaluationType.JSON
+    }
 export type ConfigResults = Record<string, Result>
 
 export interface SaveConfigsMessageData extends BaseMessageData {
@@ -104,7 +140,7 @@ export interface SaveConfigsMessageData extends BaseMessageData {
 
 export interface SaveContextMessageData extends BaseMessageData {
   type: "SAVE_CONTEXT"
-  context: ClientContext
+  context: JSONClientContext
   persistChanges: boolean
 }
 

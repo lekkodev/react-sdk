@@ -1,5 +1,9 @@
 import { ClientContext, Value } from "@lekko/js-sdk"
-import { EvaluationType, type EditableResolvedLekkoConfig } from "./types"
+import {
+  EvaluationType,
+  type EditableResolvedLekkoConfig,
+  type JSONClientContext,
+} from "./types"
 
 export function getCombinedContext(
   context: ClientContext | undefined,
@@ -13,13 +17,6 @@ export function getCombinedContext(
     ...overrides.data,
   }
   return combined
-}
-
-// the data we send to the extension via message is json without proper typing
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type JSONData = Record<string, any>
-interface JSONClientContext {
-  data: JSONData
 }
 
 export function parseContext(
@@ -41,24 +38,31 @@ export function getContextJSON(
     data: {},
   }
   Object.entries(context.data).forEach(([key, value]) => {
-    json.data[key] = value.toJson()
+    const jsonValue = value.toJson()
+    if (jsonValue !== null) {
+      json.data[key] = jsonValue
+    }
   })
   return json
 }
 
-function getResultJSON(item: EditableResolvedLekkoConfig<EvaluationType>) {
+function getResultJSON<E extends EvaluationType>(
+  item: EditableResolvedLekkoConfig<E>,
+) {
   switch (item.config.evaluationType) {
-  case EvaluationType.INT:
-    return item.result.toString()
-  case EvaluationType.PROTO:
-    // unsupported
-    return ""
-  default:
-    return item.result
+    case EvaluationType.INT:
+      return (item.result as bigint).toString()
+    case EvaluationType.PROTO:
+      // unsupported
+      return ""
+    default:
+      return item.result
   }
 }
 
-function getHistoryItemJSON(item: EditableResolvedLekkoConfig<EvaluationType>) {
+function getHistoryItemJSON<E extends EvaluationType>(
+  item: EditableResolvedLekkoConfig<E>,
+) {
   return {
     ...item,
     result: getResultJSON(item),
@@ -69,8 +73,8 @@ function getHistoryItemJSON(item: EditableResolvedLekkoConfig<EvaluationType>) {
   }
 }
 
-export function getHistoryJSON(
-  history: Array<EditableResolvedLekkoConfig<EvaluationType>>,
+export function getHistoryJSON<E extends EvaluationType>(
+  history: Array<EditableResolvedLekkoConfig<E>>,
 ) {
   return history.map((item) => getHistoryItemJSON(item))
 }

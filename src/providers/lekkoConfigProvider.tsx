@@ -32,7 +32,7 @@ import {
   useQueries,
   useQueryClient,
 } from "@tanstack/react-query"
-import { ClientContext, type Client } from "@lekko/js-sdk"
+import { type ClientContext, type Client } from "@lekko/js-sdk"
 import { LekkoClientContext } from "./lekkoClientContext"
 import {
   loadDefaultContext,
@@ -128,13 +128,21 @@ export function LekkoIntermediateConfigProvider({
   configRequests = [],
   children,
   settings,
-  globalContext = new ClientContext(),
+  globalContext,
 }: IntermediateProviderProps) {
   const queryClient = useQueryClient()
+
   const { setGlobalContext } = useContext(LekkoGlobalContext)
 
   useEffect(() => {
-    setGlobalContext(globalContext)
+    if (globalContext !== undefined) {
+      setGlobalContext(
+        getCombinedContext(
+          queryClient.getQueryData(["lekkoGlobalContext"]),
+          globalContext,
+        ),
+      )
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getContextJSON(globalContext)])
 

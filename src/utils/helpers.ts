@@ -1,8 +1,8 @@
 import {
   type ResolvedLekkoConfig,
-  type EvaluationType,
   type LekkoConfig,
   type DefaultConfigLookup,
+  type EvaluationType,
 } from "./types"
 
 import { type Value, type RepositoryKey } from "@lekko/js-sdk"
@@ -54,7 +54,7 @@ export function createDefaultStableKey<E extends EvaluationType>(
 }
 
 export function mapStableKeysToConfigs(
-  configs: Array<ResolvedLekkoConfig<EvaluationType>>,
+  configs: ResolvedLekkoConfig[],
   repositoryKey: RepositoryKey,
 ): DefaultConfigLookup {
   return configs.reduce<DefaultConfigLookup>((acc, resolvedConfig) => {

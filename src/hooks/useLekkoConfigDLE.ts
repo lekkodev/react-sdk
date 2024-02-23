@@ -17,10 +17,31 @@ import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import { getCombinedContext } from "../utils/context"
 import { type ClientContext } from "@lekko/js-sdk"
 
+// Discriminated union typing for pending, success, error states
+export type LekkoDLE<E extends EvaluationType> =
+  | {
+      evaluation?: EvaluationResult<E>
+      isEvaluationLoading: true
+      error: null
+    }
+  | {
+      evaluation: EvaluationResult<E>
+      isEvaluationLoading: false
+      error: null
+    }
+  | {
+      evaluation: undefined
+      isEvaluationLoading: false
+      error: Error
+    }
+
+// eslint-disable-next-line @typescript-eslint/ban-types -- Usage of Function is for compatibility with react-query placeholderData type
+type NonFunctionGuard<T> = T extends Function ? never : T
+
 export function useLekkoConfigDLE<E extends EvaluationType>(
   config: LekkoConfig<E>,
   options?: ConfigOptions,
-) {
+): LekkoDLE<E> {
   const globalContext: ClientContext | undefined = useQuery({
     queryKey: ["lekkoGlobalContext"],
   }).data as ClientContext | undefined
@@ -39,14 +60,11 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
   const historyItem = getHistoryItem(
     combinedConfig.namespaceName,
     combinedConfig.configName,
+    combinedConfig.evaluationType,
   )
-  const {
-    data: evaluation,
-    isLoading: isEvaluationLoading,
-    error,
-  } = useQuery({
+
+  const res = useQuery<EvaluationResult<E>>({
     queryKey,
-    // @ts-expect-error For some reason TS thinks the queryFn has to be QueryFunction<E, ...> instead of QueryFunction<EvaluationResult<E>, ...>
     queryFn: async () => {
       const result = await handleLekkoErrors(
         async () => await getEvaluation(client, combinedConfig),
@@ -62,18 +80,38 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
       return result
     },
     ...DEFAULT_LEKKO_REFRESH,
-    ...(settings.backgroundRefetch === true
+    ...(settings.backgroundRefetch === true && historyItem !== undefined
       ? {
-          placeholderData: historyItem?.result as
-            | EvaluationResult<E>
-            | undefined,
+          // This cast is required due to TS limitations with conditional types
+          // and react-query's type signatures
+          placeholderData: historyItem.result as NonFunctionGuard<
+            EvaluationResult<E>
+          >,
         }
       : {}),
   })
 
-  return {
-    evaluation,
-    isEvaluationLoading,
-    error,
+  switch (res.status) {
+    case "pending": {
+      return {
+        evaluation: res.data,
+        isEvaluationLoading: true,
+        error: null,
+      }
+    }
+    case "success": {
+      return {
+        evaluation: res.data,
+        isEvaluationLoading: false,
+        error: null,
+      }
+    }
+    case "error": {
+      return {
+        evaluation: undefined,
+        isEvaluationLoading: false,
+        error: res.error,
+      }
+    }
   }
 }

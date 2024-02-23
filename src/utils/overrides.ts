@@ -8,17 +8,13 @@ import {
 import { getCombinedContext } from "./context"
 import { type QueryClient } from "@tanstack/react-query"
 
-export let CONFIG_REQUESTS_HISTORY: Array<
-  EditableResolvedLekkoConfig<EvaluationType>
-> = []
+export let CONFIG_REQUESTS_HISTORY: EditableResolvedLekkoConfig[] = []
 
 export let CONTEXT_HISTORY = new ClientContext()
 export let CONTEXT_OVERRIDES = new ClientContext()
 
 // so other files can set the history
-export function setRequestsHistory(
-  history: Array<EditableResolvedLekkoConfig<EvaluationType>>,
-) {
+export function setRequestsHistory(history: EditableResolvedLekkoConfig[]) {
   CONFIG_REQUESTS_HISTORY = history
 }
 
@@ -27,8 +23,15 @@ export function setContextOverrides(context: ClientContext, force?: boolean) {
     force === true ? context : getCombinedContext(CONTEXT_OVERRIDES, context)
 }
 
-export function getHistoryItem(namespaceName: string, configName: string) {
-  return CONFIG_REQUESTS_HISTORY.find((evaluatedConfig) => {
+export function getHistoryItem<E extends EvaluationType>(
+  namespaceName: string,
+  configName: string,
+  evaluationType: E,
+): EditableResolvedLekkoConfig<E> | undefined {
+  return CONFIG_REQUESTS_HISTORY.filter(
+    (evaluatedConfig): evaluatedConfig is EditableResolvedLekkoConfig<E> =>
+      evaluatedConfig.config.evaluationType === evaluationType,
+  ).find((evaluatedConfig) => {
     return (
       evaluatedConfig.config.namespaceName === namespaceName &&
       evaluatedConfig.config.configName === configName

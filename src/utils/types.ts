@@ -27,14 +27,14 @@ export interface JSONClientContext {
   data: JSONObject
 }
 
-export interface LekkoConfig<E extends EvaluationType> {
+export interface LekkoConfig<E extends EvaluationType = EvaluationType> {
   namespaceName: string
   configName: string
   context?: ClientContext
   evaluationType: E
 }
 
-export type EvaluationResult<E extends EvaluationType> =
+export type EvaluationResult<E extends EvaluationType = EvaluationType> =
   E extends EvaluationType.BOOL
     ? boolean
     : E extends EvaluationType.FLOAT
@@ -67,21 +67,20 @@ export interface LekkoSettings {
   localPath?: string
 }
 
-export interface ResolvedLekkoConfig<E extends EvaluationType> {
+export interface ResolvedLekkoConfig<
+  E extends EvaluationType = EvaluationType,
+> {
   config: LekkoConfig<E>
   result: EvaluationResult<E>
 }
 
-export interface EditableResolvedLekkoConfig<E extends EvaluationType> {
-  config: LekkoConfig<E>
-  result: EvaluationResult<E>
+export interface EditableResolvedLekkoConfig<
+  E extends EvaluationType = EvaluationType,
+> extends ResolvedLekkoConfig<E> {
   key: string[]
 }
 
-export type DefaultConfigLookup = Record<
-  string,
-  ResolvedLekkoConfig<EvaluationType>
->
+export type DefaultConfigLookup = Record<string, ResolvedLekkoConfig>
 
 export const REQUEST_CONFIGS = "REQUEST_CONFIGS"
 export const SAVE_CONFIGS = "SAVE_CONFIGS"

@@ -46,8 +46,8 @@ export function getContextJSON(
   return json
 }
 
-function getResultJSON<E extends EvaluationType>(
-  item: EditableResolvedLekkoConfig<E>,
+function getResultJSON(
+  item: EditableResolvedLekkoConfig,
 ) {
   switch (item.config.evaluationType) {
     case EvaluationType.INT:
@@ -60,8 +60,8 @@ function getResultJSON<E extends EvaluationType>(
   }
 }
 
-function getHistoryItemJSON<E extends EvaluationType>(
-  item: EditableResolvedLekkoConfig<E>,
+function getHistoryItemJSON(
+  item: EditableResolvedLekkoConfig,
 ) {
   return {
     ...item,
@@ -73,8 +73,8 @@ function getHistoryItemJSON<E extends EvaluationType>(
   }
 }
 
-export function getHistoryJSON<E extends EvaluationType>(
-  history: Array<EditableResolvedLekkoConfig<E>>,
+export function getHistoryJSON(
+  history: EditableResolvedLekkoConfig[],
 ) {
   return history.map((item) => getHistoryItemJSON(item))
 }

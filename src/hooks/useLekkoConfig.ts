@@ -2,8 +2,8 @@ import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
 import {
-  type ConfigOptions,
   type EvaluationType,
+  type ConfigOptions,
   type LekkoConfig,
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
@@ -37,6 +37,7 @@ export function useLekkoConfig<E extends EvaluationType>(
   const historyItem = getHistoryItem(
     combinedConfig.namespaceName,
     combinedConfig.configName,
+    combinedConfig.evaluationType,
   )
 
   const { data: evaluation } = useSuspenseQuery({

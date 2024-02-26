@@ -2,9 +2,10 @@ import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
 import { createStableKey } from "../utils/helpers"
 import {
-  type EvaluationType,
+  EvaluationType,
   type ConfigOptions,
   type LekkoConfig,
+  type UntypedLekkoConfig,
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 import { handleLekkoErrors } from "../errors/errors"
@@ -64,4 +65,82 @@ export function useLekkoConfig<E extends EvaluationType>(
   })
 
   return evaluation
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfig} that is specifically for using boolean configs.
+ */
+export function useBoolConfig(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfig(
+    { ...config, evaluationType: EvaluationType.BOOL },
+    options,
+  )
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfig} that is specifically for using string configs.
+ */
+export function useStringConfig(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfig(
+    { ...config, evaluationType: EvaluationType.STRING },
+    options,
+  )
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfig} that is specifically for using int configs.
+ */
+export function useIntConfig(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfig(
+    { ...config, evaluationType: EvaluationType.INT },
+    options,
+  )
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfig} that is specifically for using float configs.
+ */
+export function useFloatConfig(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfig(
+    { ...config, evaluationType: EvaluationType.FLOAT },
+    options,
+  )
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfig} that is specifically for using JSON configs.
+ */
+export function useJSONConfig(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfig(
+    { ...config, evaluationType: EvaluationType.JSON },
+    options,
+  )
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfig} that is specifically for using protobuf configs.
+ */
+export function useProtoConfig(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfig(
+    { ...config, evaluationType: EvaluationType.PROTO },
+    options,
+  )
 }

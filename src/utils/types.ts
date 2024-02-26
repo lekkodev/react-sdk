@@ -34,6 +34,8 @@ export interface LekkoConfig<E extends EvaluationType = EvaluationType> {
   evaluationType: E
 }
 
+export type UntypedLekkoConfig = Omit<LekkoConfig, "evaluationType">
+
 export type EvaluationResult<E extends EvaluationType = EvaluationType> =
   E extends EvaluationType.BOOL
     ? boolean

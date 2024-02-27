@@ -424,35 +424,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buf/lekkodev_sdk.bufbuild_es@npm:1.6.0-20230810202034-1c821065b9a0.1":
-  version: 1.6.0-20230810202034-1c821065b9a0.1
-  resolution: "@buf/lekkodev_sdk.bufbuild_es@npm:1.6.0-20230810202034-1c821065b9a0.1"
-  peerDependencies:
-    "@bufbuild/protobuf": ^1.6.0
-  checksum: d072b1b426511fb3b3fb985c7a4e1b28f7afd680cbd9c85868fc0b24c73102f4048f645e2f80af48fcc86ec2bb49341e030a85e5390c9ffc4acc626f80cc26d3
-  languageName: node
-  linkType: hard
-
-"@buf/lekkodev_sdk.bufbuild_es@npm:^1.7.2-20230810202034-1c821065b9a0.1":
-  version: 1.7.2-20230810202034-1c821065b9a0.1
-  resolution: "@buf/lekkodev_sdk.bufbuild_es@npm:1.7.2-20230810202034-1c821065b9a0.1"
-  peerDependencies:
-    "@bufbuild/protobuf": ^1.7.2
-  checksum: 684db3e1033ed2936503a074a2e53a09c06dece4787caacf328533ecc1a6a6b86f1cc0fc115848c4a6d71143e3772a210ef8f755235497d8a2110aae1a865128
-  languageName: node
-  linkType: hard
-
-"@buf/lekkodev_sdk.connectrpc_es@npm:^1.3.0-20230810202034-1c821065b9a0.1":
-  version: 1.3.0-20230810202034-1c821065b9a0.1
-  resolution: "@buf/lekkodev_sdk.connectrpc_es@npm:1.3.0-20230810202034-1c821065b9a0.1"
-  dependencies:
-    "@buf/lekkodev_sdk.bufbuild_es": 1.6.0-20230810202034-1c821065b9a0.1
-  peerDependencies:
-    "@connectrpc/connect": ^1.3.0
-  checksum: 51ff5446bea61a89eebcb6e090b92ea7996fd26da3273f60c5434aa79941c8febf9832d775303b431314ca30b38307a3406e0a1eb4497aba1a70f9e477adefb9
-  languageName: node
-  linkType: hard
-
 "@bufbuild/protobuf@npm:^1.7.2":
   version: 1.7.2
   resolution: "@bufbuild/protobuf@npm:1.7.2"
@@ -862,16 +833,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lekko/js-sdk@npm:^0.1.0-beta-4":
-  version: 0.1.0-beta-4
-  resolution: "@lekko/js-sdk@npm:0.1.0-beta-4"
+"@lekko/js-sdk@npm:^0.1.0-beta-5":
+  version: 0.1.0-beta-5
+  resolution: "@lekko/js-sdk@npm:0.1.0-beta-5"
   dependencies:
-    "@buf/lekkodev_sdk.bufbuild_es": ^1.7.2-20230810202034-1c821065b9a0.1
-    "@buf/lekkodev_sdk.connectrpc_es": ^1.3.0-20230810202034-1c821065b9a0.1
     "@bufbuild/protobuf": ^1.7.2
     "@connectrpc/connect": ^1.3.0
     "@connectrpc/connect-web": ^1.3.0
-  checksum: 2a9b154624d4944b0b8fa98c36ab3f18f296c9b701c5d64f61e19cdb8de09b1d7ffb91c44115683c8022973ec80a562d61de3ecc36f9556f3a735b64fbd0cd87
+  checksum: 771ed7ac60522d337fa5d0880aa561e29add187948236fb54a40f6d23da5ce9c8ffd51e7d84c5150b168200a1f4725dc64a57346ac1d495ed8f3ac69c82273d7
   languageName: node
   linkType: hard
 
@@ -880,7 +849,7 @@ __metadata:
   resolution: "@lekko/react-sdk@workspace:."
   dependencies:
     "@babel/core": ^7.23.9
-    "@lekko/js-sdk": ^0.1.0-beta-4
+    "@lekko/js-sdk": ^0.1.0-beta-5
     "@rollup/plugin-commonjs": ^25.0.7
     "@rollup/plugin-node-resolve": ^15.2.3
     "@rollup/plugin-terser": ^0.4.4
@@ -6522,7 +6491,7 @@ __metadata:
 
 "typescript@patch:typescript@*#~builtin<compat/typescript>":
   version: 5.3.3
-  resolution: "typescript@patch:typescript@npm%3A5.3.3#~builtin<compat/typescript>::version=5.3.3&hash=f3b441"
+  resolution: "typescript@patch:typescript@npm%3A5.3.3#~builtin<compat/typescript>::version=5.3.3&hash=29ae49"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver

@@ -30,9 +30,10 @@ function init({
   defaultConfigs,
 }: InitProps): Client {
   const repositoryOwner =
-    settings?.repositoryOwner ?? getEnvironmentVariable("REPOSITORY_OWNER")
+    settings?.repositoryOwner ??
+    getEnvironmentVariable("LEKKO_REPOSITORY_OWNER")
   const repositoryName =
-    settings?.repositoryName ?? getEnvironmentVariable("REPOSITORY_NAME")
+    settings?.repositoryName ?? getEnvironmentVariable("LEKKO_REPOSITORY_NAME")
 
   if (repositoryOwner === undefined || repositoryName === undefined) {
     throw new Error("Missing Lekko repository env values")

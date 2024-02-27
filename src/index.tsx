@@ -1,5 +1,3 @@
-import { useLekkoConfig } from "./hooks/useLekkoConfig"
-import { useLekkoConfigDLE } from "./hooks/useLekkoConfigDLE"
 import { useLekkoConfigFetch } from "./hooks/useLekkoConfigFetch"
 import {
   LekkoConfigProvider,
@@ -14,12 +12,12 @@ import { getCombinedContext, getContextJSON } from "./utils/context"
 import { LekkoGlobalContext } from "./providers/lekkoGlobalContext"
 
 export type { LekkoConfig } from "./utils/types"
+export * from "./hooks/useLekkoConfig"
+export * from "./hooks/useLekkoConfigDLE"
 export * from "./utils/types"
 export * from "./errors/types"
 
 export {
-  useLekkoConfig,
-  useLekkoConfigDLE,
   useLekkoConfigFetch,
   LekkoConfigProvider,
   createMockClient,

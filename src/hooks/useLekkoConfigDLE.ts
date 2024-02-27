@@ -8,8 +8,9 @@ import { createStableKey } from "../utils/helpers"
 import {
   type EvaluationResult,
   type ConfigOptions,
-  type EvaluationType,
+  EvaluationType,
   type LekkoConfig,
+  type UntypedLekkoConfig,
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
@@ -114,4 +115,82 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
       }
     }
   }
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfigDLE} that is specifically for using boolean configs.
+ */
+export function useBoolConfigDLE(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfigDLE(
+    { ...config, evaluationType: EvaluationType.BOOL },
+    options,
+  )
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfigDLE} that is specifically for using string configs.
+ */
+export function useStringConfigDLE(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfigDLE(
+    { ...config, evaluationType: EvaluationType.STRING },
+    options,
+  )
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfigDLE} that is specifically for using int configs.
+ */
+export function useIntConfigDLE(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfigDLE(
+    { ...config, evaluationType: EvaluationType.INT },
+    options,
+  )
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfigDLE} that is specifically for using float configs.
+ */
+export function useFloatConfigDLE(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfigDLE(
+    { ...config, evaluationType: EvaluationType.FLOAT },
+    options,
+  )
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfigDLE} that is specifically for using JSON configs.
+ */
+export function useJSONConfigDLE(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfigDLE(
+    { ...config, evaluationType: EvaluationType.JSON },
+    options,
+  )
+}
+
+/**
+ * A convenience wrapper for {@link useLekkoConfigDLE} that is specifically for using protobuf configs.
+ */
+export function useProtoConfigDLE(
+  config: UntypedLekkoConfig,
+  options?: ConfigOptions,
+) {
+  return useLekkoConfigDLE(
+    { ...config, evaluationType: EvaluationType.PROTO },
+    options,
+  )
 }

@@ -48,7 +48,8 @@ export function useLekkoConfig<E extends EvaluationType>(
     ...DEFAULT_LEKKO_REFRESH,
     ...(settings.backgroundRefetch === true
       ? {
-          placeholderData: (previousData: EvaluationResult<E>) => previousData,
+          placeholderData: (previousData: EvaluationResult<E> | undefined) =>
+            previousData,
         }
       : {}),
   })

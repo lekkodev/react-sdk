@@ -159,3 +159,6 @@ export interface ExtensionMessage {
 export interface ConfigOptions {
   backgroundRefetch?: boolean
 }
+
+// eslint-disable-next-line @typescript-eslint/ban-types -- Usage of Function is for compatibility with react-query placeholderData type
+export type NonFunctionGuard<T> = T extends Function ? never : T

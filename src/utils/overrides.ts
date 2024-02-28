@@ -23,22 +23,6 @@ export function setContextOverrides(context: ClientContext, force?: boolean) {
     force === true ? context : getCombinedContext(CONTEXT_OVERRIDES, context)
 }
 
-export function getHistoryItem<E extends EvaluationType>(
-  namespaceName: string,
-  configName: string,
-  evaluationType: E,
-): EditableResolvedLekkoConfig<E> | undefined {
-  return CONFIG_REQUESTS_HISTORY.filter(
-    (evaluatedConfig): evaluatedConfig is EditableResolvedLekkoConfig<E> =>
-      evaluatedConfig.config.evaluationType === evaluationType,
-  ).find((evaluatedConfig) => {
-    return (
-      evaluatedConfig.config.namespaceName === namespaceName &&
-      evaluatedConfig.config.configName === configName
-    )
-  })
-}
-
 export function upsertHistoryItem<E extends EvaluationType>(
   newConfig: EditableResolvedLekkoConfig<E>,
 ) {

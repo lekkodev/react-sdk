@@ -17,6 +17,7 @@ import { upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import { getCombinedContext } from "../utils/context"
 import { type ClientContext } from "@lekko/js-sdk"
+import type * as t from "io-ts"
 
 export function useLekkoConfig<E extends EvaluationType>(
   config: LekkoConfig<E>,
@@ -139,4 +140,28 @@ export function useProtoConfig(
     { ...config, evaluationType: EvaluationType.PROTO },
     options,
   )
+}
+
+export function useTypedJSONConfig<A>(
+  config: UntypedLekkoConfig,
+  type: t.Type<A>,
+  options?: ConfigOptions,
+) {
+  const result = useLekkoConfig(
+    { ...config, evaluationType: EvaluationType.JSON },
+    options,
+  )
+  const evaluation = type.decode(result)
+
+  if (evaluation._tag === "Left") {
+    const errorMessage = evaluation.left
+      .map((validationError) => validationError.message)
+      .join("\n")
+
+    const error = new Error(errorMessage)
+
+    throw error
+  }
+
+  return evaluation.right
 }

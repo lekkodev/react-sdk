@@ -6,13 +6,14 @@ import {
   type ConfigOptions,
   type LekkoConfig,
   type UntypedLekkoConfig,
+  type EvaluationResult,
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 import { handleLekkoErrors } from "../errors/errors"
 import { useContext } from "react"
 import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query"
-import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
+import { upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import { getCombinedContext } from "../utils/context"
 import { type ClientContext } from "@lekko/js-sdk"
@@ -35,13 +36,7 @@ export function useLekkoConfig<E extends EvaluationType>(
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
   const queryKey = createStableKey(combinedConfig, client.repository)
 
-  const historyItem = getHistoryItem(
-    combinedConfig.namespaceName,
-    combinedConfig.configName,
-    combinedConfig.evaluationType,
-  )
-
-  const { data: evaluation } = useSuspenseQuery({
+  const { data: evaluation } = useSuspenseQuery<EvaluationResult<E>>({
     queryKey,
     queryFn: async () =>
       await handleLekkoErrors(
@@ -53,7 +48,7 @@ export function useLekkoConfig<E extends EvaluationType>(
     ...DEFAULT_LEKKO_REFRESH,
     ...(settings.backgroundRefetch === true
       ? {
-          placeholderData: historyItem?.result,
+          placeholderData: (previousData: EvaluationResult<E>) => previousData,
         }
       : {}),
   })

@@ -11,9 +11,10 @@ import {
   EvaluationType,
   type LekkoConfig,
   type UntypedLekkoConfig,
+  type NonFunctionGuard,
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
-import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
+import { upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import { getCombinedContext } from "../utils/context"
 import { type ClientContext } from "@lekko/js-sdk"
@@ -36,9 +37,6 @@ export type LekkoDLE<E extends EvaluationType> =
       error: Error
     }
 
-// eslint-disable-next-line @typescript-eslint/ban-types -- Usage of Function is for compatibility with react-query placeholderData type
-type NonFunctionGuard<T> = T extends Function ? never : T
-
 export function useLekkoConfigDLE<E extends EvaluationType>(
   config: LekkoConfig<E>,
   options?: ConfigOptions,
@@ -58,12 +56,6 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
 
   const queryKey = createStableKey(combinedConfig, client.repository)
 
-  const historyItem = getHistoryItem(
-    combinedConfig.namespaceName,
-    combinedConfig.configName,
-    combinedConfig.evaluationType,
-  )
-
   const res = useQuery<EvaluationResult<E>>({
     queryKey,
     queryFn: async () => {
@@ -81,13 +73,10 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
       return result
     },
     ...DEFAULT_LEKKO_REFRESH,
-    ...(settings.backgroundRefetch === true && historyItem !== undefined
+    ...(settings.backgroundRefetch === true
       ? {
-          // This cast is required due to TS limitations with conditional types
-          // and react-query's type signatures
-          placeholderData: historyItem.result as NonFunctionGuard<
-            EvaluationResult<E>
-          >,
+          placeholderData: (previousData) =>
+            previousData as NonFunctionGuard<EvaluationResult<E>>,
         }
       : {}),
   })

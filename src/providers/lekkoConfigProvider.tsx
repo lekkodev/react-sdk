@@ -88,6 +88,9 @@ export function LekkoConfigProvider({
   loadDefaultContext()
   loadPersistedEvaluations(queryClient)
 
+  const { initialized: globalContextInitialized } =
+    useContext(LekkoGlobalContext)
+
   const setGlobalContext = useCallback(
     (globalContext: ClientContext) => {
       queryClient.setQueryData(["lekkoGlobalContext"], globalContext)
@@ -100,12 +103,27 @@ export function LekkoConfigProvider({
     return <>{children}</>
   }
 
+  // checks if we already setup a provider, skips unnecessary duplicate providers
+  if (globalContextInitialized) {
+    return (
+      <LekkoIntermediateConfigProvider
+        settings={settings}
+        configRequests={configRequests}
+        globalContext={globalContext}
+      >
+        {children}
+      </LekkoIntermediateConfigProvider>
+    )
+  }
+
   return (
     <LekkoClientContext.Provider value={lekkoClientRef.current}>
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
         <LekkoDefaultConfigLookupProvider.Provider value={lookupRef.current}>
           <QueryClientProvider client={queryClient}>
-            <LekkoGlobalContext.Provider value={{ setGlobalContext }}>
+            <LekkoGlobalContext.Provider
+              value={{ setGlobalContext, initialized: true }}
+            >
               <HydrationBoundary state={dehydratedState ?? {}}>
                 <LekkoIntermediateConfigProvider
                   settings={settings}

@@ -18,5 +18,5 @@ export default {
     },
   ],
   plugins: [typescript(), commonjs(), nodeResolve(), terser()],
-  external: [/node_modules/, 'tslib'],
+  external: [/node_modules/, "tslib"],
 }

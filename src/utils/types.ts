@@ -27,12 +27,16 @@ export interface JSONClientContext {
   data: JSONObject
 }
 
+export type LekkoContext = Record<string, boolean | string | number>
+
 export interface LekkoConfig<E extends EvaluationType = EvaluationType> {
   namespaceName: string
   configName: string
   context?: ClientContext
   evaluationType: E
 }
+
+export type LekkoConfigFn<T, C extends LekkoContext> = (context: C) => T
 
 export type UntypedLekkoConfig = Omit<LekkoConfig, "evaluationType">
 

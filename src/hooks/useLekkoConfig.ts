@@ -6,65 +6,105 @@ import {
   type ConfigOptions,
   type LekkoConfig,
   type UntypedLekkoConfig,
+  type LekkoContext,
+  type LekkoConfigFn,
+  type EvaluationResult,
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 import { handleLekkoErrors } from "../errors/errors"
 import { useContext } from "react"
 import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query"
-import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
-import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
-import { getCombinedContext } from "../utils/context"
+import {
+  type UseSuspenseQueryOptions,
+  useQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query"
+import { upsertHistoryItem } from "../utils/overrides"
+import {
+  getCombinedContext,
+  toClientContext,
+  toPlainContext,
+} from "../utils/context"
 import { type ClientContext } from "@lekko/js-sdk"
 
+// Overload for supporting native lang interface, where we pass functions
+export function useLekkoConfig<T, C extends LekkoContext>(
+  configFn: LekkoConfigFn<T, C>,
+  context?: LekkoContext,
+): T
 export function useLekkoConfig<E extends EvaluationType>(
   config: LekkoConfig<E>,
   options?: ConfigOptions,
+): EvaluationResult<E>
+export function useLekkoConfig<
+  T,
+  C extends LekkoContext,
+  E extends EvaluationType,
+>(
+  config: LekkoConfig<E> | LekkoConfigFn<T, C>,
+  contextOrOptions?: C | ConfigOptions,
 ) {
   const globalContext: ClientContext | undefined = useQuery({
     queryKey: ["lekkoGlobalContext"],
   }).data as ClientContext | undefined
 
-  const combinedConfig = {
-    ...config,
-    context: getCombinedContext(globalContext, config.context),
+  const client = useLekkoClient()
+  const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
+
+  const query: UseSuspenseQueryOptions<
+    EvaluationResult<E> | null,
+    Error,
+    EvaluationResult<E> | null,
+    string[]
+  > = {
+    queryKey: [],
+    queryFn: () => null,
+    ...DEFAULT_LEKKO_REFRESH,
   }
 
-  const client = useLekkoClient()
-  const settings = { ...useContext(LekkoSettingsContext), ...options }
-  const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
-  const queryKey = createStableKey(combinedConfig, client.repository)
+  const isFn = typeof config === "function"
 
-  const historyItem = getHistoryItem(
-    combinedConfig.namespaceName,
-    combinedConfig.configName,
-    combinedConfig.evaluationType,
-  )
-
-  const { data: evaluation } = useSuspenseQuery({
-    queryKey,
-    queryFn: async () =>
+  if (!isFn) {
+    const combinedConfig = {
+      ...config,
+      context: getCombinedContext(globalContext, config.context),
+    }
+    query.queryKey = createStableKey(combinedConfig, client.repository)
+    query.queryFn = async () =>
       await handleLekkoErrors(
         async () => await getEvaluation(client, combinedConfig),
         combinedConfig,
         client.repository,
         defaultConfigLookup,
-      ),
-    ...DEFAULT_LEKKO_REFRESH,
-    ...(settings.backgroundRefetch === true
-      ? {
-          placeholderData: historyItem?.result,
-        }
-      : {}),
-  })
+      )
+  }
 
-  upsertHistoryItem({
-    key: queryKey,
-    result: evaluation,
-    config: combinedConfig,
-  })
+  const { data: evaluation } = useSuspenseQuery(query)
 
-  return evaluation
+  if (isFn) {
+    // For now, only support local execution
+    return config(
+      toPlainContext(
+        getCombinedContext(
+          globalContext,
+          toClientContext(contextOrOptions as C),
+        ),
+      ) as C,
+    )
+  } else {
+    const combinedConfig = {
+      ...config,
+      context: getCombinedContext(globalContext, config.context),
+    }
+
+    upsertHistoryItem({
+      key: query.queryKey,
+      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+      result: evaluation as EvaluationResult<E>,
+      config: combinedConfig,
+    })
+    return evaluation
+  }
 }
 
 /**

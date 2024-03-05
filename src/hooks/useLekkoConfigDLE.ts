@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { type UseQueryOptions, useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 import { handleLekkoErrors } from "../errors/errors"
 import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
@@ -11,22 +11,28 @@ import {
   EvaluationType,
   type LekkoConfig,
   type UntypedLekkoConfig,
+  type LekkoConfigFn,
+  type LekkoContext,
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
-import { getCombinedContext } from "../utils/context"
+import {
+  getCombinedContext,
+  toClientContext,
+  toPlainContext,
+} from "../utils/context"
 import { type ClientContext } from "@lekko/js-sdk"
 
 // Discriminated union typing for pending, success, error states
-export type LekkoDLE<E extends EvaluationType> =
+export type LekkoDLE<T> =
   | {
-      evaluation?: EvaluationResult<E>
+      evaluation?: T
       isEvaluationLoading: true
       error: null
     }
   | {
-      evaluation: EvaluationResult<E>
+      evaluation: T
       isEvaluationLoading: false
       error: null
     }
@@ -39,34 +45,51 @@ export type LekkoDLE<E extends EvaluationType> =
 // eslint-disable-next-line @typescript-eslint/ban-types -- Usage of Function is for compatibility with react-query placeholderData type
 type NonFunctionGuard<T> = T extends Function ? never : T
 
+export function useLekkoConfigDLE<T, C extends LekkoContext>(
+  configFn: LekkoConfigFn<T, C>,
+  context?: LekkoContext,
+): LekkoDLE<T>
 export function useLekkoConfigDLE<E extends EvaluationType>(
   config: LekkoConfig<E>,
   options?: ConfigOptions,
-): LekkoDLE<E> {
+): LekkoDLE<EvaluationResult<E>>
+export function useLekkoConfigDLE<
+  T,
+  C extends LekkoContext,
+  E extends EvaluationType,
+>(
+  config: LekkoConfig<E> | LekkoConfigFn<T, C>,
+  contextOrOptions?: C | ConfigOptions,
+) {
   const globalContext: ClientContext | undefined = useQuery({
     queryKey: ["lekkoGlobalContext"],
   }).data as ClientContext | undefined
 
-  const combinedConfig = {
-    ...config,
-    context: getCombinedContext(globalContext, config.context),
-  }
-
   const client = useLekkoClient()
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
-  const settings = { ...useContext(LekkoSettingsContext), ...options }
+  let settings = useContext(LekkoSettingsContext)
 
-  const queryKey = createStableKey(combinedConfig, client.repository)
+  const query: UseQueryOptions<
+    EvaluationResult<E>,
+    Error,
+    EvaluationResult<E>,
+    string[]
+  > = {
+    queryKey: [],
+    ...DEFAULT_LEKKO_REFRESH,
+  }
 
-  const historyItem = getHistoryItem(
-    combinedConfig.namespaceName,
-    combinedConfig.configName,
-    combinedConfig.evaluationType,
-  )
+  const isFn = typeof config === "function"
 
-  const res = useQuery<EvaluationResult<E>>({
-    queryKey,
-    queryFn: async () => {
+  if (!isFn) {
+    const combinedConfig = {
+      ...config,
+      context: getCombinedContext(globalContext, config.context),
+    }
+    settings = { ...settings, ...contextOrOptions }
+
+    query.queryKey = createStableKey(combinedConfig, client.repository)
+    query.queryFn = async () => {
       const result = await handleLekkoErrors(
         async () => await getEvaluation(client, combinedConfig),
         combinedConfig,
@@ -74,23 +97,45 @@ export function useLekkoConfigDLE<E extends EvaluationType>(
         defaultConfigLookup,
       )
       upsertHistoryItem({
-        key: queryKey,
+        key: query.queryKey,
         result,
         config: combinedConfig,
       })
       return result
-    },
-    ...DEFAULT_LEKKO_REFRESH,
-    ...(settings.backgroundRefetch === true && historyItem !== undefined
-      ? {
-          // This cast is required due to TS limitations with conditional types
-          // and react-query's type signatures
-          placeholderData: historyItem.result as NonFunctionGuard<
-            EvaluationResult<E>
-          >,
-        }
-      : {}),
-  })
+    }
+
+    const historyItem = getHistoryItem(
+      combinedConfig.namespaceName,
+      combinedConfig.configName,
+      combinedConfig.evaluationType,
+    )
+
+    if (settings.backgroundRefetch === true && historyItem !== undefined) {
+      // This cast is required due to TS limitations with conditional types
+      // and react-query's type signatures
+      query.placeholderData = historyItem.result as NonFunctionGuard<
+        EvaluationResult<E>
+      >
+    }
+  }
+
+  const res = useQuery(query)
+
+  if (isFn) {
+    // For now, only support local execution
+    return {
+      evaluation: config(
+        toPlainContext(
+          getCombinedContext(
+            globalContext,
+            toClientContext(contextOrOptions as C),
+          ),
+        ) as C,
+      ),
+      isEvaluationLoading: false,
+      error: null,
+    }
+  }
 
   switch (res.status) {
     case "pending": {

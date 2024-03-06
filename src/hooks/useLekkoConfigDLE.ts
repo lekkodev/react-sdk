@@ -15,7 +15,7 @@ import {
   type LekkoContext,
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
-import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
+import { upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import {
   getCombinedContext,
@@ -42,13 +42,11 @@ export type LekkoDLE<T> =
       error: Error
     }
 
-// eslint-disable-next-line @typescript-eslint/ban-types -- Usage of Function is for compatibility with react-query placeholderData type
-type NonFunctionGuard<T> = T extends Function ? never : T
-
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfigDLE<T, C extends LekkoContext>(
   configFn: LekkoConfigFn<T, C>,
   context?: LekkoContext,
+  options?: ConfigOptions,
 ): LekkoDLE<T>
 export function useLekkoConfigDLE<E extends EvaluationType>(
   config: LekkoConfig<E>,
@@ -61,7 +59,8 @@ export function useLekkoConfigDLE<
 >(
   config: LekkoConfig<E> | LekkoConfigFn<T, C>,
   contextOrOptions?: C | ConfigOptions,
-) {
+  options?: ConfigOptions,
+): LekkoDLE<T> | LekkoDLE<EvaluationResult<E>> {
   const globalContext: ClientContext | undefined = useQuery({
     queryKey: ["lekkoGlobalContext"],
   }).data as ClientContext | undefined
@@ -71,9 +70,9 @@ export function useLekkoConfigDLE<
   let settings = useContext(LekkoSettingsContext)
 
   const query: UseQueryOptions<
-    EvaluationResult<E>,
+    EvaluationResult<E> | T,
     Error,
-    EvaluationResult<E>,
+    EvaluationResult<E> | T,
     string[]
   > = {
     queryKey: [],
@@ -82,12 +81,47 @@ export function useLekkoConfigDLE<
 
   const isFn = typeof config === "function"
 
-  if (!isFn) {
+  if (isFn) {
+    settings = { ...settings, ...options }
+    const combinedContext = getCombinedContext(
+      globalContext,
+      toClientContext(contextOrOptions as C),
+    )
+    if (
+      config._namespaceName !== undefined &&
+      config._configName !== undefined &&
+      config._evaluationType !== undefined
+    ) {
+      // Remote evaluation with function interface
+      const combinedConfig = {
+        namespaceName: config._namespaceName,
+        configName: config._configName,
+        evaluationType: config._evaluationType,
+        context: combinedContext,
+      }
+      query.queryKey = createStableKey(combinedConfig, client.repository)
+      // TODO: History upsert
+      query.queryFn = async () =>
+        await handleLekkoErrors(
+          async () =>
+            await config(toPlainContext(combinedContext) as C, client),
+          combinedConfig,
+          client.repository,
+          defaultConfigLookup,
+        )
+    } else {
+      // Local evaluation with function interface
+      query.staleTime = 0 // Invalidate cache immediately (since we have no cache key and don't want to cache this)
+      query.queryFn = async () =>
+        await config(toPlainContext(combinedContext) as C)
+    }
+  } else {
+    // Remote evaluation with object interface
+    settings = { ...settings, ...contextOrOptions }
     const combinedConfig = {
       ...config,
       context: getCombinedContext(globalContext, config.context),
     }
-    settings = { ...settings, ...contextOrOptions }
 
     query.queryKey = createStableKey(combinedConfig, client.repository)
     query.queryFn = async () => {
@@ -104,39 +138,12 @@ export function useLekkoConfigDLE<
       })
       return result
     }
-
-    const historyItem = getHistoryItem(
-      combinedConfig.namespaceName,
-      combinedConfig.configName,
-      combinedConfig.evaluationType,
-    )
-
-    if (settings.backgroundRefetch === true && historyItem !== undefined) {
-      // This cast is required due to TS limitations with conditional types
-      // and react-query's type signatures
-      query.placeholderData = historyItem.result as NonFunctionGuard<
-        EvaluationResult<E>
-      >
+    if (settings.backgroundRefetch === true) {
+      query.placeholderData = (previousData) => previousData
     }
   }
 
   const res = useQuery(query)
-
-  if (isFn) {
-    // For now, only support local execution
-    return {
-      evaluation: config(
-        toPlainContext(
-          getCombinedContext(
-            globalContext,
-            toClientContext(contextOrOptions as C),
-          ),
-        ) as C,
-      ),
-      isEvaluationLoading: false,
-      error: null,
-    }
-  }
 
   switch (res.status) {
     case "pending": {
@@ -147,10 +154,18 @@ export function useLekkoConfigDLE<
       }
     }
     case "success": {
-      return {
-        evaluation: res.data,
-        isEvaluationLoading: false,
-        error: null,
+      if (isFn) {
+        return {
+          evaluation: res.data as T,
+          isEvaluationLoading: false,
+          error: null,
+        }
+      } else {
+        return {
+          evaluation: res.data as EvaluationResult<E>,
+          isEvaluationLoading: false,
+          error: null,
+        }
       }
     }
     case "error": {

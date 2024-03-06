@@ -1,4 +1,4 @@
-import { type ClientContext } from "@lekko/js-sdk"
+import { type Client, type ClientContext } from "@lekko/js-sdk"
 import { type Any } from "@bufbuild/protobuf"
 
 export enum EvaluationType {
@@ -36,7 +36,14 @@ export interface LekkoConfig<E extends EvaluationType = EvaluationType> {
   evaluationType: E
 }
 
-export type LekkoConfigFn<T, C extends LekkoContext> = (context: C) => T
+// Functional config interface that supports native lang experience for local and remote configs
+export interface LekkoConfigFn<T, C extends LekkoContext> {
+  (context: C, client?: Client): Promise<T>
+  // Augmented properties - should be present when using remote
+  _namespaceName?: string
+  _configName?: string
+  _evaluationType?: EvaluationType
+}
 
 export type UntypedLekkoConfig = Omit<LekkoConfig, "evaluationType">
 

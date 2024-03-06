@@ -1,8 +1,7 @@
 import {
   type ResolvedLekkoConfig,
-  type LekkoConfig,
   type DefaultConfigLookup,
-  type EvaluationType,
+  type UntypedLekkoConfig,
 } from "./types"
 
 import { type Value, type RepositoryKey } from "@lekko/js-sdk"
@@ -13,8 +12,9 @@ export function isValue(obj: unknown): obj is Value {
   return typeof obj === "object" && obj !== null && "toJsonString" in obj
 }
 
-export function createStableKey<E extends EvaluationType>(
-  config: LekkoConfig<E>,
+// Array return type for use in react-query
+export function createStableKey(
+  config: UntypedLekkoConfig,
   repository: RepositoryKey,
 ): string[] {
   const contextKeyParts: string[] =
@@ -36,7 +36,7 @@ export function createStableKey<E extends EvaluationType>(
   const contextKey = contextKeyParts.join("_")
 
   return [
-    `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}_${contextKey}_${config.evaluationType}`,
+    `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}${contextKey.length > 0 ? "_" : ""}${contextKey}`,
   ]
 }
 
@@ -45,12 +45,11 @@ export function assertExhaustive(value: never): never {
   throw new Error(`Unhandled case: ${value}`)
 }
 
-export function createDefaultStableKey<E extends EvaluationType>(
-  config: LekkoConfig<E>,
+export function createDefaultStableKey(
+  config: UntypedLekkoConfig,
   repository: RepositoryKey,
 ): string {
-  // __ after configName represents an empty context
-  return `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}__${config.evaluationType}`
+  return `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}`
 }
 
 export function mapStableKeysToConfigs(

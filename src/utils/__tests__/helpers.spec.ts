@@ -27,13 +27,13 @@ const repository = RepositoryKey.fromJson({
 describe("helpers", () => {
   it("should create a stable key for a lekko config", () => {
     expect(createStableKey(config, repository)).toEqual([
-      'owner-1_repo-1_namespace-1_config-1_bool:{"boolValue":true}_int:{"intValue":"2"}_string:{"stringValue":"hello"}_Int',
+      'owner-1_repo-1_namespace-1_config-1_bool:{"boolValue":true}_int:{"intValue":"2"}_string:{"stringValue":"hello"}',
     ])
   })
 
   it("should create a stable key for a lekko config without a context", () => {
     expect(createStableKey(simpleConfig, repository)).toEqual([
-      "owner-1_repo-1_namespace-1_config-1__Int",
+      "owner-1_repo-1_namespace-1_config-1",
     ])
   })
 })
@@ -74,9 +74,9 @@ describe("mapStableKeysToConfigs", () => {
         mapStableKeysToConfigs([resolved1, resolved2, resolved3], repository),
       ),
     ).toEqual([
-      "owner-1_repo-1_backend_skip__Bool",
-      'owner-1_repo-1_backend_mode_bool:{"boolValue":true}_int:{"intValue":"2"}_string:{"stringValue":"hello"}_String',
-      "owner-1_repo-1_backend_number__Int",
+      "owner-1_repo-1_backend_skip",
+      'owner-1_repo-1_backend_mode_bool:{"boolValue":true}_int:{"intValue":"2"}_string:{"stringValue":"hello"}',
+      "owner-1_repo-1_backend_number",
     ])
   })
 

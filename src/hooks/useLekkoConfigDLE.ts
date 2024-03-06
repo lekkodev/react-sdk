@@ -4,7 +4,7 @@ import { handleLekkoErrors } from "../errors/errors"
 import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
 import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
-import { createStableKey } from "../utils/helpers"
+import { createContextKey, createStableKey } from "../utils/helpers"
 import {
   type EvaluationResult,
   type ConfigOptions,
@@ -111,9 +111,12 @@ export function useLekkoConfigDLE<
         )
     } else {
       // Local evaluation with function interface
+      query.queryKey = [config.toString(), createContextKey(combinedContext)] // HACK: we don't have good config info in local
+      query.gcTime = 0
       query.staleTime = 0 // Invalidate cache immediately (since we have no cache key and don't want to cache this)
-      query.queryFn = async () =>
-        await config(toPlainContext(combinedContext) as C)
+      query.queryFn = async () => {
+        return await config(toPlainContext(combinedContext) as C)
+      }
     }
   } else {
     // Remote evaluation with object interface

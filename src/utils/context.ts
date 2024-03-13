@@ -74,43 +74,6 @@ export function getHistoryJSON(history: EditableResolvedLekkoConfig[]) {
   return history.map((item) => getHistoryItemJSON(item))
 }
 
-// TODO: Should be static method on ClientContext in JS SDK
-export function toClientContext<C extends LekkoContext>(
-  context?: C,
-): ClientContext {
-  const clientContext = new ClientContext()
-  if (context === undefined) {
-    return clientContext
-  }
-  Object.entries(context).forEach(([k, v]) => {
-    switch (typeof v) {
-      case "number": {
-        // TODO: `1.0` is still integer in js :(
-        if (Number.isInteger(v)) {
-          clientContext.setInt(k, v)
-        } else {
-          clientContext.setDouble(k, v)
-        }
-        break
-      }
-      case "string": {
-        clientContext.setString(k, v)
-        break
-      }
-      case "boolean": {
-        clientContext.setBoolean(k, v)
-        break
-      }
-      default: {
-        throw new Error(
-          `Unsupported context value type ${typeof v} for key ${k}`,
-        )
-      }
-    }
-  })
-  return clientContext
-}
-
 export function toPlainContext(clientContext?: ClientContext): LekkoContext {
   const context: LekkoContext = {}
   if (clientContext === undefined) return context

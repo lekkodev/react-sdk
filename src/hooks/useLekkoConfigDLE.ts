@@ -17,12 +17,8 @@ import {
 import useLekkoClient from "./useLekkoClient"
 import { upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
-import {
-  getCombinedContext,
-  toClientContext,
-  toPlainContext,
-} from "../utils/context"
-import { type ClientContext } from "@lekko/js-sdk"
+import { getCombinedContext, toPlainContext } from "../utils/context"
+import { ClientContext } from "@lekko/js-sdk"
 
 // Discriminated union typing for pending, success, error states
 export type LekkoDLE<T> =
@@ -85,7 +81,7 @@ export function useLekkoConfigDLE<
     settings = { ...settings, ...options }
     const combinedContext = getCombinedContext(
       globalContext,
-      toClientContext(contextOrOptions as C),
+      ClientContext.fromJSON(contextOrOptions as C),
     )
     if (
       config._namespaceName !== undefined &&

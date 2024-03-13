@@ -20,12 +20,8 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query"
 import { upsertHistoryItem } from "../utils/overrides"
-import {
-  getCombinedContext,
-  toClientContext,
-  toPlainContext,
-} from "../utils/context"
-import { type ClientContext } from "@lekko/js-sdk"
+import { getCombinedContext, toPlainContext } from "../utils/context"
+import { ClientContext } from "@lekko/js-sdk"
 
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfig<T, C extends LekkoContext>(
@@ -66,7 +62,7 @@ export function useLekkoConfig<
   if (isFn) {
     const combinedContext = getCombinedContext(
       globalContext,
-      toClientContext(contextOrOptions as C),
+      ClientContext.fromJSON(contextOrOptions as C),
     )
     if (
       config._namespaceName !== undefined &&

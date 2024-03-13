@@ -68,6 +68,14 @@ REACT_APP_LEKKO_REPOSITORY_NAME=your-repo-name
 REACT_APP_LEKKO_API_KEY=your-api-key
 ```
 
+If you're using [Vite](https://vitejs.dev/), you can set the following environment variables instead:
+
+```
+VITE_LEKKO_REPOSITORY_OWNER=your-repo-owner
+VITE_LEKKO_REPOSITORY_NAME=your-repo-name
+VITE_LEKKO_API_KEY=your-api-key
+```
+
 The SDK will use these environment variables to configure itself, so there's no need to manually pass a settings object.
 
 ### Explicit Settings Object

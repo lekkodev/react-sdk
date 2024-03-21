@@ -20,12 +20,9 @@ export function getRepositoryKey(
 ) {
   const repositoryOwner =
     settings?.repositoryOwner ??
-    getEnvironmentVariable("LEKKO_REPOSITORY_OWNER") ??
-    "local-owner"
+    getEnvironmentVariable("LEKKO_REPOSITORY_OWNER")
   const repositoryName =
-    settings?.repositoryName ??
-    getEnvironmentVariable("LEKKO_REPOSITORY_NAME") ??
-    "local"
+    settings?.repositoryName ?? getEnvironmentVariable("LEKKO_REPOSITORY_NAME")
 
   if (repositoryOwner === undefined || repositoryName === undefined) {
     throw new Error("Missing Lekko repository env values")
@@ -44,8 +41,7 @@ export function init({
 }: Props): Client {
   if (contextClient !== undefined) return contextClient
 
-  const apiKey =
-    settings?.apiKey ?? getEnvironmentVariable("LEKKO_API_KEY") ?? "invalid"
+  const apiKey = settings?.apiKey ?? getEnvironmentVariable("LEKKO_API_KEY")
   const repositoryKey = getRepositoryKey(settings)
   const hostname =
     settings?.hostname ?? getEnvironmentVariable("LEKKO_HOSTNAME")

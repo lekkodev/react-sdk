@@ -1,17 +1,17 @@
 import { useContext } from "react"
-import { handleLekkoErrors } from "../errors/errors"
+import { handleLekkoErrorsAsync } from "../errors/errors"
 import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
-import { getEvaluation } from "../utils/evaluation"
+import { getEvaluation, getRemoteEvaluation } from "../utils/evaluation"
 import { type EvaluationType, type LekkoConfig } from "../utils/types"
-import useLekkoClient from "./useLekkoClient"
+import useLekkoRemoteClient from "./useLekkoRemoteClient"
 
 export function useLekkoConfigFetch<E extends EvaluationType>() {
-  const client = useLekkoClient()
+  const client = useLekkoRemoteClient()
   const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
 
   const fetch = async (config: LekkoConfig<E>) => {
-    return await handleLekkoErrors(
-      async () => await getEvaluation(client, config),
+    return await handleLekkoErrorsAsync(
+      async () => await getRemoteEvaluation(client, config),
       config,
       client.repository,
       defaultConfigLookup,

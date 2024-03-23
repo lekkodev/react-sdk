@@ -36,7 +36,7 @@ import {
   EvaluationType,
   type EvaluationResult,
 } from "./types"
-import { getEvaluation } from "./evaluation"
+import { getEvaluation, getRemoteEvaluation } from "./evaluation"
 import { type Client } from "@lekko/js-sdk"
 import { type QueryClient } from "@tanstack/react-query"
 
@@ -107,7 +107,7 @@ async function handleSaveContext(
   setContextOverrides(parseContext(data.context))
   const evaluations = await Promise.all(
     historyItems.map(
-      async (history) => await getEvaluation(client, history.config),
+      async (history) => await getRemoteEvaluation(client, history.config),
     ),
   )
 
@@ -151,7 +151,7 @@ async function handleReset(
 
   const evaluations = await Promise.all(
     historyItems.map(
-      async (history) => await getEvaluation(client, history.config),
+      async (history) => await getRemoteEvaluation(client, history.config),
     ),
   )
 

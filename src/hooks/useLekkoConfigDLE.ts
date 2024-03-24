@@ -12,7 +12,7 @@ import {
   type LekkoConfig,
   type UntypedLekkoConfig,
   type LekkoContext,
-  LekkoRemoteConfigFn,
+  type LekkoRemoteConfigFn,
 } from "../utils/types"
 import { upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"

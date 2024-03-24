@@ -12,7 +12,10 @@ import {
 } from "../utils/constants"
 import { createMockClient } from "../mockHelpers/createMockClient"
 import { getEnvironmentVariable } from "../utils/envHelpers"
-import { LekkoClientContext, LekkoRemoteClientContext } from "./lekkoClientContext"
+import {
+  LekkoClientContext,
+  LekkoRemoteClientContext,
+} from "./lekkoClientContext"
 
 interface InitProps extends PropsWithChildren {
   settings?: LekkoSettings

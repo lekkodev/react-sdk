@@ -8,7 +8,7 @@ import {
   type UntypedLekkoConfig,
   type LekkoContext,
   type EvaluationResult,
-  LekkoRemoteConfigFn,
+  type LekkoRemoteConfigFn,
 } from "../utils/types"
 import { handleLekkoErrorsAsync } from "../errors/errors"
 import { useContext } from "react"

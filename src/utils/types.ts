@@ -1,4 +1,4 @@
-import { SyncClient, type Client, type ClientContext } from "@lekko/js-sdk"
+import { type SyncClient, type Client, type ClientContext } from "@lekko/js-sdk"
 import { type Any } from "@bufbuild/protobuf"
 
 export enum EvaluationType {

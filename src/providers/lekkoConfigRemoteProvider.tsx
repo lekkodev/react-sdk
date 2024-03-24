@@ -5,7 +5,7 @@ import {
   useEffect,
   useCallback,
 } from "react"
-import { initRemoteClient } from "../hooks/useLekkoRemoteClient"
+import useLekkoRemoteClient, { initRemoteClient } from "../hooks/useLekkoRemoteClient"
 import { getEvaluation, getRemoteEvaluation } from "../utils/evaluation"
 import { createStableKey, mapStableKeysToConfigs } from "../utils/helpers"
 import {
@@ -32,7 +32,7 @@ import {
   useQueries,
   useQueryClient,
 } from "@tanstack/react-query"
-import { type ClientContext, type Client } from "@lekko/js-sdk"
+import { ClientContext, type Client } from "@lekko/js-sdk"
 import { LekkoRemoteClientContext } from "./lekkoClientContext"
 import {
   loadDefaultContext,
@@ -41,7 +41,6 @@ import {
 } from "../utils/overrides"
 import { getCombinedContext, getContextJSON } from "../utils/context"
 import { LekkoGlobalContext } from "./lekkoGlobalContext"
-import useLekkoRemoteClient from "../hooks/useLekkoRemoteClient"
 import { getRepositoryKey } from "../hooks/useLekkoClient"
 
 export interface IntermediateRemoteProviderProps extends PropsWithChildren {
@@ -61,7 +60,7 @@ export function LekkoConfigRemoteProvider({
   defaultConfigs,
   dehydratedState,
   configRequests,
-  globalContext,
+  globalContext = new ClientContext(),
   children,
 }: ProviderProps) {
   const lekkoClientRef = useRef<Client | null>(null)
@@ -124,7 +123,7 @@ export function LekkoConfigRemoteProvider({
         <LekkoDefaultConfigLookupProvider.Provider value={lookupRef.current}>
           <QueryClientProvider client={queryClient}>
             <LekkoGlobalContext.Provider
-              value={{ setGlobalContext, initialized: true }}
+              value={{ setGlobalContext, initialized: true, globalContext }}
             >
               <HydrationBoundary state={dehydratedState ?? {}}>
                 <LekkoIntermediateConfigRemoteProvider

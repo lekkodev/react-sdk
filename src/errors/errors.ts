@@ -98,7 +98,7 @@ export function handleLekkoErrors<T>(
       }
     }
 
-    /*if (defaultConfigs !== undefined) {
+    /* if (defaultConfigs !== undefined) {
       // catch the mocked value error if there is no match, but show underlying error to user
       try {
         return await getMockedValue(
@@ -110,7 +110,7 @@ export function handleLekkoErrors<T>(
           defaultConfigs,
         )
       } catch (err) {}
-    }*/
+    } */
 
     if (cError?.rawMessage === "Failed to fetch") {
       throw new NetworkError("Failed to connect to Lekko API")

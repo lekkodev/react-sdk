@@ -32,12 +32,12 @@ export function useLekkoConfig<
   contextOrOptions?: C | ConfigOptions,
 ): T | EvaluationResult<E> {
   const globalContext = new ClientContext()
-  /*const globalContext: ClientContext | undefined = useQuery({
+  /* const globalContext: ClientContext | undefined = useQuery({
     queryKey: ["lekkoGlobalContext"],
-  }).data as ClientContext | undefined*/
+  }).data as ClientContext | undefined */
 
   const client = useLekkoClient()
-  //const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
+  // const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
 
   let queryFn: () => T | EvaluationResult<E>
   let queryKey: string[]
@@ -71,11 +71,10 @@ export function useLekkoConfig<
         )
     } else {
       // Local evaluation with function interface
-      /*query.queryKey = [config.toString(), createContextKey(combinedContext)] // HACK: we don't have good config info in local
+      /* query.queryKey = [config.toString(), createContextKey(combinedContext)] // HACK: we don't have good config info in local
       query.gcTime = 0
-      query.staleTime = 0 // Invalidate cache immediately (since we have no cache key and don't want to cache this)*/
-      queryFn = () =>
-        config(toPlainContext(combinedContext) as C)
+      query.staleTime = 0 // Invalidate cache immediately (since we have no cache key and don't want to cache this) */
+      queryFn = () => config(toPlainContext(combinedContext) as C)
     }
   } else {
     // Remote evaluation with object interface
@@ -93,7 +92,6 @@ export function useLekkoConfig<
       return result
     }
   }
-
 
   return queryFn()
 }

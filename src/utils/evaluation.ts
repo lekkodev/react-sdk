@@ -1,4 +1,4 @@
-import { SyncClient, type Client } from "@lekko/js-sdk"
+import { type SyncClient, type Client } from "@lekko/js-sdk"
 import { assertExhaustive } from "./helpers"
 import {
   type EvaluationResult,
@@ -23,41 +23,41 @@ export function getEvaluation<E extends EvaluationType>(
 
   switch (evaluationType) {
     case EvaluationType.BOOL:
-      return (client.getBool(
+      return client.getBool(
         namespaceName,
         configName,
         context,
-      )) as EvaluationResult<E>
+      ) as EvaluationResult<E>
     case EvaluationType.FLOAT:
-      return (client.getFloat(
+      return client.getFloat(
         namespaceName,
         configName,
         context,
-      )) as EvaluationResult<E>
+      ) as EvaluationResult<E>
     case EvaluationType.INT:
-      return (client.getInt(
+      return client.getInt(
         namespaceName,
         configName,
         context,
-      )) as EvaluationResult<E>
+      ) as EvaluationResult<E>
     case EvaluationType.STRING:
-      return (client.getString(
+      return client.getString(
         namespaceName,
         configName,
         context,
-      )) as EvaluationResult<E>
+      ) as EvaluationResult<E>
     case EvaluationType.JSON:
-      return (client.getJSON(
+      return client.getJSON(
         namespaceName,
         configName,
         context,
-      )) as EvaluationResult<E>
+      ) as EvaluationResult<E>
     case EvaluationType.PROTO:
-      return (client.getProto(
+      return client.getProto(
         namespaceName,
         configName,
         context,
-      )) as EvaluationResult<E>
+      ) as EvaluationResult<E>
     default:
       return assertExhaustive(evaluationType)
   }

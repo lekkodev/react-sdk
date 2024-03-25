@@ -13,7 +13,7 @@ import { handleLekkoErrors } from "../errors/errors"
 import { getCombinedContext, toPlainContext } from "../utils/context"
 import { ClientContext } from "@lekko/js-sdk"
 import { useContext, useMemo } from "react"
-import { LekkoGlobalContext } from ".."
+import { LekkoGlobalContext } from "../providers/lekkoGlobalContext"
 
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfig<T, C extends LekkoContext>(

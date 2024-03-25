@@ -87,7 +87,6 @@ export interface LekkoSettings {
    * If omitted, a default location will be used.
    */
   localPath?: string
-  remoteEvaluation?: boolean
 }
 
 export interface ResolvedLekkoConfig<

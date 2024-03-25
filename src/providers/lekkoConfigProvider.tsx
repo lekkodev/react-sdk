@@ -4,7 +4,7 @@ import { LekkoSettingsContext } from "./lekkoSettingsProvider"
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { LekkoClientContext } from "./lekkoClientContext"
 import { suspend } from "suspend-react"
-import useLekkoClient, { initLocalClient } from "../hooks/useLekkoClient"
+import { initLocalClient } from "../hooks/useLekkoClient"
 import { type GlobalContext, LekkoGlobalContext } from "./lekkoGlobalContext"
 import { type ClientContext } from "@lekko/js-sdk"
 import { type LekkoSettings } from "../utils/types"
@@ -23,7 +23,7 @@ export function LekkoConfigProvider({
   globalContext,
   children,
 }: ProviderProps) {
-  const initializedClient = useLekkoClient()
+  const initializedClient = useContext(LekkoClientContext)
 
   const lekkoClient = suspend(async () => {
     const client = initializedClient ?? (await initLocalClient({ settings }))

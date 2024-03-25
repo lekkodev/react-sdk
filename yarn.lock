@@ -833,16 +833,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lekko/js-sdk@npm:^0.1.1-beta-5":
-  version: 0.1.1-beta-5
-  resolution: "@lekko/js-sdk@npm:0.1.1-beta-5"
+"@lekko/js-sdk@npm:^0.1.1-beta-6":
+  version: 0.1.1-beta-6
+  resolution: "@lekko/js-sdk@npm:0.1.1-beta-6"
   dependencies:
     "@bufbuild/protobuf": ^1.7.2
     "@connectrpc/connect": ^1.3.0
     "@connectrpc/connect-web": ^1.3.0
     crypto-js: ^4.2.0
     tslib: ^2.6.2
-  checksum: 96e518c489d0f086e70fb5e6622b76c99f68f38a429051eb65b593b16c5b869aca6c79bbd0e254a0114bcd289aa879f5f5e7aa6dd147bc5bd37e60bbc49bf25d
+  checksum: c320ef68ee6e06c571284153b88fa8734983f7803900a42a4a6bc5d90576ed886cfc2c106b582d38c3f3f861a947ab08f41a77486667b088c51bdc99398910a0
   languageName: node
   linkType: hard
 
@@ -851,7 +851,7 @@ __metadata:
   resolution: "@lekko/react-sdk@workspace:."
   dependencies:
     "@babel/core": ^7.23.9
-    "@lekko/js-sdk": ^0.1.1-beta-5
+    "@lekko/js-sdk": ^0.1.1-beta-6
     "@rollup/plugin-commonjs": ^25.0.7
     "@rollup/plugin-node-resolve": ^15.2.3
     "@rollup/plugin-terser": ^0.4.4

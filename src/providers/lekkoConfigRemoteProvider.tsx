@@ -5,8 +5,10 @@ import {
   useEffect,
   useCallback,
 } from "react"
-import useLekkoRemoteClient, { initRemoteClient } from "../hooks/useLekkoRemoteClient"
-import { getEvaluation, getRemoteEvaluation } from "../utils/evaluation"
+import useLekkoRemoteClient, {
+  initRemoteClient,
+} from "../hooks/useLekkoRemoteClient"
+import { getRemoteEvaluation } from "../utils/evaluation"
 import { createStableKey, mapStableKeysToConfigs } from "../utils/helpers"
 import {
   type LekkoSettings,
@@ -22,7 +24,7 @@ import {
   DEFAULT_LEKKO_SETTINGS,
 } from "../utils/constants"
 import { LekkoSettingsContext } from "./lekkoSettingsProvider"
-import { handleLekkoErrors, handleLekkoErrorsAsync } from "../errors/errors"
+import { handleLekkoErrorsAsync } from "../errors/errors"
 import LekkoDefaultConfigLookupProvider from "./lekkoDefaultConfigLookupProvider"
 import {
   type DehydratedState,

@@ -1,9 +1,4 @@
-import {
-  initAPIClient,
-  type Client,
-  initCachedAPIClient,
-  ClientContext,
-} from "@lekko/js-sdk"
+import { initAPIClient, type Client } from "@lekko/js-sdk"
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { useContext } from "react"
 import { type LekkoSettings, type ExtensionMessage } from "../utils/types"

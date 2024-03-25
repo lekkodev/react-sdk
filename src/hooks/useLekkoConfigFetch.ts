@@ -1,7 +1,7 @@
 import { useContext } from "react"
 import { handleLekkoErrorsAsync } from "../errors/errors"
 import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
-import { getEvaluation, getRemoteEvaluation } from "../utils/evaluation"
+import { getRemoteEvaluation } from "../utils/evaluation"
 import { type EvaluationType, type LekkoConfig } from "../utils/types"
 import useLekkoRemoteClient from "./useLekkoRemoteClient"
 

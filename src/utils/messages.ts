@@ -36,7 +36,7 @@ import {
   EvaluationType,
   type EvaluationResult,
 } from "./types"
-import { getEvaluation, getRemoteEvaluation } from "./evaluation"
+import { getRemoteEvaluation } from "./evaluation"
 import { type Client } from "@lekko/js-sdk"
 import { type QueryClient } from "@tanstack/react-query"
 

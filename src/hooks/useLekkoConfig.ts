@@ -1,5 +1,4 @@
 import { getEvaluation } from "../utils/evaluation"
-import { createStableKey } from "../utils/helpers"
 import {
   EvaluationType,
   type ConfigOptions,
@@ -13,6 +12,8 @@ import useLekkoClient from "./useLekkoClient"
 import { handleLekkoErrors } from "../errors/errors"
 import { getCombinedContext, toPlainContext } from "../utils/context"
 import { ClientContext } from "@lekko/js-sdk"
+import { useContext, useMemo } from "react"
+import { LekkoGlobalContext } from ".."
 
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfig<T, C extends LekkoContext>(
@@ -31,69 +32,55 @@ export function useLekkoConfig<
   config: LekkoConfig<E> | LekkoConfigFn<T, C>,
   contextOrOptions?: C | ConfigOptions,
 ): T | EvaluationResult<E> {
-  const globalContext = new ClientContext()
-  /* const globalContext: ClientContext | undefined = useQuery({
-    queryKey: ["lekkoGlobalContext"],
-  }).data as ClientContext | undefined */
-
+  const { globalContext } = useContext(LekkoGlobalContext)
   const client = useLekkoClient()
-  // const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
-
-  let queryFn: () => T | EvaluationResult<E>
-  let queryKey: string[]
 
   const isFn = typeof config === "function"
 
-  if (isFn) {
-    const combinedContext = getCombinedContext(
-      globalContext,
-      ClientContext.fromJSON(contextOrOptions as C),
-    )
-    if (
-      config._namespaceName !== undefined &&
-      config._configName !== undefined &&
-      config._evaluationType !== undefined
-    ) {
-      // Remote evaluation with function interface
-      const combinedConfig = {
-        namespaceName: config._namespaceName,
-        configName: config._configName,
-        evaluationType: config._evaluationType,
-        context: combinedContext,
-      }
-      queryKey = createStableKey(combinedConfig, client.repository)
-      // TODO: History upsert
-      queryFn = () =>
-        handleLekkoErrors(
+  const result = useMemo(() => {
+    if (isFn) {
+      const combinedContext = getCombinedContext(
+        globalContext,
+        ClientContext.fromJSON(contextOrOptions as C),
+      )
+      if (
+        config._namespaceName !== undefined &&
+        config._configName !== undefined &&
+        config._evaluationType !== undefined
+      ) {
+        // Remote evaluation with function interface
+        const combinedConfig = {
+          namespaceName: config._namespaceName,
+          configName: config._configName,
+          evaluationType: config._evaluationType,
+          context: combinedContext,
+        }
+        // TODO: History upsert
+
+        return handleLekkoErrors(
           () => config(toPlainContext(combinedContext) as C, client),
           combinedConfig,
           client.repository,
         )
+      } else {
+        // Local evaluation with function interface
+        return config(toPlainContext(combinedContext) as C)
+      }
     } else {
-      // Local evaluation with function interface
-      /* query.queryKey = [config.toString(), createContextKey(combinedContext)] // HACK: we don't have good config info in local
-      query.gcTime = 0
-      query.staleTime = 0 // Invalidate cache immediately (since we have no cache key and don't want to cache this) */
-      queryFn = () => config(toPlainContext(combinedContext) as C)
-    }
-  } else {
-    // Remote evaluation with object interface
-    const combinedConfig = {
-      ...config,
-      context: getCombinedContext(globalContext, config.context),
-    }
-    queryKey = createStableKey(combinedConfig, client.repository)
-    queryFn = () => {
-      const result = handleLekkoErrors(
+      // Remote evaluation with object interface
+      const combinedConfig = {
+        ...config,
+        context: getCombinedContext(globalContext, config.context),
+      }
+      return handleLekkoErrors(
         () => getEvaluation(client, combinedConfig),
         combinedConfig,
         client.repository,
       )
-      return result
     }
-  }
+  }, [isFn, client, config, contextOrOptions, globalContext])
 
-  return queryFn()
+  return result
 }
 
 /**

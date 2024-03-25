@@ -1,12 +1,9 @@
-import { type Client, initCachedAPIClient } from "@lekko/js-sdk"
+import { initCachedAPIClient, RepositoryKey } from "@lekko/js-sdk"
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { useContext } from "react"
 import { type LekkoSettings } from "../utils/types"
 import { getEnvironmentVariable } from "../utils/envHelpers"
-import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
-import { RepositoryKey } from "@lekko/js-sdk"
 import { LekkoClientContext } from "../providers/lekkoClientContext"
-import { type QueryClient } from "@tanstack/react-query"
 import { type SyncClient } from "@lekko/js-sdk/dist/types/client"
 
 export function getRepositoryKey(
@@ -67,7 +64,6 @@ export function prepareClientSettings(settings: LekkoSettings) {
 
 export default function useLekkoClient(): SyncClient {
   const contextClient = useContext(LekkoClientContext)
-  const settings = useContext(LekkoSettingsContext)
 
   if (contextClient === undefined) {
     throw new Error(

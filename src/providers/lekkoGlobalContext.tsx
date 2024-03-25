@@ -30,8 +30,7 @@ export function GlobalProvider({
       existingContext.globalContext,
       initialState.globalContext,
     ),
-    setGlobalContext:
-      initialState.setGlobalContext || existingContext.setGlobalContext,
+    setGlobalContext: initialState.setGlobalContext,
     initialized: initialState.initialized || existingContext.initialized,
   }
 

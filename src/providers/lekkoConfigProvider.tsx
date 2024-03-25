@@ -1,4 +1,4 @@
-import { type PropsWithChildren, useContext, useState } from "react"
+import { type PropsWithChildren, useContext } from "react"
 import { getCombinedContext } from "../utils/context"
 import { LekkoSettingsContext } from "./lekkoSettingsProvider"
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
@@ -23,10 +23,10 @@ export function LekkoConfigProvider({
   globalContext,
   children,
 }: ProviderProps) {
-    const initializedClient = useLekkoClient()
+  const initializedClient = useLekkoClient()
 
   const lekkoClient = suspend(async () => {
-    const client = initializedClient ?? await initLocalClient({ settings })
+    const client = initializedClient ?? (await initLocalClient({ settings }))
     return client
   }, [])
 
@@ -50,9 +50,10 @@ export function LekkoIntermediateConfigProvider({
 }: IntermediateProviderProps) {
   const existingContext = useContext(LekkoGlobalContext)
 
-  const combinedGlobalContext = globalContext
-    ? getCombinedContext(existingContext.globalContext, globalContext)
-    : existingContext.globalContext
+  const combinedGlobalContext =
+    globalContext !== undefined
+      ? getCombinedContext(existingContext.globalContext, globalContext)
+      : existingContext.globalContext
 
   const modifiedContext: GlobalContext = {
     ...existingContext,

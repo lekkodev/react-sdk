@@ -1,5 +1,5 @@
 import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
-import { getEvaluation, getRemoteEvaluation } from "../utils/evaluation"
+import { getRemoteEvaluation } from "../utils/evaluation"
 import { createContextKey, createStableKey } from "../utils/helpers"
 import {
   EvaluationType,

@@ -1,114 +1,58 @@
-import {
-  useContext,
-  useRef,
-  type PropsWithChildren,
-  useEffect,
-  useCallback,
-} from "react"
-import useLekkoClient, { getRepositoryKey, init } from "../hooks/useLekkoClient"
-import { getEvaluation } from "../utils/evaluation"
-import { createStableKey, mapStableKeysToConfigs } from "../utils/helpers"
-import {
-  type LekkoSettings,
-  type LekkoConfig,
-  type EvaluationType,
-  type ResolvedLekkoConfig,
-  type DefaultConfigLookup,
-  type EvaluationResult,
-  type EditableResolvedLekkoConfig,
-} from "../utils/types"
-import {
-  DEFAULT_LEKKO_REFRESH,
-  DEFAULT_LEKKO_SETTINGS,
-} from "../utils/constants"
+import { type PropsWithChildren, useContext, useState, useEffect } from "react"
+import { getCombinedContext } from "../utils/context"
 import { LekkoSettingsContext } from "./lekkoSettingsProvider"
-import { handleLekkoErrors } from "../errors/errors"
-import LekkoDefaultConfigLookupProvider from "./lekkoDefaultConfigLookupProvider"
-import {
-  type DehydratedState,
-  HydrationBoundary,
-  QueryClient,
-  QueryClientProvider,
-  useQueries,
-  useQueryClient,
-} from "@tanstack/react-query"
-import { type ClientContext, type Client } from "@lekko/js-sdk"
+import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { LekkoClientContext } from "./lekkoClientContext"
-import {
-  loadDefaultContext,
-  loadPersistedEvaluations,
-  upsertHistoryItem,
-} from "../utils/overrides"
-import { getCombinedContext, getContextJSON } from "../utils/context"
+import { suspend } from "suspend-react"
+import { initLocalClient } from "../hooks/useLekkoClient"
 import { LekkoGlobalContext } from "./lekkoGlobalContext"
+import { ClientContext, type SyncClient } from "@lekko/js-sdk"
+import { type LekkoSettings } from "../utils/types"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
-  configRequests?: Array<LekkoConfig<EvaluationType>>
   settings?: LekkoSettings
   globalContext?: ClientContext
 }
 
 export interface ProviderProps extends IntermediateProviderProps {
-  defaultConfigs?: Array<ResolvedLekkoConfig<EvaluationType>>
-  dehydratedState?: DehydratedState
   globalContext?: ClientContext
 }
 
 export function LekkoConfigProvider({
   settings,
-  defaultConfigs,
-  dehydratedState,
-  configRequests,
   globalContext,
   children,
 }: ProviderProps) {
-  const lekkoClientRef = useRef<Client | null>(null)
-
-  const queryClient = useQueryClient(
-    new QueryClient({
-      defaultOptions: {
-        queries: DEFAULT_LEKKO_REFRESH,
-      },
-    }),
+  const clientSetup = useContext(LekkoClientContext)
+  const [contextClient, setContextClient] = useState<SyncClient | undefined>(
+    clientSetup.contextClient,
+  )
+  const [fetchInitiated, setFetchInitiated] = useState<boolean>(
+    clientSetup.fetchInitiated,
   )
 
-  if (lekkoClientRef.current === null) {
-    lekkoClientRef.current = init({ settings, queryClient })
-  }
+  useEffect(() => {
+    const setup = async () => {
+      const client = await initLocalClient({ settings })
+      setContextClient(client)
+    }
+    if (
+      !clientSetup.initialized &&
+      !fetchInitiated &&
+      clientSetup.contextClient === undefined
+    ) {
+      setup().catch((err) => {
+        console.log(`Error setting up lekko client: ${err}`)
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const lookupRef = useRef<DefaultConfigLookup | null | undefined>(null)
-
-  if (lookupRef.current === null) {
-    lookupRef.current =
-      defaultConfigs === undefined
-        ? undefined
-        : mapStableKeysToConfigs(defaultConfigs, getRepositoryKey(settings))
-  }
-
-  loadDefaultContext()
-  loadPersistedEvaluations(queryClient)
-
-  const { initialized: globalContextInitialized } =
-    useContext(LekkoGlobalContext)
-
-  const setGlobalContext = useCallback(
-    (globalContext: ClientContext) => {
-      queryClient.setQueryData(["lekkoGlobalContext"], globalContext)
-    },
-    [queryClient],
-  )
-
-  // should never happen after sync init function
-  if (lookupRef.current === null || lekkoClientRef === null) {
-    return <>{children}</>
-  }
-
-  // checks if we already setup a provider, skips unnecessary duplicate providers
-  if (globalContextInitialized) {
+  // the case where an outer provider already setup the providers
+  if (clientSetup.initialized) {
     return (
       <LekkoIntermediateConfigProvider
         settings={settings}
-        configRequests={configRequests}
         globalContext={globalContext}
       >
         {children}
@@ -117,98 +61,115 @@ export function LekkoConfigProvider({
   }
 
   return (
-    <LekkoClientContext.Provider value={lekkoClientRef.current}>
+    <LekkoClientContext.Provider
+      value={{
+        contextClient,
+        setContextClient,
+        initialized: true,
+        fetchInitiated: true,
+        setFetchInitiated,
+      }}
+    >
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
-        <LekkoDefaultConfigLookupProvider.Provider value={lookupRef.current}>
-          <QueryClientProvider client={queryClient}>
-            <LekkoGlobalContext.Provider
-              value={{ setGlobalContext, initialized: true }}
-            >
-              <HydrationBoundary state={dehydratedState ?? {}}>
-                <LekkoIntermediateConfigProvider
-                  settings={settings}
-                  configRequests={configRequests}
-                  globalContext={globalContext}
-                >
-                  {children}
-                </LekkoIntermediateConfigProvider>
-              </HydrationBoundary>
-            </LekkoGlobalContext.Provider>
-          </QueryClientProvider>
-        </LekkoDefaultConfigLookupProvider.Provider>
+        <LekkoIntermediateConfigProvider
+          settings={settings}
+          globalContext={globalContext}
+        >
+          {children}
+        </LekkoIntermediateConfigProvider>
       </LekkoSettingsContext.Provider>
     </LekkoClientContext.Provider>
   )
 }
 
-// or as a subprovider, for example, to require a set of configs after authentication when the username is known
-export function LekkoIntermediateConfigProvider({
-  configRequests = [],
-  children,
+export function LekkoConfigProviderSuspend({
   settings,
   globalContext,
-}: IntermediateProviderProps) {
-  const queryClient = useQueryClient()
+  children,
+}: ProviderProps) {
+  const clientSetup = useContext(LekkoClientContext)
+  const [contextClient, setContextClient] = useState<SyncClient | undefined>(
+    clientSetup.contextClient,
+  )
+  // fetch is always initiated in suspense version
+  const [fetchInitiated, setFetchInitiated] = useState<boolean>(true)
 
-  const { setGlobalContext } = useContext(LekkoGlobalContext)
+  suspend(async () => {
+    if (clientSetup.contextClient !== undefined) {
+      const client = await initLocalClient({ settings })
+      setContextClient(client)
+    }
+  }, [])
+
+  // the case where an outer provider already setup the providers
+  if (clientSetup.initialized) {
+    return (
+      <LekkoIntermediateConfigProvider
+        settings={settings}
+        globalContext={globalContext}
+      >
+        {children}
+      </LekkoIntermediateConfigProvider>
+    )
+  }
+
+  return (
+    <LekkoClientContext.Provider
+      value={{
+        fetchInitiated,
+        initialized: true,
+        contextClient,
+        setContextClient,
+        setFetchInitiated,
+      }}
+    >
+      <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
+        <LekkoIntermediateConfigProvider
+          settings={settings}
+          globalContext={globalContext}
+        >
+          {children}
+        </LekkoIntermediateConfigProvider>
+      </LekkoSettingsContext.Provider>
+    </LekkoClientContext.Provider>
+  )
+}
+
+export function LekkoIntermediateConfigProvider({
+  children,
+  globalContext,
+}: IntermediateProviderProps) {
+  const existingContext = useContext(LekkoGlobalContext)
+
+  const combinedGlobalContext =
+    globalContext !== undefined
+      ? getCombinedContext(existingContext.globalContext, globalContext)
+      : existingContext.globalContext
+
+  const [context, setGlobalContext] = useState<ClientContext>(
+    combinedGlobalContext ?? new ClientContext(),
+  )
 
   useEffect(() => {
-    if (globalContext !== undefined) {
-      setGlobalContext(
-        getCombinedContext(
-          queryClient.getQueryData(["lekkoGlobalContext"]),
-          globalContext,
-        ),
-      )
+    if (existingContext.initialized) {
+      existingContext.setGlobalContext(combinedGlobalContext)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getContextJSON(globalContext)])
+  }, [globalContext])
 
-  const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
-  const client = useLekkoClient()
+  if (existingContext.initialized) {
+    return <>{children}</>
+  }
 
-  useQueries({
-    queries: configRequests.map((config) => {
-      const combinedConfig = {
-        ...config,
-        context: getCombinedContext(globalContext, config.context),
-      }
-      return {
-        queryKey: createStableKey(combinedConfig, client.repository),
-        queryFn: async () =>
-          await handleLekkoErrors(
-            async () => await getEvaluation(client, combinedConfig),
-            combinedConfig,
-            client.repository,
-            defaultConfigLookup,
-          ),
-        ...DEFAULT_LEKKO_REFRESH,
-        suspense: settings?.nonBlockingProvider !== true,
-      }
-    }),
-  })
-
-  const editableRequests = configRequests
-    .map((config) => {
-      const key = createStableKey(config, client.repository)
-      const result =
-        queryClient.getQueryData<EvaluationResult<EvaluationType>>(key)
-      return {
-        config,
-        result,
-        key,
-      }
-    })
-    .filter(
-      (
-        historyItem,
-      ): historyItem is EditableResolvedLekkoConfig<EvaluationType> =>
-        historyItem.result !== undefined,
-    )
-
-  editableRequests.forEach((historyItem) => {
-    upsertHistoryItem(historyItem)
-  })
-
-  return <>{children}</>
+  return (
+    <LekkoGlobalContext.Provider
+      value={{
+        setGlobalContext,
+        initialized: true,
+        globalContext: context,
+      }}
+    >
+      {children}
+    </LekkoGlobalContext.Provider>
+  )
 }

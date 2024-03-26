@@ -7,7 +7,7 @@ interface PrintConfigProps {
   namespaceName: string
   configName: string
   context?: ClientContext | undefined
-  repositoryKey: RepositoryKey
+  repositoryKey?: RepositoryKey
 }
 
 export function printConfigMessage({
@@ -18,7 +18,11 @@ export function printConfigMessage({
   context,
   repositoryKey,
 }: PrintConfigProps) {
+  const repoString =
+    repositoryKey === undefined
+      ? ""
+      : `\nrepository: ${repositoryKey.toJsonString()}`
   return `${intro}:\ntype: ${evaluationType}\nnamespace: ${namespaceName}\nconfig name: ${configName}\ncontext: ${
     context?.toString() ?? "no context"
-  }\nrepository: ${repositoryKey.toJsonString()}`
+  }${repoString}`
 }

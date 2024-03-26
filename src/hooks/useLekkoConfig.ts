@@ -1,6 +1,4 @@
-import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
-import { createContextKey, createStableKey } from "../utils/helpers"
 import {
   EvaluationType,
   type ConfigOptions,
@@ -12,16 +10,10 @@ import {
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 import { handleLekkoErrors } from "../errors/errors"
-import { useContext } from "react"
-import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
-import {
-  type UseSuspenseQueryOptions,
-  useQuery,
-  useSuspenseQuery,
-} from "@tanstack/react-query"
-import { upsertHistoryItem } from "../utils/overrides"
 import { getCombinedContext, toPlainContext } from "../utils/context"
 import { ClientContext } from "@lekko/js-sdk"
+import { useContext, useMemo } from "react"
+import { LekkoGlobalContext } from "../providers/lekkoGlobalContext"
 
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfig<T, C extends LekkoContext>(
@@ -40,86 +32,58 @@ export function useLekkoConfig<
   config: LekkoConfig<E> | LekkoConfigFn<T, C>,
   contextOrOptions?: C | ConfigOptions,
 ): T | EvaluationResult<E> {
-  const globalContext: ClientContext | undefined = useQuery({
-    queryKey: ["lekkoGlobalContext"],
-  }).data as ClientContext | undefined
-
+  const { globalContext } = useContext(LekkoGlobalContext)
   const client = useLekkoClient()
-  const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
-
-  const query: UseSuspenseQueryOptions<
-    EvaluationResult<E> | T,
-    Error,
-    EvaluationResult<E> | T,
-    string[]
-  > = {
-    queryKey: [],
-    ...DEFAULT_LEKKO_REFRESH,
-  }
 
   const isFn = typeof config === "function"
 
-  if (isFn) {
-    const combinedContext = getCombinedContext(
-      globalContext,
-      ClientContext.fromJSON(contextOrOptions as C),
-    )
-    if (
-      config._namespaceName !== undefined &&
-      config._configName !== undefined &&
-      config._evaluationType !== undefined
-    ) {
-      // Remote evaluation with function interface
-      const combinedConfig = {
-        namespaceName: config._namespaceName,
-        configName: config._configName,
-        evaluationType: config._evaluationType,
-        context: combinedContext,
-      }
-      query.queryKey = createStableKey(combinedConfig, client.repository)
-      // TODO: History upsert
-      query.queryFn = async () =>
-        await handleLekkoErrors(
-          async () =>
-            await config(toPlainContext(combinedContext) as C, client),
+  const result = useMemo(() => {
+    if (isFn) {
+      const combinedContext = getCombinedContext(
+        globalContext,
+        ClientContext.fromJSON(contextOrOptions as C),
+      )
+      if (
+        config._namespaceName !== undefined &&
+        config._configName !== undefined &&
+        config._evaluationType !== undefined
+      ) {
+        // Remote evaluation with function interface
+        const combinedConfig = {
+          namespaceName: config._namespaceName,
+          configName: config._configName,
+          evaluationType: config._evaluationType,
+          context: combinedContext,
+        }
+        // TODO: History upsert
+
+        return handleLekkoErrors(
+          () => config(toPlainContext(combinedContext) as C, client),
           combinedConfig,
-          client.repository,
-          defaultConfigLookup,
+          client?.repository,
         )
+      } else {
+        // Local evaluation with function interface
+        return config(toPlainContext(combinedContext) as C)
+      }
     } else {
-      // Local evaluation with function interface
-      query.queryKey = [config.toString(), createContextKey(combinedContext)] // HACK: we don't have good config info in local
-      query.gcTime = 0
-      query.staleTime = 0 // Invalidate cache immediately (since we have no cache key and don't want to cache this)
-      query.queryFn = async () =>
-        await config(toPlainContext(combinedContext) as C)
-    }
-  } else {
-    // Remote evaluation with object interface
-    const combinedConfig = {
-      ...config,
-      context: getCombinedContext(globalContext, config.context),
-    }
-    query.queryKey = createStableKey(combinedConfig, client.repository)
-    query.queryFn = async () => {
-      const result = await handleLekkoErrors(
-        async () => await getEvaluation(client, combinedConfig),
+      // Remote evaluation with object interface
+      const combinedConfig = {
+        ...config,
+        context: getCombinedContext(globalContext, config.context),
+      }
+      if (client === undefined) {
+        throw new Error("This pathway requires a client")
+      }
+      return handleLekkoErrors(
+        () => getEvaluation(client, combinedConfig),
         combinedConfig,
         client.repository,
-        defaultConfigLookup,
       )
-      upsertHistoryItem({
-        key: query.queryKey,
-        result,
-        config: combinedConfig,
-      })
-      return result
     }
-  }
+  }, [isFn, client, config, contextOrOptions, globalContext])
 
-  const { data: evaluation } = useSuspenseQuery(query)
-
-  return evaluation
+  return result
 }
 
 /**

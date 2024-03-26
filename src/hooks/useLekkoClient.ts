@@ -1,19 +1,11 @@
-import { initAPIClient, type Client } from "@lekko/js-sdk"
+import { initCachedAPIClient, RepositoryKey } from "@lekko/js-sdk"
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
-import { useContext } from "react"
-import { type LekkoSettings, type ExtensionMessage } from "../utils/types"
+import { useContext, useEffect } from "react"
+import { type LekkoSettings } from "../utils/types"
 import { getEnvironmentVariable } from "../utils/envHelpers"
-import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
-import { RepositoryKey } from "@lekko/js-sdk"
 import { LekkoClientContext } from "../providers/lekkoClientContext"
-import { handleExtensionMessage } from "../utils/messages"
-import { type QueryClient, useQueryClient } from "@tanstack/react-query"
-
-interface Props {
-  settings?: LekkoSettings
-  contextClient?: Client
-  queryClient: QueryClient
-}
+import { type SyncClient } from "@lekko/js-sdk/dist/types/client"
+import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 
 export function getRepositoryKey(
   settings: LekkoSettings = DEFAULT_LEKKO_SETTINGS,
@@ -24,53 +16,69 @@ export function getRepositoryKey(
   const repositoryName =
     settings?.repositoryName ?? getEnvironmentVariable("LEKKO_REPOSITORY_NAME")
 
-  if (repositoryOwner === undefined || repositoryName === undefined) {
-    throw new Error("Missing Lekko repository env values")
-  }
-
-  return RepositoryKey.fromJson({
-    repoName: repositoryName,
-    ownerName: repositoryOwner,
-  })
+  return repositoryOwner !== undefined && repositoryName !== undefined
+    ? RepositoryKey.fromJson({
+        repoName: repositoryName,
+        ownerName: repositoryOwner,
+      })
+    : undefined
 }
 
-export function init({
+interface LocalProps {
+  settings?: LekkoSettings
+  contextClient?: SyncClient
+}
+
+export async function initLocalClient({
   settings = DEFAULT_LEKKO_SETTINGS,
   contextClient,
-  queryClient,
-}: Props): Client {
+}: LocalProps): Promise<SyncClient | undefined> {
   if (contextClient !== undefined) return contextClient
 
+  const clientSettings = prepareClientSettings(settings)
+
+  if (clientSettings === undefined) return undefined
+
+  const client = await initCachedAPIClient(clientSettings)
+
+  return client
+}
+
+export function prepareClientSettings(settings: LekkoSettings) {
   const apiKey = settings?.apiKey ?? getEnvironmentVariable("LEKKO_API_KEY")
   const repositoryKey = getRepositoryKey(settings)
   const hostname =
     settings?.hostname ?? getEnvironmentVariable("LEKKO_HOSTNAME")
 
-  if (apiKey === undefined) {
-    throw new Error("Missing Lekko API key values")
-  }
+  if (repositoryKey === undefined || apiKey === undefined) return undefined
 
-  const client = initAPIClient({
+  return {
     apiKey,
-    repositoryOwner: repositoryKey.ownerName,
-    repositoryName: repositoryKey.repoName,
+    repositoryOwner: repositoryKey?.ownerName,
+    repositoryName: repositoryKey?.repoName,
     hostname,
     localPath: settings.localPath,
-  })
-
-  window.addEventListener("message", (event: ExtensionMessage) => {
-    handleExtensionMessage(client, queryClient, event).catch((error) => {
-      console.error(error)
-    })
-  })
-
-  return client
+  }
 }
 
-export default function useLekkoClient(): Client {
-  const contextClient = useContext(LekkoClientContext)
+export default function useLekkoClient(): SyncClient | undefined {
   const settings = useContext(LekkoSettingsContext)
-  const queryClient = useQueryClient()
+  const { contextClient, setContextClient, fetchInitiated, setFetchInitiated } =
+    useContext(LekkoClientContext)
 
-  return init({ contextClient, settings, queryClient })
+  useEffect(() => {
+    const setup = async () => {
+      setFetchInitiated(true)
+      const client = await initLocalClient({ settings })
+      setContextClient(client)
+    }
+    if (!fetchInitiated && contextClient === undefined) {
+      setup().catch((err) => {
+        console.log(`Error setting up lekko client: ${err}`)
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  return contextClient
 }

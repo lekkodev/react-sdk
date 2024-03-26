@@ -12,7 +12,7 @@ import {
 } from "../utils/constants"
 import { createMockClient } from "../mockHelpers/createMockClient"
 import { getEnvironmentVariable } from "../utils/envHelpers"
-import { LekkoClientContext } from "./lekkoClientContext"
+import { LekkoRemoteClientContext } from "./lekkoClientContext"
 
 interface InitProps extends PropsWithChildren {
   settings?: LekkoSettings
@@ -72,8 +72,8 @@ export function LekkoConfigMockProvider({
   }
 
   return (
-    <LekkoClientContext.Provider value={clientRef.current}>
+    <LekkoRemoteClientContext.Provider value={clientRef.current}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </LekkoClientContext.Provider>
+    </LekkoRemoteClientContext.Provider>
   )
 }

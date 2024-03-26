@@ -2,7 +2,12 @@ import { initCachedAPIClient, RepositoryKey } from "@lekko/js-sdk"
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { useContext, useEffect } from "react"
 import { type LekkoSettings } from "../utils/types"
-import { getEnvironmentVariable } from "../utils/envHelpers"
+import {
+  getAPIKeyFromEnv,
+  getHostnameFromEnv,
+  getRepositoryNameFromEnv,
+  getRepositoryOwnerFromEnv,
+} from "../utils/envHelpers"
 import { LekkoClientContext } from "../providers/lekkoClientContext"
 import { type SyncClient } from "@lekko/js-sdk/dist/types/client"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
@@ -11,10 +16,8 @@ export function getRepositoryKey(
   settings: LekkoSettings = DEFAULT_LEKKO_SETTINGS,
 ) {
   const repositoryOwner =
-    settings?.repositoryOwner ??
-    getEnvironmentVariable("LEKKO_REPOSITORY_OWNER")
-  const repositoryName =
-    settings?.repositoryName ?? getEnvironmentVariable("LEKKO_REPOSITORY_NAME")
+    settings?.repositoryOwner ?? getRepositoryOwnerFromEnv()
+  const repositoryName = settings?.repositoryName ?? getRepositoryNameFromEnv()
 
   return repositoryOwner !== undefined && repositoryName !== undefined
     ? RepositoryKey.fromJson({
@@ -45,10 +48,9 @@ export async function initLocalClient({
 }
 
 export function prepareClientSettings(settings: LekkoSettings) {
-  const apiKey = settings?.apiKey ?? getEnvironmentVariable("LEKKO_API_KEY")
+  const apiKey = settings?.apiKey ?? getAPIKeyFromEnv()
   const repositoryKey = getRepositoryKey(settings)
-  const hostname =
-    settings?.hostname ?? getEnvironmentVariable("LEKKO_HOSTNAME")
+  const hostname = settings?.hostname ?? getHostnameFromEnv()
 
   if (repositoryKey === undefined || apiKey === undefined) return undefined
 

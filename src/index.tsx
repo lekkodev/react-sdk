@@ -10,7 +10,12 @@ import {
 
 import { createMockClient } from "./mockHelpers/createMockClient"
 import { LekkoConfigMockProvider } from "./providers/lekkoConfigMockProvider"
-import { ClientContext, type Client, RepositoryKey } from "@lekko/js-sdk"
+import {
+  ClientContext,
+  type Client,
+  RepositoryKey,
+  type SyncClient,
+} from "@lekko/js-sdk"
 import { type DehydratedState } from "@tanstack/react-query"
 import { getCombinedContext, getContextJSON } from "./utils/context"
 import { LekkoGlobalContext } from "./providers/lekkoGlobalContext"
@@ -37,4 +42,5 @@ export {
   LekkoGlobalContext,
   LekkoConfigRemoteProvider,
   LekkoIntermediateConfigRemoteProvider,
+  type SyncClient,
 }

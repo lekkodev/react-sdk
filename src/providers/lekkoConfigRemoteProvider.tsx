@@ -6,6 +6,7 @@ import {
   useCallback,
 } from "react"
 import useLekkoRemoteClient, {
+  getRepositoryKey,
   initRemoteClient,
 } from "../hooks/useLekkoRemoteClient"
 import { getRemoteEvaluation } from "../utils/evaluation"
@@ -43,7 +44,6 @@ import {
 } from "../utils/overrides"
 import { getCombinedContext, getContextJSON } from "../utils/context"
 import { LekkoGlobalContext } from "./lekkoGlobalContext"
-import { getRepositoryKey } from "../hooks/useLekkoClient"
 
 export interface IntermediateRemoteProviderProps extends PropsWithChildren {
   configRequests?: Array<LekkoConfig<EvaluationType>>

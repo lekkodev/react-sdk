@@ -60,7 +60,7 @@ export function useLekkoConfig<
         return handleLekkoErrors(
           () => config(toPlainContext(combinedContext) as C, client),
           combinedConfig,
-          client.repository,
+          client?.repository,
         )
       } else {
         // Local evaluation with function interface
@@ -71,6 +71,9 @@ export function useLekkoConfig<
       const combinedConfig = {
         ...config,
         context: getCombinedContext(globalContext, config.context),
+      }
+      if (client === undefined) {
+        throw new Error("This pathway requires a client")
       }
       return handleLekkoErrors(
         () => getEvaluation(client, combinedConfig),

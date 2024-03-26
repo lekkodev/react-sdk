@@ -70,7 +70,7 @@ export async function handleLekkoErrorsAsync<T>(
 export function handleLekkoErrors<T>(
   fetch: () => T,
   config: LekkoConfig<EvaluationType>,
-  repositoryKey: RepositoryKey,
+  repositoryKey?: RepositoryKey,
 ): T {
   try {
     const result = fetch()

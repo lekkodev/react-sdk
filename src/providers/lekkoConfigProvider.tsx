@@ -6,7 +6,7 @@ import { LekkoClientContext } from "./lekkoClientContext"
 import { suspend } from "suspend-react"
 import { initLocalClient } from "../hooks/useLekkoClient"
 import { LekkoGlobalContext } from "./lekkoGlobalContext"
-import { ClientContext } from "@lekko/js-sdk"
+import { ClientContext, type SyncClient } from "@lekko/js-sdk"
 import { type LekkoSettings } from "../utils/types"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
@@ -23,15 +23,106 @@ export function LekkoConfigProvider({
   globalContext,
   children,
 }: ProviderProps) {
-  const initializedClient = useContext(LekkoClientContext)
+  const clientSetup = useContext(LekkoClientContext)
+  const [contextClient, setContextClient] = useState<SyncClient | undefined>(
+    clientSetup.contextClient,
+  )
+  const [fetchInitiated, setFetchInitiated] = useState<boolean>(
+    clientSetup.fetchInitiated,
+  )
 
-  const lekkoClient = suspend(async () => {
-    const client = initializedClient ?? (await initLocalClient({ settings }))
-    return client
+  useEffect(() => {
+    const setup = async () => {
+      const client = await initLocalClient({ settings })
+      setContextClient(client)
+    }
+    if (
+      !clientSetup.initialized &&
+      !fetchInitiated &&
+      clientSetup.contextClient === undefined
+    ) {
+      setup().catch((err) => {
+        console.log(`Error setting up lekko client: ${err}`)
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // the case where an outer provider already setup the providers
+  if (clientSetup.initialized) {
+    return (
+      <LekkoIntermediateConfigProvider
+        settings={settings}
+        globalContext={globalContext}
+      >
+        {children}
+      </LekkoIntermediateConfigProvider>
+    )
+  }
+
   return (
-    <LekkoClientContext.Provider value={lekkoClient}>
+    <LekkoClientContext.Provider
+      value={{
+        contextClient,
+        setContextClient,
+        initialized: true,
+        fetchInitiated: true,
+        setFetchInitiated,
+      }}
+    >
+      <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
+        <LekkoIntermediateConfigProvider
+          settings={settings}
+          globalContext={globalContext}
+        >
+          {children}
+        </LekkoIntermediateConfigProvider>
+      </LekkoSettingsContext.Provider>
+    </LekkoClientContext.Provider>
+  )
+}
+
+export function LekkoConfigProviderSuspend({
+  settings,
+  globalContext,
+  children,
+}: ProviderProps) {
+  const clientSetup = useContext(LekkoClientContext)
+  const [contextClient, setContextClient] = useState<SyncClient | undefined>(
+    clientSetup.contextClient,
+  )
+  // fetch is always initiated in suspense version
+  const [fetchInitiated, setFetchInitiated] = useState<boolean>(true)
+
+  suspend(async () => {
+    if (clientSetup.contextClient !== undefined) {
+      const client = await initLocalClient({ settings })
+      setContextClient(client)
+    }
+  }, [])
+
+  // the case where an outer provider already setup the providers
+  if (clientSetup.initialized) {
+    return (
+      <LekkoIntermediateConfigProvider
+        settings={settings}
+        globalContext={globalContext}
+      >
+        {children}
+      </LekkoIntermediateConfigProvider>
+    )
+  }
+
+  return (
+    <LekkoClientContext.Provider
+      value={{
+        fetchInitiated,
+        initialized: true,
+        contextClient,
+        setContextClient,
+        setFetchInitiated,
+      }}
+    >
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
         <LekkoIntermediateConfigProvider
           settings={settings}

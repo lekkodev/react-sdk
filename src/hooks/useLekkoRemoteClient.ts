@@ -7,16 +7,17 @@ import { LekkoRemoteClientContext } from "../providers/lekkoClientContext"
 import { handleExtensionMessage } from "../utils/messages"
 import { type QueryClient, useQueryClient } from "@tanstack/react-query"
 import { prepareClientSettings } from "./useLekkoClient"
-import { getEnvironmentVariable } from "../utils/envHelpers"
+import {
+  getRepositoryNameFromEnv,
+  getRepositoryOwnerFromEnv,
+} from "../utils/envHelpers"
 
 export function getRepositoryKey(
   settings: LekkoSettings = DEFAULT_LEKKO_SETTINGS,
 ) {
   const repositoryOwner =
-    settings?.repositoryOwner ??
-    getEnvironmentVariable("LEKKO_REPOSITORY_OWNER")
-  const repositoryName =
-    settings?.repositoryName ?? getEnvironmentVariable("LEKKO_REPOSITORY_NAME")
+    settings?.repositoryOwner ?? getRepositoryOwnerFromEnv()
+  const repositoryName = settings?.repositoryName ?? getRepositoryNameFromEnv()
 
   if (repositoryOwner === undefined || repositoryName === undefined) {
     throw new Error("Missing Lekko repository env values")

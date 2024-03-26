@@ -11,8 +11,11 @@ import {
   DEFAULT_LEKKO_SETTINGS,
 } from "../utils/constants"
 import { createMockClient } from "../mockHelpers/createMockClient"
-import { getEnvironmentVariable } from "../utils/envHelpers"
 import { LekkoRemoteClientContext } from "./lekkoClientContext"
+import {
+  getRepositoryNameFromEnv,
+  getRepositoryOwnerFromEnv,
+} from "../utils/envHelpers"
 
 interface InitProps extends PropsWithChildren {
   settings?: LekkoSettings
@@ -30,10 +33,8 @@ function init({
   defaultConfigs,
 }: InitProps): Client {
   const repositoryOwner =
-    settings?.repositoryOwner ??
-    getEnvironmentVariable("LEKKO_REPOSITORY_OWNER")
-  const repositoryName =
-    settings?.repositoryName ?? getEnvironmentVariable("LEKKO_REPOSITORY_NAME")
+    settings?.repositoryOwner ?? getRepositoryOwnerFromEnv()
+  const repositoryName = settings?.repositoryName ?? getRepositoryNameFromEnv()
 
   if (repositoryOwner === undefined || repositoryName === undefined) {
     throw new Error("Missing Lekko repository env values")

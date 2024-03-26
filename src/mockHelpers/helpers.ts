@@ -42,7 +42,6 @@ export async function getMockedValue<T>(
     {
       namespaceName,
       configName,
-      evaluationType,
     },
     repositoryKey,
   )

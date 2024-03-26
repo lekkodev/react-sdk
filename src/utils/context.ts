@@ -3,6 +3,7 @@ import {
   EvaluationType,
   type EditableResolvedLekkoConfig,
   type JSONClientContext,
+  type LekkoContext,
 } from "./types"
 
 export function getCombinedContext(
@@ -71,4 +72,23 @@ function getHistoryItemJSON(item: EditableResolvedLekkoConfig) {
 
 export function getHistoryJSON(history: EditableResolvedLekkoConfig[]) {
   return history.map((item) => getHistoryItemJSON(item))
+}
+
+export function toPlainContext(clientContext?: ClientContext): LekkoContext {
+  const context: LekkoContext = {}
+  if (clientContext === undefined) return context
+  Object.entries(clientContext.data).forEach(([k, v]) => {
+    switch (v.kind.case) {
+      case "intValue": {
+        context[k] = Number(v.kind.value) // TODO: proper conversion
+        break
+      }
+      case "boolValue":
+      case "stringValue":
+      case "doubleValue": {
+        context[k] = v.kind.value
+      }
+    }
+  })
+  return context
 }

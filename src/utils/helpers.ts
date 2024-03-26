@@ -1,11 +1,14 @@
 import {
   type ResolvedLekkoConfig,
-  type LekkoConfig,
   type DefaultConfigLookup,
-  type EvaluationType,
+  type UntypedLekkoConfig,
 } from "./types"
 
-import { type Value, type RepositoryKey } from "@lekko/js-sdk"
+import {
+  type Value,
+  type RepositoryKey,
+  type ClientContext,
+} from "@lekko/js-sdk"
 import { DuplicateDefaultProviderError } from "../errors/types"
 import { printConfigMessage } from "../errors/printers"
 
@@ -13,13 +16,10 @@ export function isValue(obj: unknown): obj is Value {
   return typeof obj === "object" && obj !== null && "toJsonString" in obj
 }
 
-export function createStableKey<E extends EvaluationType>(
-  config: LekkoConfig<E>,
-  repository: RepositoryKey,
-): string[] {
+export function createContextKey(context?: ClientContext) {
   const contextKeyParts: string[] =
-    config.context !== undefined
-      ? Object.entries(config.context.data)
+    context !== undefined
+      ? Object.entries(context.data)
           .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
           .map(([key, value]) => {
             if (isValue(value)) {
@@ -33,10 +33,18 @@ export function createStableKey<E extends EvaluationType>(
           })
       : []
 
-  const contextKey = contextKeyParts.join("_")
+  return contextKeyParts.join("_")
+}
+
+// Array return type for use in react-query
+export function createStableKey(
+  config: UntypedLekkoConfig,
+  repository: RepositoryKey,
+): string[] {
+  const contextKey = createContextKey(config.context)
 
   return [
-    `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}_${contextKey}_${config.evaluationType}`,
+    `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}${contextKey.length > 0 ? "_" : ""}${contextKey}`,
   ]
 }
 
@@ -45,12 +53,11 @@ export function assertExhaustive(value: never): never {
   throw new Error(`Unhandled case: ${value}`)
 }
 
-export function createDefaultStableKey<E extends EvaluationType>(
-  config: LekkoConfig<E>,
+export function createDefaultStableKey(
+  config: UntypedLekkoConfig,
   repository: RepositoryKey,
 ): string {
-  // __ after configName represents an empty context
-  return `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}__${config.evaluationType}`
+  return `${repository.ownerName}_${repository.repoName}_${config.namespaceName}_${config.configName}`
 }
 
 export function mapStableKeysToConfigs(

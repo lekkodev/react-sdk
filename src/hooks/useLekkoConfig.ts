@@ -1,70 +1,89 @@
-import { DEFAULT_LEKKO_REFRESH } from "../utils/constants"
 import { getEvaluation } from "../utils/evaluation"
-import { createStableKey } from "../utils/helpers"
 import {
   EvaluationType,
   type ConfigOptions,
   type LekkoConfig,
   type UntypedLekkoConfig,
+  type LekkoContext,
+  type LekkoConfigFn,
+  type EvaluationResult,
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 import { handleLekkoErrors } from "../errors/errors"
-import { useContext } from "react"
-import { LekkoDefaultConfigLookupProvider } from "../providers/lekkoDefaultConfigLookupProvider"
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query"
-import { getHistoryItem, upsertHistoryItem } from "../utils/overrides"
-import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
-import { getCombinedContext } from "../utils/context"
-import { type ClientContext } from "@lekko/js-sdk"
+import { getCombinedContext, toPlainContext } from "../utils/context"
+import { ClientContext } from "@lekko/js-sdk"
+import { useContext, useMemo } from "react"
+import { LekkoGlobalContext } from "../providers/lekkoGlobalContext"
 
+// Overload for supporting native lang interface, where we pass functions
+export function useLekkoConfig<T, C extends LekkoContext>(
+  configFn: LekkoConfigFn<T, C>,
+  context?: LekkoContext,
+): T
 export function useLekkoConfig<E extends EvaluationType>(
   config: LekkoConfig<E>,
   options?: ConfigOptions,
-) {
-  const globalContext: ClientContext | undefined = useQuery({
-    queryKey: ["lekkoGlobalContext"],
-  }).data as ClientContext | undefined
-
-  const combinedConfig = {
-    ...config,
-    context: getCombinedContext(globalContext, config.context),
-  }
-
+): EvaluationResult<E>
+export function useLekkoConfig<
+  T,
+  C extends LekkoContext,
+  E extends EvaluationType,
+>(
+  config: LekkoConfig<E> | LekkoConfigFn<T, C>,
+  contextOrOptions?: C | ConfigOptions,
+): T | EvaluationResult<E> {
+  const { globalContext } = useContext(LekkoGlobalContext)
   const client = useLekkoClient()
-  const settings = { ...useContext(LekkoSettingsContext), ...options }
-  const defaultConfigLookup = useContext(LekkoDefaultConfigLookupProvider)
-  const queryKey = createStableKey(combinedConfig, client.repository)
 
-  const historyItem = getHistoryItem(
-    combinedConfig.namespaceName,
-    combinedConfig.configName,
-    combinedConfig.evaluationType,
-  )
+  const isFn = typeof config === "function"
 
-  const { data: evaluation } = useSuspenseQuery({
-    queryKey,
-    queryFn: async () =>
-      await handleLekkoErrors(
-        async () => await getEvaluation(client, combinedConfig),
+  const result = useMemo(() => {
+    if (isFn) {
+      const combinedContext = getCombinedContext(
+        globalContext,
+        ClientContext.fromJSON(contextOrOptions as C),
+      )
+      if (
+        config._namespaceName !== undefined &&
+        config._configName !== undefined &&
+        config._evaluationType !== undefined
+      ) {
+        // Remote evaluation with function interface
+        const combinedConfig = {
+          namespaceName: config._namespaceName,
+          configName: config._configName,
+          evaluationType: config._evaluationType,
+          context: combinedContext,
+        }
+        // TODO: History upsert
+
+        return handleLekkoErrors(
+          () => config(toPlainContext(combinedContext) as C, client),
+          combinedConfig,
+          client?.repository,
+        )
+      } else {
+        // Local evaluation with function interface
+        return config(toPlainContext(combinedContext) as C)
+      }
+    } else {
+      // Remote evaluation with object interface
+      const combinedConfig = {
+        ...config,
+        context: getCombinedContext(globalContext, config.context),
+      }
+      if (client === undefined) {
+        throw new Error("This pathway requires a client")
+      }
+      return handleLekkoErrors(
+        () => getEvaluation(client, combinedConfig),
         combinedConfig,
         client.repository,
-        defaultConfigLookup,
-      ),
-    ...DEFAULT_LEKKO_REFRESH,
-    ...(settings.backgroundRefetch === true
-      ? {
-          placeholderData: historyItem?.result,
-        }
-      : {}),
-  })
+      )
+    }
+  }, [isFn, client, config, contextOrOptions, globalContext])
 
-  upsertHistoryItem({
-    key: queryKey,
-    result: evaluation,
-    config: combinedConfig,
-  })
-
-  return evaluation
+  return result
 }
 
 /**

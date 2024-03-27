@@ -26,7 +26,10 @@ import useLekkoRemoteClient from "./useLekkoRemoteClient"
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfigSuspend<T, C extends LekkoContext>(
   configFn: LekkoRemoteConfigFn<T, C>,
-  context?: C,
+  context: C,
+): T
+export function useLekkoConfigSuspend<T>(
+  configFn: LekkoRemoteConfigFn<T, LekkoContext>,
 ): T
 export function useLekkoConfigSuspend<E extends EvaluationType>(
   config: LekkoConfig<E>,

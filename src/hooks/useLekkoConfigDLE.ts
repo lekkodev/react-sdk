@@ -41,7 +41,7 @@ export type LekkoDLE<T> =
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfigDLE<T, C extends LekkoContext>(
   configFn: LekkoRemoteConfigFn<T, C>,
-  context?: C,
+  context: C,
   options?: ConfigOptions,
 ): LekkoDLE<T>
 export function useLekkoConfigDLE<E extends EvaluationType>(

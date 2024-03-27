@@ -18,8 +18,9 @@ import { LekkoGlobalContext } from "../providers/lekkoGlobalContext"
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfig<T, C extends LekkoContext>(
   configFn: LekkoConfigFn<T, C>,
-  context?: C,
+  context: C,
 ): T
+export function useLekkoConfig<T>(configFn: LekkoConfigFn<T, LekkoContext>): T
 export function useLekkoConfig<E extends EvaluationType>(
   config: LekkoConfig<E>,
   options?: ConfigOptions,

@@ -1,6 +1,7 @@
 import { useLekkoConfigFetch } from "./hooks/useLekkoConfigFetch"
 import {
   LekkoConfigProvider,
+  LekkoConfigProviderSuspend,
   LekkoIntermediateConfigProvider,
 } from "./providers/lekkoConfigProvider"
 import {
@@ -36,6 +37,7 @@ export {
   ClientContext,
   type Client,
   LekkoIntermediateConfigProvider,
+  LekkoConfigProviderSuspend,
   type DehydratedState,
   getContextJSON,
   getCombinedContext,

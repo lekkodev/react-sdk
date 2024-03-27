@@ -833,16 +833,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lekko/js-sdk@npm:^0.1.1-beta-7":
-  version: 0.1.1-beta-7
-  resolution: "@lekko/js-sdk@npm:0.1.1-beta-7"
+"@lekko/js-sdk@npm:^0.1.1-beta-9":
+  version: 0.1.1-beta-9
+  resolution: "@lekko/js-sdk@npm:0.1.1-beta-9"
   dependencies:
     "@bufbuild/protobuf": ^1.7.2
     "@connectrpc/connect": ^1.3.0
     "@connectrpc/connect-web": ^1.3.0
     tslib: ^2.6.2
     xxhashjs: ^0.2.2
-  checksum: 335ffe05b391a385bacc995e804bffee771db939df3f54c39d5563a72d688b25900e285357928d1d0c87174b2bb8a0186ea4b0fe25c54dea5975868b6b6c8f4c
+  checksum: a9144709618950fd7460691fa0587bfb4d8bd2f5885a769dcb6a244696a2b6d25bdb73d0408ecb6a137773aa162056329c881e837be1bb61e6427710e2af671e
   languageName: node
   linkType: hard
 
@@ -851,7 +851,7 @@ __metadata:
   resolution: "@lekko/react-sdk@workspace:."
   dependencies:
     "@babel/core": ^7.23.9
-    "@lekko/js-sdk": ^0.1.1-beta-7
+    "@lekko/js-sdk": ^0.1.1-beta-9
     "@rollup/plugin-commonjs": ^25.0.7
     "@rollup/plugin-node-resolve": ^15.2.3
     "@rollup/plugin-terser": ^0.4.4
@@ -6514,7 +6514,7 @@ __metadata:
 
 "typescript@patch:typescript@*#~builtin<compat/typescript>":
   version: 5.3.3
-  resolution: "typescript@patch:typescript@npm%3A5.3.3#~builtin<compat/typescript>::version=5.3.3&hash=f3b441"
+  resolution: "typescript@patch:typescript@npm%3A5.3.3#~builtin<compat/typescript>::version=5.3.3&hash=29ae49"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver

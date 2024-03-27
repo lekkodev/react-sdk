@@ -88,16 +88,11 @@ export function LekkoConfigProviderSuspend({
   children,
 }: ProviderProps) {
   const clientSetup = useContext(LekkoClientContext)
-  const [contextClient, setContextClient] = useState<SyncClient | undefined>(
-    clientSetup.contextClient,
-  )
-  // fetch is always initiated in suspense version
-  const [fetchInitiated, setFetchInitiated] = useState<boolean>(true)
 
-  suspend(async () => {
-    if (clientSetup.contextClient !== undefined) {
+  const lekkoClient = suspend(async () => {
+    if (!clientSetup.initialized) {
       const client = await initLocalClient({ settings })
-      setContextClient(client)
+      return client
     }
   }, [])
 
@@ -116,11 +111,11 @@ export function LekkoConfigProviderSuspend({
   return (
     <LekkoClientContext.Provider
       value={{
-        fetchInitiated,
+        fetchInitiated: true,
         initialized: true,
-        contextClient,
-        setContextClient,
-        setFetchInitiated,
+        contextClient: lekkoClient,
+        setContextClient: () => {},
+        setFetchInitiated: () => {},
       }}
     >
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>

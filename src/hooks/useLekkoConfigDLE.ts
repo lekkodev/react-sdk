@@ -41,7 +41,7 @@ export type LekkoDLE<T> =
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfigDLE<T, C extends LekkoContext>(
   configFn: LekkoRemoteConfigFn<T, C>,
-  context?: LekkoContext,
+  context?: C,
   options?: ConfigOptions,
 ): LekkoDLE<T>
 export function useLekkoConfigDLE<E extends EvaluationType>(
@@ -84,9 +84,9 @@ export function useLekkoConfigDLE<
       ClientContext.fromJSON(contextOrOptions as C),
     )
     if (
-      config._namespaceName !== undefined &&
-      config._configName !== undefined &&
-      config._evaluationType !== undefined
+      "_namespaceName" in config &&
+      "_configName" in config &&
+      "_evaluationType" in config
     ) {
       // Remote evaluation with function interface
       const combinedConfig = {

@@ -26,7 +26,10 @@ import useLekkoRemoteClient from "./useLekkoRemoteClient"
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfigSuspend<T, C extends LekkoContext>(
   configFn: LekkoRemoteConfigFn<T, C>,
-  context?: LekkoContext,
+  context: C,
+): T
+export function useLekkoConfigSuspend<T>(
+  configFn: LekkoRemoteConfigFn<T, LekkoContext>,
 ): T
 export function useLekkoConfigSuspend<E extends EvaluationType>(
   config: LekkoConfig<E>,
@@ -65,9 +68,9 @@ export function useLekkoConfigSuspend<
       ClientContext.fromJSON(contextOrOptions as C),
     )
     if (
-      config._namespaceName !== undefined &&
-      config._configName !== undefined &&
-      config._evaluationType !== undefined
+      "_namespaceName" in config &&
+      "_configName" in config &&
+      "_evaluationType" in config
     ) {
       // Remote evaluation with function interface
       const combinedConfig = {

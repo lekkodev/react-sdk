@@ -1,6 +1,8 @@
 import { type SyncClient, type Client, type ClientContext } from "@lekko/js-sdk"
 import { type Any } from "@bufbuild/protobuf"
 
+export type Optional<T> = T | undefined
+
 export enum EvaluationType {
   STRING = "String",
   INT = "Int",
@@ -37,22 +39,26 @@ export interface LekkoConfig<E extends EvaluationType = EvaluationType> {
 }
 
 // Functional config interface that supports native lang experience for local and remote configs
-export interface LekkoConfigFn<T, C extends LekkoContext> {
-  (context: C, client?: SyncClient): T
-  // Augmented properties - should be present when using remote
-  _namespaceName?: string
-  _configName?: string
-  _evaluationType?: EvaluationType
-}
+export type LekkoConfigFn<T, C extends LekkoContext> =
+  | ((context: C) => T)
+  | {
+      (context: C, client?: SyncClient): T
+      // Augmented properties - should be present when using remote
+      _namespaceName: string
+      _configName: string
+      _evaluationType: EvaluationType
+    }
 
 // Functional config interface that supports native lang experience for local and remote configs
-export interface LekkoRemoteConfigFn<T, C extends LekkoContext> {
-  (context: C, client?: Client): Promise<T>
-  // Augmented properties - should be present when using remote
-  _namespaceName?: string
-  _configName?: string
-  _evaluationType?: EvaluationType
-}
+export type LekkoRemoteConfigFn<T, C extends LekkoContext> =
+  | ((context: C) => Promise<T>)
+  | {
+      (context: C, client?: Client): Promise<T>
+      // Augmented properties - should be present when using remote
+      _namespaceName: string
+      _configName: string
+      _evaluationType: EvaluationType
+    }
 
 export type UntypedLekkoConfig = Omit<LekkoConfig, "evaluationType">
 

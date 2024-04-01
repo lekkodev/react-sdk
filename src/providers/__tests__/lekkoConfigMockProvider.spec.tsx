@@ -22,17 +22,6 @@ const resolvedTemplatesConfig = {
   result: { templates: [] },
 }
 
-const defaultBoolConfig: LekkoConfig<EvaluationType.BOOL> = {
-  namespaceName: "frontend",
-  configName: "recoil-current-branch-name",
-  evaluationType: EvaluationType.BOOL,
-}
-
-const resolvedDefaultBoolConfig = {
-  config: defaultBoolConfig,
-  result: false,
-}
-
 function Component() {
   const value = useLekkoConfig(templateConfig)
 
@@ -52,7 +41,7 @@ describe("LekkoConfigMockProvider", () => {
           repositoryName: "repo1",
           repositoryOwner: "owner1",
         }}
-        defaultConfigs={[resolvedDefaultBoolConfig, resolvedTemplatesConfig]}
+        defaultConfigs={[resolvedTemplatesConfig]}
       >
         <Component />
       </LekkoConfigMockProvider>,

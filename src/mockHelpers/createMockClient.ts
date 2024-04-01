@@ -1,9 +1,10 @@
 import { type ResolvedLekkoConfig } from "../utils/types"
 
-import { getMockedValue } from "./helpers"
+import { getMockedRemoteValue, getMockedValue } from "./helpers"
 import { EvaluationType } from "../utils/types"
 import { type Any } from "@bufbuild/protobuf"
 import {
+  type SyncClient,
   type Client,
   type ClientContext,
   type RepositoryKey,
@@ -16,7 +17,7 @@ interface Props {
   repositorySha?: string
 }
 
-export function createMockClient({
+export function createMockRemoteClient({
   repositoryKey,
   defaultConfigs,
   repositorySha = "sha123",
@@ -29,7 +30,7 @@ export function createMockClient({
       configName: string,
       context: ClientContext | undefined,
     ) =>
-      await getMockedValue<boolean>(
+      await getMockedRemoteValue<boolean>(
         EvaluationType.BOOL,
         namespaceName,
         configName,
@@ -42,7 +43,7 @@ export function createMockClient({
       configName: string,
       context: ClientContext | undefined,
     ) =>
-      await getMockedValue<string>(
+      await getMockedRemoteValue<string>(
         EvaluationType.STRING,
         namespaceName,
         configName,
@@ -55,7 +56,7 @@ export function createMockClient({
       configName: string,
       context: ClientContext | undefined,
     ) => {
-      const mockedValue = await getMockedValue<number>(
+      const mockedValue = await getMockedRemoteValue<number>(
         EvaluationType.INT,
         namespaceName,
         configName,
@@ -70,7 +71,7 @@ export function createMockClient({
       configName: string,
       context: ClientContext | undefined,
     ) =>
-      await getMockedValue<number>(
+      await getMockedRemoteValue<number>(
         EvaluationType.FLOAT,
         namespaceName,
         configName,
@@ -84,7 +85,7 @@ export function createMockClient({
       context: ClientContext | undefined,
     ) =>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await getMockedValue<any>(
+      await getMockedRemoteValue<any>(
         EvaluationType.JSON,
         namespaceName,
         configName,
@@ -97,7 +98,104 @@ export function createMockClient({
       configName: string,
       context: ClientContext | undefined,
     ) =>
-      await getMockedValue<Any>(
+      await getMockedRemoteValue<Any>(
+        EvaluationType.PROTO,
+        namespaceName,
+        configName,
+        context,
+        repositoryKey,
+        lookupMap,
+      ),
+    repository: repositoryKey,
+    getRepoSha: async () => repositorySha,
+    close: async () => {},
+  }
+
+  return mockClient
+}
+
+export function createMockClient({
+  repositoryKey,
+  defaultConfigs,
+  repositorySha = "sha123",
+}: Props): SyncClient {
+  const lookupMap = mapStableKeysToConfigs(defaultConfigs, repositoryKey)
+
+  const mockClient = {
+    getBool: (
+      namespaceName: string,
+      configName: string,
+      context: ClientContext | undefined,
+    ) =>
+      getMockedValue<boolean>(
+        EvaluationType.BOOL,
+        namespaceName,
+        configName,
+        context,
+        repositoryKey,
+        lookupMap,
+      ),
+    getString: (
+      namespaceName: string,
+      configName: string,
+      context: ClientContext | undefined,
+    ) =>
+      getMockedValue<string>(
+        EvaluationType.STRING,
+        namespaceName,
+        configName,
+        context,
+        repositoryKey,
+        lookupMap,
+      ),
+    getInt: (
+      namespaceName: string,
+      configName: string,
+      context: ClientContext | undefined,
+    ) => {
+      const mockedValue = getMockedValue<number>(
+        EvaluationType.INT,
+        namespaceName,
+        configName,
+        context,
+        repositoryKey,
+        lookupMap,
+      )
+      return BigInt(mockedValue)
+    },
+    getFloat: (
+      namespaceName: string,
+      configName: string,
+      context: ClientContext | undefined,
+    ) =>
+      getMockedValue<number>(
+        EvaluationType.FLOAT,
+        namespaceName,
+        configName,
+        context,
+        repositoryKey,
+        lookupMap,
+      ),
+    getJSON: (
+      namespaceName: string,
+      configName: string,
+      context: ClientContext | undefined,
+    ) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      getMockedValue<any>(
+        EvaluationType.JSON,
+        namespaceName,
+        configName,
+        context,
+        repositoryKey,
+        lookupMap,
+      ),
+    getProto: (
+      namespaceName: string,
+      configName: string,
+      context: ClientContext | undefined,
+    ) =>
+      getMockedValue<Any>(
         EvaluationType.PROTO,
         namespaceName,
         configName,

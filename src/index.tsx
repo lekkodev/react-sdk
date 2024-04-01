@@ -10,7 +10,10 @@ import {
 } from "./providers/lekkoConfigRemoteProvider"
 
 import { createMockClient } from "./mockHelpers/createMockClient"
-import { LekkoConfigMockProvider } from "./providers/lekkoConfigMockProvider"
+import {
+  LekkoConfigMockProvider,
+  LekkoConfigMockSuspenseProvider,
+} from "./providers/lekkoConfigMockProvider"
 import {
   ClientContext,
   type Client,
@@ -32,6 +35,7 @@ export {
   useLekkoConfigFetch,
   LekkoConfigProvider,
   createMockClient,
+  LekkoConfigMockSuspenseProvider,
   LekkoConfigMockProvider,
   RepositoryKey,
   ClientContext,

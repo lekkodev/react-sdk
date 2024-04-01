@@ -425,28 +425,28 @@ __metadata:
   linkType: hard
 
 "@bufbuild/protobuf@npm:^1.7.2":
-  version: 1.7.2
-  resolution: "@bufbuild/protobuf@npm:1.7.2"
-  checksum: f91e2574c97a64cceba04f7e697279fee621eb76cf5d049047184e3d08bd2c52d4a7e9afbe8560cfd49948bd61a24dc9013d6ca56fc10302e948de09afd7acff
+  version: 1.8.0
+  resolution: "@bufbuild/protobuf@npm:1.8.0"
+  checksum: 148755fce3cc28891a42c35a375596a3817710e2e8f4a452f034ffd988bbec1c9154135865b0b846f5f56765c93eb88cacc2f42af053925fb14f09b6a2b8c295
   languageName: node
   linkType: hard
 
 "@connectrpc/connect-web@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "@connectrpc/connect-web@npm:1.3.0"
+  version: 1.4.0
+  resolution: "@connectrpc/connect-web@npm:1.4.0"
   peerDependencies:
     "@bufbuild/protobuf": ^1.4.2
-    "@connectrpc/connect": 1.3.0
-  checksum: 085dcf01cfe652849dd5c046acdeb9baa578add4a58d35643c162e8eccd5203021451b49bfb3d66c69d1e65759ef25727b6b64ee62ea017a040097c3535d214a
+    "@connectrpc/connect": 1.4.0
+  checksum: bf53f5cdd0be69be1cdebf7d7e01f74936f83b410fb26d7f515284771290e6c24f5701e6144ea600805fa2e39d5255ef009210f7b1c35f1dade60005e231b022
   languageName: node
   linkType: hard
 
 "@connectrpc/connect@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "@connectrpc/connect@npm:1.3.0"
+  version: 1.4.0
+  resolution: "@connectrpc/connect@npm:1.4.0"
   peerDependencies:
     "@bufbuild/protobuf": ^1.4.2
-  checksum: a68bfffedd817a7db3563c00e5efc5eb510cc00a93c722d81fa1f52b71a96300d7175b0c0710a9d2ef2e8aaabee36921c90470a80343e7a9fbccffd3cc83f868
+  checksum: 388145ea90b3216f133b34d96a47dfd0273dfa12c4b4963c7223cf45bdcbf8b3490ab234dda34fd42a7112ad9f51f22efc013f3183744a3f2ae65b825917b870
   languageName: node
   linkType: hard
 
@@ -833,16 +833,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lekko/js-sdk@npm:^0.1.1-beta-9":
-  version: 0.1.1-beta-9
-  resolution: "@lekko/js-sdk@npm:0.1.1-beta-9"
+"@lekko/js-sdk@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "@lekko/js-sdk@npm:0.1.2"
   dependencies:
     "@bufbuild/protobuf": ^1.7.2
     "@connectrpc/connect": ^1.3.0
     "@connectrpc/connect-web": ^1.3.0
     tslib: ^2.6.2
     xxhashjs: ^0.2.2
-  checksum: a9144709618950fd7460691fa0587bfb4d8bd2f5885a769dcb6a244696a2b6d25bdb73d0408ecb6a137773aa162056329c881e837be1bb61e6427710e2af671e
+  checksum: af2ee8806601d5c6dce8113434d60a5bf41828db6edb58cce9a710fdad4070f49d9fc7f3f1401d897119df33b031f4967405a7b947675d90cb8fcef6a4940da6
   languageName: node
   linkType: hard
 
@@ -851,7 +851,7 @@ __metadata:
   resolution: "@lekko/react-sdk@workspace:."
   dependencies:
     "@babel/core": ^7.23.9
-    "@lekko/js-sdk": ^0.1.1-beta-9
+    "@lekko/js-sdk": ^0.1.2
     "@rollup/plugin-commonjs": ^25.0.7
     "@rollup/plugin-node-resolve": ^15.2.3
     "@rollup/plugin-terser": ^0.4.4
@@ -6514,7 +6514,7 @@ __metadata:
 
 "typescript@patch:typescript@*#~builtin<compat/typescript>":
   version: 5.3.3
-  resolution: "typescript@patch:typescript@npm%3A5.3.3#~builtin<compat/typescript>::version=5.3.3&hash=29ae49"
+  resolution: "typescript@patch:typescript@npm%3A5.3.3#~builtin<compat/typescript>::version=5.3.3&hash=f3b441"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver

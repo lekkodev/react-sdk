@@ -44,29 +44,31 @@ async function handleRequestConfigs(
   client: Client,
   data: RequestConfigsMessageData,
 ) {
-  window.postMessage(
-    {
-      configs: getHistoryJSON(CONFIG_REQUESTS_HISTORY),
-      context: getContextJSON(
-        getCombinedContext(CONTEXT_HISTORY, CONTEXT_OVERRIDES),
-      ),
-      type: REQUEST_CONFIGS_RESPONSE,
-    },
-    "*",
-  )
+  if (typeof window !== "undefined")
+    window.postMessage(
+      {
+        configs: getHistoryJSON(CONFIG_REQUESTS_HISTORY),
+        context: getContextJSON(
+          getCombinedContext(CONTEXT_HISTORY, CONTEXT_OVERRIDES),
+        ),
+        type: REQUEST_CONFIGS_RESPONSE,
+      },
+      "*",
+    )
 }
 
 async function handleRequestIsUsingPersistedState(
   client: Client,
   data: RequestIsUsingPersistedStateMessageData,
 ) {
-  window.postMessage(
-    {
-      isUsingPersistedState: isUsingPersistedState(),
-      type: REQUEST_IS_USING_PERSISTED_STATE_RESPONSE,
-    },
-    "*",
-  )
+  if (typeof window !== "undefined")
+    window.postMessage(
+      {
+        isUsingPersistedState: isUsingPersistedState(),
+        type: REQUEST_IS_USING_PERSISTED_STATE_RESPONSE,
+      },
+      "*",
+    )
 }
 
 async function handleSaveConfigs(
@@ -92,10 +94,11 @@ async function handleSaveConfigs(
 
   if (data.persistChanges) persistConfigEvaluations(data.configs)
 
-  window.postMessage(
-    { configs: getHistoryJSON(history), type: SAVE_CONFIGS_RESPONSE },
-    "*",
-  )
+  if (typeof window !== "undefined")
+    window.postMessage(
+      { configs: getHistoryJSON(history), type: SAVE_CONFIGS_RESPONSE },
+      "*",
+    )
 }
 
 async function handleSaveContext(
@@ -128,16 +131,17 @@ async function handleSaveContext(
 
   if (data.persistChanges) persistDefaultContext()
 
-  window.postMessage(
-    {
-      configs: getHistoryJSON(CONFIG_REQUESTS_HISTORY),
-      context: getContextJSON(
-        getCombinedContext(CONTEXT_HISTORY, CONTEXT_OVERRIDES),
-      ),
-      type: SAVE_CONTEXT_RESPONSE,
-    },
-    "*",
-  )
+  if (typeof window !== "undefined")
+    window.postMessage(
+      {
+        configs: getHistoryJSON(CONFIG_REQUESTS_HISTORY),
+        context: getContextJSON(
+          getCombinedContext(CONTEXT_HISTORY, CONTEXT_OVERRIDES),
+        ),
+        type: SAVE_CONTEXT_RESPONSE,
+      },
+      "*",
+    )
 }
 
 async function handleReset(
@@ -163,14 +167,15 @@ async function handleReset(
     })
   })
 
-  window.postMessage(
-    {
-      configs: getHistoryJSON(CONFIG_REQUESTS_HISTORY),
-      context: getContextJSON(CONTEXT_HISTORY),
-      type: RESET_CHANGES_RESPONSE,
-    },
-    "*",
-  )
+  if (typeof window !== "undefined")
+    window.postMessage(
+      {
+        configs: getHistoryJSON(CONFIG_REQUESTS_HISTORY),
+        context: getContextJSON(CONTEXT_HISTORY),
+        type: RESET_CHANGES_RESPONSE,
+      },
+      "*",
+    )
 }
 
 export async function handleExtensionMessage(

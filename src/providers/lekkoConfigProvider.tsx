@@ -89,6 +89,8 @@ export function LekkoConfigProviderSuspend({
 }: ProviderProps) {
   const clientSetup = useContext(LekkoClientContext)
 
+  // TODO: For use in Next.js, we need to call POST methods in a useEffect
+  // or similar after the first render
   const lekkoClient = suspend(async () => {
     if (!clientSetup.initialized) {
       const client = await initLocalClient({ settings })

@@ -9,7 +9,7 @@ import {
   getRepositoryOwnerFromEnv,
 } from "../utils/envHelpers"
 import { LekkoClientContext } from "../providers/lekkoClientContext"
-import { type SyncClient } from "@lekko/js-sdk/dist/types/client"
+import { type SyncClient } from "@lekko/js-sdk"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 
 export function getRepositoryKey(

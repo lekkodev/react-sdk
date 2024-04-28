@@ -185,3 +185,26 @@ export interface ExtensionMessage {
 export interface ConfigOptions {
   backgroundRefetch?: boolean
 }
+
+export const SET_OVERRIDES = "SET_OVERRIDES"
+export const REQUEST_DECISION_TREE = "REQUEST_OVERRIDES"
+export const REQUEST_DECISION_TREE_RESPONSE = "REQUEST_OVERRIDES_RESPONSE"
+
+export interface RequestOverridesData extends BaseMessageData {
+  type: "REQUEST_OVERRIDES"
+  contextCombinations: Array<Record<string, string>>
+  excludedConfigNames: string[]
+}
+
+export type SimpleResult = boolean | string | number
+
+export interface SetOverridesData extends BaseMessageData {
+  type: "SET_OVERRIDES"
+  overrides: Record<string, SimpleResult>
+}
+
+export type ExtensionMessageDataSync = RequestOverridesData | SetOverridesData
+
+export interface ExtensionMessageSync {
+  data?: ExtensionMessageDataSync
+}

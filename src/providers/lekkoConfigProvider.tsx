@@ -7,7 +7,8 @@ import { suspend } from "suspend-react"
 import { initLocalClient } from "../hooks/useLekkoClient"
 import { LekkoGlobalContext } from "./lekkoGlobalContext"
 import { ClientContext, type SyncClient } from "@lekko/js-sdk"
-import { type LekkoSettings } from "../utils/types"
+import { type SimpleResult, type LekkoSettings } from "../utils/types"
+import { LekkoOverrideContext } from "./lekkoOverrideProvider"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
   settings?: LekkoSettings
@@ -24,6 +25,8 @@ export function LekkoConfigProvider({
   children,
 }: ProviderProps) {
   const clientSetup = useContext(LekkoClientContext)
+  const [overrides, setOverrides] = useState<Record<string, SimpleResult>>({})
+
   const [contextClient, setContextClient] = useState<SyncClient | undefined>(
     clientSetup.contextClient,
   )
@@ -33,7 +36,7 @@ export function LekkoConfigProvider({
 
   useEffect(() => {
     const setup = async () => {
-      const client = await initLocalClient({ settings })
+      const client = await initLocalClient({ settings, setOverrides })
       setContextClient(client)
     }
     if (
@@ -71,12 +74,14 @@ export function LekkoConfigProvider({
       }}
     >
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
-        <LekkoIntermediateConfigProvider
-          settings={settings}
-          globalContext={globalContext}
-        >
-          {children}
-        </LekkoIntermediateConfigProvider>
+        <LekkoOverrideContext.Provider value={{ overrides, setOverrides }}>
+          <LekkoIntermediateConfigProvider
+            settings={settings}
+            globalContext={globalContext}
+          >
+            {children}
+          </LekkoIntermediateConfigProvider>
+        </LekkoOverrideContext.Provider>
       </LekkoSettingsContext.Provider>
     </LekkoClientContext.Provider>
   )
@@ -88,12 +93,13 @@ export function LekkoConfigProviderSuspend({
   children,
 }: ProviderProps) {
   const clientSetup = useContext(LekkoClientContext)
+  const [overrides, setOverrides] = useState<Record<string, SimpleResult>>({})
 
   // TODO: For use in Next.js, we need to call POST methods in a useEffect
   // or similar after the first render
   const lekkoClient = suspend(async () => {
     if (!clientSetup.initialized) {
-      const client = await initLocalClient({ settings })
+      const client = await initLocalClient({ settings, setOverrides })
       return client
     }
   }, [])
@@ -121,12 +127,14 @@ export function LekkoConfigProviderSuspend({
       }}
     >
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
-        <LekkoIntermediateConfigProvider
-          settings={settings}
-          globalContext={globalContext}
-        >
-          {children}
-        </LekkoIntermediateConfigProvider>
+        <LekkoOverrideContext.Provider value={{ overrides, setOverrides }}>
+          <LekkoIntermediateConfigProvider
+            settings={settings}
+            globalContext={globalContext}
+          >
+            {children}
+          </LekkoIntermediateConfigProvider>
+        </LekkoOverrideContext.Provider>
       </LekkoSettingsContext.Provider>
     </LekkoClientContext.Provider>
   )

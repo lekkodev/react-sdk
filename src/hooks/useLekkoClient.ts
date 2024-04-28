@@ -1,7 +1,11 @@
 import { initCachedAPIClient, RepositoryKey } from "@lekko/js-sdk"
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { useContext, useEffect } from "react"
-import { type LekkoSettings } from "../utils/types"
+import {
+  type ExtensionMessageSync,
+  type SimpleResult,
+  type LekkoSettings,
+} from "../utils/types"
 import {
   getAPIKeyFromEnv,
   getHostnameFromEnv,
@@ -11,6 +15,8 @@ import {
 import { LekkoClientContext } from "../providers/lekkoClientContext"
 import { type SyncClient } from "@lekko/js-sdk"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
+import { handleExtensionMessageSync } from "../utils/syncMessages"
+import { LekkoOverrideContext } from "../providers/lekkoOverrideProvider"
 
 export function getRepositoryKey(
   settings: LekkoSettings = DEFAULT_LEKKO_SETTINGS,
@@ -30,11 +36,13 @@ export function getRepositoryKey(
 interface LocalProps {
   settings?: LekkoSettings
   contextClient?: SyncClient
+  setOverrides: (overrides: Record<string, SimpleResult>) => void
 }
 
 export async function initLocalClient({
   settings = DEFAULT_LEKKO_SETTINGS,
   contextClient,
+  setOverrides,
 }: LocalProps): Promise<SyncClient | undefined> {
   if (contextClient !== undefined) return contextClient
 
@@ -43,6 +51,12 @@ export async function initLocalClient({
   if (clientSettings === undefined) return undefined
 
   const client = await initCachedAPIClient(clientSettings)
+
+  window.addEventListener("message", (event: ExtensionMessageSync) => {
+    handleExtensionMessageSync(client, event, setOverrides).catch((error) => {
+      console.error(error)
+    })
+  })
 
   return client
 }
@@ -65,13 +79,14 @@ export function prepareClientSettings(settings: LekkoSettings) {
 
 export default function useLekkoClient(): SyncClient | undefined {
   const settings = useContext(LekkoSettingsContext)
+  const { setOverrides } = useContext(LekkoOverrideContext)
   const { contextClient, setContextClient, fetchInitiated, setFetchInitiated } =
     useContext(LekkoClientContext)
 
   useEffect(() => {
     const setup = async () => {
       setFetchInitiated(true)
-      const client = await initLocalClient({ settings })
+      const client = await initLocalClient({ settings, setOverrides })
       setContextClient(client)
     }
     if (!fetchInitiated && contextClient === undefined) {

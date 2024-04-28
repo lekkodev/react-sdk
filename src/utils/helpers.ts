@@ -78,3 +78,10 @@ export function mapStableKeysToConfigs(
     return acc
   }, {})
 }
+
+export function camelToKebabCase(input: string): string {
+  const cleanInput = input.replace(/^get/, "")
+  const normalizedInput = cleanInput[0].toLowerCase() + cleanInput.slice(1)
+
+  return normalizedInput.replace(/([A-Z])/g, "-$1").toLowerCase()
+}

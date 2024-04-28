@@ -833,9 +833,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lekko/js-sdk@npm:^0.1.4":
-  version: 0.1.4
-  resolution: "@lekko/js-sdk@npm:0.1.4"
+"@lekko/js-sdk@file:../js-sdk::locator=%40lekko%2Freact-sdk%40workspace%3A.":
+  version: 0.1.5-beta-1
+  resolution: "@lekko/js-sdk@file:../js-sdk#../js-sdk::hash=9b11b3&locator=%40lekko%2Freact-sdk%40workspace%3A."
   dependencies:
     "@bufbuild/protobuf": ^1.7.2
     "@connectrpc/connect": ^1.3.0
@@ -844,7 +844,7 @@ __metadata:
     lodash.snakecase: ^4.1.1
     tslib: ^2.6.2
     xxhashjs: ^0.2.2
-  checksum: 682f21ce79f2fa7116960ed691e1002db44ebf3405a9e804b9b8b60fde9e2ad11d25f20629f4225eac991a1259f647030c4f689b8c49733d35efbe6bbc290176
+  checksum: ed4305199f6c1eea05effa8555b0faa30ecfb1e0ad830af4b01fd0c3bf5443ac08054d5af4b4634f652e38c0043c51fd96af579cd32127e0459652bef32c44e3
   languageName: node
   linkType: hard
 
@@ -853,7 +853,7 @@ __metadata:
   resolution: "@lekko/react-sdk@workspace:."
   dependencies:
     "@babel/core": ^7.23.9
-    "@lekko/js-sdk": ^0.1.4
+    "@lekko/js-sdk": "file:../js-sdk"
     "@rollup/plugin-commonjs": ^25.0.7
     "@rollup/plugin-node-resolve": ^15.2.3
     "@rollup/plugin-terser": ^0.4.4

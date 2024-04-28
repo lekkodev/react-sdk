@@ -52,11 +52,13 @@ export async function initLocalClient({
 
   const client = await initCachedAPIClient(clientSettings)
 
-  window.addEventListener("message", (event: ExtensionMessageSync) => {
-    handleExtensionMessageSync(client, event, setOverrides).catch((error) => {
-      console.error(error)
+  if (typeof window !== "undefined") {
+    window.addEventListener("message", (event: ExtensionMessageSync) => {
+      handleExtensionMessageSync(client, event, setOverrides).catch((error) => {
+        console.error(error)
+      })
     })
-  })
+  }
 
   return client
 }

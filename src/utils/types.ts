@@ -187,8 +187,8 @@ export interface ConfigOptions {
 }
 
 export const SET_OVERRIDES = "SET_OVERRIDES"
-export const REQUEST_DECISION_TREE = "REQUEST_OVERRIDES"
-export const REQUEST_DECISION_TREE_RESPONSE = "REQUEST_OVERRIDES_RESPONSE"
+export const REQUEST_OVERRIDES = "REQUEST_OVERRIDES"
+export const REQUEST_OVERRIDES_RESPONSE = "REQUEST_OVERRIDES_RESPONSE"
 
 export interface RequestOverridesData extends BaseMessageData {
   type: "REQUEST_OVERRIDES"

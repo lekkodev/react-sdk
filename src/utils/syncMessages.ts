@@ -1,8 +1,8 @@
 import { ClientContext, getNamespaceCombinations } from "@lekko/js-sdk"
 import {
   type ExtensionMessageSync,
-  REQUEST_DECISION_TREE,
-  REQUEST_DECISION_TREE_RESPONSE,
+  REQUEST_OVERRIDES,
+  REQUEST_OVERRIDES_RESPONSE,
   SET_OVERRIDES,
   type SimpleResult,
   type RequestOverridesData,
@@ -18,7 +18,7 @@ export async function handleExtensionMessageSync(
   const eventData = event.data
   if (eventData !== undefined) {
     switch (eventData.type) {
-      case REQUEST_DECISION_TREE: {
+      case REQUEST_OVERRIDES: {
         await handleRequestOverrides(client, eventData)
         break
       }
@@ -62,7 +62,7 @@ async function handleRequestOverrides(
 
   window.postMessage(
     {
-      type: REQUEST_DECISION_TREE_RESPONSE,
+      type: REQUEST_OVERRIDES_RESPONSE,
       result,
     },
     "*",

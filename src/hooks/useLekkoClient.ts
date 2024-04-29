@@ -5,6 +5,7 @@ import {
   type ExtensionMessageSync,
   type SimpleResult,
   type LekkoSettings,
+  ConfigRef,
 } from "../utils/types"
 import {
   getAPIKeyFromEnv,
@@ -17,6 +18,7 @@ import { type SyncClient } from "@lekko/js-sdk"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
 import { handleExtensionMessageSync } from "../utils/syncMessages"
 import { LekkoOverrideContext } from "../providers/lekkoOverrideProvider"
+import { LekkoConfigTrackerContext } from "../providers/lekkoConfigTrackerContext"
 
 export function getRepositoryKey(
   settings: LekkoSettings = DEFAULT_LEKKO_SETTINGS,
@@ -37,12 +39,14 @@ interface LocalProps {
   settings?: LekkoSettings
   contextClient?: SyncClient
   setOverrides: (overrides: Record<string, SimpleResult>) => void
+  activeConfigs: ConfigRef[]
 }
 
 export async function initLocalClient({
   settings = DEFAULT_LEKKO_SETTINGS,
   contextClient,
   setOverrides,
+  activeConfigs
 }: LocalProps): Promise<SyncClient | undefined> {
   if (contextClient !== undefined) return contextClient
 
@@ -54,7 +58,7 @@ export async function initLocalClient({
 
   if (typeof window !== "undefined") {
     window.addEventListener("message", (event: ExtensionMessageSync) => {
-      handleExtensionMessageSync(client, event, setOverrides).catch((error) => {
+      handleExtensionMessageSync(client, event, setOverrides, activeConfigs).catch((error) => {
         console.error(error)
       })
     })
@@ -82,13 +86,14 @@ export function prepareClientSettings(settings: LekkoSettings) {
 export default function useLekkoClient(): SyncClient | undefined {
   const settings = useContext(LekkoSettingsContext)
   const { setOverrides } = useContext(LekkoOverrideContext)
+  const { activeConfigs } = useContext(LekkoConfigTrackerContext)
   const { contextClient, setContextClient, fetchInitiated, setFetchInitiated } =
     useContext(LekkoClientContext)
 
   useEffect(() => {
     const setup = async () => {
       setFetchInitiated(true)
-      const client = await initLocalClient({ settings, setOverrides })
+      const client = await initLocalClient({ settings, setOverrides, activeConfigs })
       setContextClient(client)
     }
     if (!fetchInitiated && contextClient === undefined) {

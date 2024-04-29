@@ -208,3 +208,8 @@ export type ExtensionMessageDataSync = RequestOverridesData | SetOverridesData
 export interface ExtensionMessageSync {
   data?: ExtensionMessageDataSync
 }
+
+export interface ConfigRef {
+  configName: string;
+  namespaceName: string;
+}

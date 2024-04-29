@@ -6,6 +6,7 @@ import {
   SET_OVERRIDES,
   type SimpleResult,
   type RequestOverridesData,
+  ConfigRef,
 } from "./types"
 
 import { type SyncClient } from "@lekko/js-sdk"
@@ -14,12 +15,13 @@ export async function handleExtensionMessageSync(
   client: SyncClient,
   event: ExtensionMessageSync,
   setOverrides: (overrides: Record<string, SimpleResult>) => void,
+  activeConfigs: ConfigRef[]
 ) {
   const eventData = event.data
   if (eventData !== undefined) {
     switch (eventData.type) {
       case REQUEST_OVERRIDES: {
-        await handleRequestOverrides(client, eventData)
+        await handleRequestOverrides(client, eventData, activeConfigs)
         break
       }
       case SET_OVERRIDES: {
@@ -44,9 +46,12 @@ function createContexts(
 async function handleRequestOverrides(
   client: SyncClient,
   data: RequestOverridesData,
+  activeConfigs: ConfigRef[]
 ) {
   const contexts = data.contextCombinations ?? {}
   const contextCombinations = createContexts(contexts)
+
+  console.log(activeConfigs)
 
   const configs = client.getConfigs()
   const fe = configs.get("frontend")

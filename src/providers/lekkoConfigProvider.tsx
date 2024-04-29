@@ -7,8 +7,9 @@ import { suspend } from "suspend-react"
 import { initLocalClient } from "../hooks/useLekkoClient"
 import { LekkoGlobalContext } from "./lekkoGlobalContext"
 import { ClientContext, type SyncClient } from "@lekko/js-sdk"
-import { type SimpleResult, type LekkoSettings } from "../utils/types"
+import { type SimpleResult, type LekkoSettings, ConfigRef } from "../utils/types"
 import { LekkoOverrideContext } from "./lekkoOverrideProvider"
+import { LekkoConfigTrackerProvider } from "./lekkoConfigTrackerContext"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
   settings?: LekkoSettings
@@ -25,6 +26,8 @@ export function LekkoConfigProvider({
   children,
 }: ProviderProps) {
   const clientSetup = useContext(LekkoClientContext)
+  const [activeConfigs, setActiveConfigs] = useState<ConfigRef[]>([])
+  console.log(activeConfigs)
   const [overrides, setOverrides] = useState<Record<string, SimpleResult>>({})
 
   const [contextClient, setContextClient] = useState<SyncClient | undefined>(
@@ -36,7 +39,7 @@ export function LekkoConfigProvider({
 
   useEffect(() => {
     const setup = async () => {
-      const client = await initLocalClient({ settings, setOverrides })
+      const client = await initLocalClient({ settings, setOverrides, activeConfigs })
       setContextClient(client)
     }
     if (
@@ -75,13 +78,15 @@ export function LekkoConfigProvider({
     >
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
         <LekkoOverrideContext.Provider value={{ overrides, setOverrides }}>
-          <LekkoIntermediateConfigProvider
-            settings={settings}
-            globalContext={globalContext}
-          >
-            {children}
-          </LekkoIntermediateConfigProvider>
-        </LekkoOverrideContext.Provider>
+          <LekkoConfigTrackerProvider activeConfigs={activeConfigs} setActiveConfigs={setActiveConfigs}>
+            <LekkoIntermediateConfigProvider
+              settings={settings}
+              globalContext={globalContext}
+            >
+              {children}
+            </LekkoIntermediateConfigProvider>
+            </LekkoConfigTrackerProvider>
+          </LekkoOverrideContext.Provider>
       </LekkoSettingsContext.Provider>
     </LekkoClientContext.Provider>
   )
@@ -93,13 +98,14 @@ export function LekkoConfigProviderSuspend({
   children,
 }: ProviderProps) {
   const clientSetup = useContext(LekkoClientContext)
+  const [activeConfigs, setActiveConfigs] = useState<ConfigRef[]>([]);
   const [overrides, setOverrides] = useState<Record<string, SimpleResult>>({})
 
   // TODO: For use in Next.js, we need to call POST methods in a useEffect
   // or similar after the first render
   const lekkoClient = suspend(async () => {
     if (!clientSetup.initialized) {
-      const client = await initLocalClient({ settings, setOverrides })
+      const client = await initLocalClient({ settings, setOverrides, activeConfigs })
       return client
     }
   }, [])
@@ -128,12 +134,16 @@ export function LekkoConfigProviderSuspend({
     >
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
         <LekkoOverrideContext.Provider value={{ overrides, setOverrides }}>
+          <LekkoConfigTrackerProvider activeConfigs={activeConfigs} setActiveConfigs={setActiveConfigs}>
+
+
           <LekkoIntermediateConfigProvider
             settings={settings}
             globalContext={globalContext}
           >
             {children}
           </LekkoIntermediateConfigProvider>
+          </LekkoConfigTrackerProvider>
         </LekkoOverrideContext.Provider>
       </LekkoSettingsContext.Provider>
     </LekkoClientContext.Provider>

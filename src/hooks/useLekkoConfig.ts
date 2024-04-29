@@ -16,6 +16,7 @@ import { useContext, useMemo } from "react"
 import { LekkoGlobalContext } from "../providers/lekkoGlobalContext"
 import { LekkoOverrideContext } from "../providers/lekkoOverrideProvider"
 import { camelToKebabCase } from "../utils/helpers"
+import { getConfigRef, useActiveConfig } from "../providers/lekkoConfigTrackerContext"
 
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfig<T, C extends LekkoContext>(
@@ -39,6 +40,8 @@ export function useLekkoConfig<
   const { overrides } = useContext(LekkoOverrideContext)
 
   const client = useLekkoClient()
+  const configRef = getConfigRef(config)
+  useActiveConfig(configRef)
 
   const isFn = typeof config === "function"
 
@@ -61,8 +64,8 @@ export function useLekkoConfig<
           context: combinedContext,
         }
         // TODO: History upsert
-        if (overrides[config._configName] !== undefined) {
-          return overrides[config._configName] as T | EvaluationResult<E>
+        if (configRef?.configName !== undefined && overrides[configRef?.configName] !== undefined) {
+          return overrides[configRef.configName] as T | EvaluationResult<E>
         }
 
         return handleLekkoErrors(
@@ -71,9 +74,8 @@ export function useLekkoConfig<
           client?.repository,
         )
       } else {
-        const casedName = camelToKebabCase(config.name)
-        if (overrides[casedName] !== undefined) {
-          return overrides[casedName] as T | EvaluationResult<E>
+        if (configRef?.configName !== undefined && overrides[configRef?.configName] !== undefined) {
+          return overrides[configRef?.configName] as T | EvaluationResult<E>
         }
         // Local evaluation with function interface
         return config(toPlainContext(combinedContext) as C)
@@ -84,8 +86,8 @@ export function useLekkoConfig<
         ...config,
         context: getCombinedContext(globalContext, config.context),
       }
-      if (overrides[config.configName] !== undefined) {
-        return overrides[config.configName] as T | EvaluationResult<E>
+      if (configRef?.configName !== undefined && overrides[configRef?.configName] !== undefined) {
+        return overrides[configRef.configName] as T | EvaluationResult<E>
       }
       if (client === undefined) {
         throw new Error("This pathway requires a client")

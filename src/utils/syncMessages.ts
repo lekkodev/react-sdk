@@ -49,12 +49,12 @@ async function handleRequestOverrides(
   const contextCombinations = createContexts(contexts)
 
   const configs = client.getConfigs()
-  const fe = configs.get("frontend")
+  const namespace = configs.get(data.namespace)
 
   const result =
-    fe !== undefined
+    namespace !== undefined
       ? getNamespaceCombinations(
-          fe,
+          namespace,
           data.excludedConfigNames,
           contextCombinations,
         )

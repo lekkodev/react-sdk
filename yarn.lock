@@ -833,9 +833,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lekko/js-sdk@npm:0.1.5-beta-1":
-  version: 0.1.5-beta-1
-  resolution: "@lekko/js-sdk@npm:0.1.5-beta-1"
+"@lekko/js-sdk@npm:0.1.5-beta-2":
+  version: 0.1.5-beta-2
+  resolution: "@lekko/js-sdk@npm:0.1.5-beta-2"
   dependencies:
     "@bufbuild/protobuf": ^1.7.2
     "@connectrpc/connect": ^1.3.0
@@ -844,7 +844,7 @@ __metadata:
     lodash.snakecase: ^4.1.1
     tslib: ^2.6.2
     xxhashjs: ^0.2.2
-  checksum: 703723e726e7d90a9538e0772634c812db7439f00f1f618be9ff0267e6b8a30e94ca27e5f215bd8166dc3e8a6abdfd5de94cd93aa38c9ccc40b8b682f938f73f
+  checksum: 4d09487d5e7c8cf2a0b8f82657237ec5abf56a768da90979e58a4dd8b4801ba031daa91353eab3ad74eb9fada4e50475f4fae265a76bcdafb461aabe721b4060
   languageName: node
   linkType: hard
 
@@ -853,7 +853,7 @@ __metadata:
   resolution: "@lekko/react-sdk@workspace:."
   dependencies:
     "@babel/core": ^7.23.9
-    "@lekko/js-sdk": 0.1.5-beta-1
+    "@lekko/js-sdk": 0.1.5-beta-2
     "@rollup/plugin-commonjs": ^25.0.7
     "@rollup/plugin-node-resolve": ^15.2.3
     "@rollup/plugin-terser": ^0.4.4

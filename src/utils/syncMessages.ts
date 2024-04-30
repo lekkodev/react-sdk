@@ -63,6 +63,7 @@ async function handleRequestOverrides(
   window.postMessage(
     {
       type: REQUEST_OVERRIDES_RESPONSE,
+      excludedConfigNames: data.excludedConfigNames,
       result,
     },
     "*",

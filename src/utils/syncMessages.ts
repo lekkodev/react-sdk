@@ -54,12 +54,12 @@ async function handleRequestOverrides(
   console.log(activeConfigs)
 
   const configs = client.getConfigs()
-  const fe = configs.get("frontend")
+  const namespace = configs.get(data.namespace)
 
   const result =
-    fe !== undefined
+    namespace !== undefined
       ? getNamespaceCombinations(
-          fe,
+          namespace,
           data.excludedConfigNames,
           contextCombinations,
         )
@@ -68,6 +68,7 @@ async function handleRequestOverrides(
   window.postMessage(
     {
       type: REQUEST_OVERRIDES_RESPONSE,
+      excludedConfigNames: data.excludedConfigNames,
       result,
     },
     "*",

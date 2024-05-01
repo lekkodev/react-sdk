@@ -192,6 +192,7 @@ export const REQUEST_OVERRIDES_RESPONSE = "REQUEST_OVERRIDES_RESPONSE"
 
 export interface RequestOverridesData extends BaseMessageData {
   type: "REQUEST_OVERRIDES"
+  namespace: string
   contextCombinations: Array<Record<string, string>>
   excludedConfigNames: string[]
 }

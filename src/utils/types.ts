@@ -211,6 +211,6 @@ export interface ExtensionMessageSync {
 }
 
 export interface ConfigRef {
-  configName: string;
-  namespaceName: string;
+  configName: string
+  namespaceName: string
 }

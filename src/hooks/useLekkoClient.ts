@@ -1,12 +1,7 @@
 import { initCachedAPIClient, RepositoryKey } from "@lekko/js-sdk"
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { useContext, useEffect } from "react"
-import {
-  type ExtensionMessageSync,
-  type SimpleResult,
-  type LekkoSettings,
-  ConfigRef,
-} from "../utils/types"
+import { type ExtensionMessageSync, type LekkoSettings } from "../utils/types"
 import {
   getAPIKeyFromEnv,
   getHostnameFromEnv,
@@ -78,17 +73,10 @@ export default function useLekkoClient(): SyncClient | undefined {
   const { contextClient, setContextClient, fetchInitiated, setFetchInitiated } =
     useContext(LekkoClientContext)
 
-    const handleMessage = (
-      client: SyncClient,
-      event: ExtensionMessageSync,
-    ) => {
-      return handleExtensionMessageSync(client, event, setOverrides, activeConfigs)
-    }
-
   useEffect(() => {
     const setup = async () => {
       setFetchInitiated(true)
-      const client = await initLocalClient({ settings, handleMessage })
+      const client = await initLocalClient({ settings })
       setContextClient(client)
     }
     if (!fetchInitiated && contextClient === undefined) {
@@ -98,6 +86,27 @@ export default function useLekkoClient(): SyncClient | undefined {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && contextClient !== undefined) {
+      const handleMessage = async (event: ExtensionMessageSync) => {
+        await handleExtensionMessageSync(
+          contextClient,
+          event,
+          setOverrides,
+          activeConfigs,
+        ).catch((error) => {
+          console.error(error)
+        })
+      }
+
+      window.addEventListener("message", handleMessage)
+
+      return () => {
+        window.removeEventListener("message", handleMessage)
+      }
+    }
+  }, [JSON.stringify(activeConfigs), contextClient !== undefined, setOverrides])
 
   return contextClient
 }

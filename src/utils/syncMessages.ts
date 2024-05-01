@@ -6,7 +6,7 @@ import {
   SET_OVERRIDES,
   type SimpleResult,
   type RequestOverridesData,
-  ConfigRef,
+  type ConfigRef,
 } from "./types"
 
 import { type SyncClient } from "@lekko/js-sdk"
@@ -15,10 +15,8 @@ export async function handleExtensionMessageSync(
   client: SyncClient,
   event: ExtensionMessageSync,
   setOverrides: (overrides: Record<string, SimpleResult>) => void,
-  activeConfigs: ConfigRef[]
+  activeConfigs: ConfigRef[],
 ) {
-    console.log('the active configs are')
-    console.log(activeConfigs)
   const eventData = event.data
   if (eventData !== undefined) {
     switch (eventData.type) {
@@ -48,31 +46,39 @@ function createContexts(
 async function handleRequestOverrides(
   client: SyncClient,
   data: RequestOverridesData,
-  activeConfigs: ConfigRef[]
+  activeConfigs: ConfigRef[],
 ) {
   const contexts = data.contextCombinations ?? {}
   const contextCombinations = createContexts(contexts)
 
-  console.log(activeConfigs)
-
   const configs = client.getConfigs()
   const namespace = configs.get(data.namespace)
 
-  const result =
-    namespace !== undefined
-      ? getNamespaceCombinations(
-          namespace,
-          data.excludedConfigNames,
-          contextCombinations,
-        )
-      : {}
+  if (namespace !== undefined) {
+    const activeNamespace = new Map(
+      [...namespace.entries()].filter(([key, value]) => {
+        return activeConfigs
+          .map((config) => config.configName)
+          .includes(value.config.key)
+      }),
+    )
 
-  window.postMessage(
-    {
-      type: REQUEST_OVERRIDES_RESPONSE,
-      excludedConfigNames: data.excludedConfigNames,
-      result,
-    },
-    "*",
-  )
+    const result =
+      namespace !== undefined
+        ? getNamespaceCombinations(
+            activeNamespace,
+            data.excludedConfigNames,
+            contextCombinations,
+          )
+        : {}
+
+    window.postMessage(
+      {
+        type: REQUEST_OVERRIDES_RESPONSE,
+        excludedConfigNames: data.excludedConfigNames,
+        result,
+      },
+      "*",
+    )
+  }
 }

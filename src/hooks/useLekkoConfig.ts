@@ -15,8 +15,10 @@ import { ClientContext } from "@lekko/js-sdk"
 import { useContext, useMemo } from "react"
 import { LekkoGlobalContext } from "../providers/lekkoGlobalContext"
 import { LekkoOverrideContext } from "../providers/lekkoOverrideProvider"
-import { camelToKebabCase } from "../utils/helpers"
-import { getConfigRef, useActiveConfig } from "../providers/lekkoConfigTrackerContext"
+import {
+  getConfigRef,
+  useActiveConfig,
+} from "../providers/lekkoConfigTrackerContext"
 
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfig<T, C extends LekkoContext>(
@@ -64,7 +66,10 @@ export function useLekkoConfig<
           context: combinedContext,
         }
         // TODO: History upsert
-        if (configRef?.configName !== undefined && overrides[configRef?.configName] !== undefined) {
+        if (
+          configRef?.configName !== undefined &&
+          overrides[configRef?.configName] !== undefined
+        ) {
           return overrides[configRef.configName] as T | EvaluationResult<E>
         }
 
@@ -74,7 +79,10 @@ export function useLekkoConfig<
           client?.repository,
         )
       } else {
-        if (configRef?.configName !== undefined && overrides[configRef?.configName] !== undefined) {
+        if (
+          configRef?.configName !== undefined &&
+          overrides[configRef?.configName] !== undefined
+        ) {
           return overrides[configRef?.configName] as T | EvaluationResult<E>
         }
         // Local evaluation with function interface
@@ -86,7 +94,10 @@ export function useLekkoConfig<
         ...config,
         context: getCombinedContext(globalContext, config.context),
       }
-      if (configRef?.configName !== undefined && overrides[configRef?.configName] !== undefined) {
+      if (
+        configRef?.configName !== undefined &&
+        overrides[configRef?.configName] !== undefined
+      ) {
         return overrides[configRef.configName] as T | EvaluationResult<E>
       }
       if (client === undefined) {
@@ -98,7 +109,15 @@ export function useLekkoConfig<
         client.repository,
       )
     }
-  }, [isFn, client, config, contextOrOptions, globalContext, overrides])
+  }, [
+    isFn,
+    client,
+    config,
+    contextOrOptions,
+    globalContext,
+    overrides,
+    configRef?.configName,
+  ])
 
   return result
 }

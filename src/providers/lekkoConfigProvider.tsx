@@ -7,9 +7,10 @@ import { suspend } from "suspend-react"
 import { initLocalClient } from "../hooks/useLekkoClient"
 import { LekkoGlobalContext } from "./lekkoGlobalContext"
 import { ClientContext, type SyncClient } from "@lekko/js-sdk"
-import { type SimpleResult, type LekkoSettings, ConfigRef } from "../utils/types"
+import { type SimpleResult, type LekkoSettings, ConfigRef, ExtensionMessageSync } from "../utils/types"
 import { LekkoOverrideContext } from "./lekkoOverrideProvider"
 import { LekkoConfigTrackerProvider } from "./lekkoConfigTrackerContext"
+import { handleExtensionMessageSync } from "../utils/syncMessages"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
   settings?: LekkoSettings
@@ -39,7 +40,7 @@ export function LekkoConfigProvider({
 
   useEffect(() => {
     const setup = async () => {
-      const client = await initLocalClient({ settings, setOverrides, activeConfigs })
+      const client = await initLocalClient({ settings })
       setContextClient(client)
     }
     if (
@@ -53,6 +54,16 @@ export function LekkoConfigProvider({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && contextClient !== undefined) {
+      window.addEventListener("message", (event: ExtensionMessageSync) => {
+        return handleExtensionMessageSync(contextClient, event, setOverrides, activeConfigs).catch((error) => {
+          console.error(error)
+        })
+      })
+    }
+  }, [activeConfigs, contextClient])
 
   // the case where an outer provider already setup the providers
   if (clientSetup.initialized) {
@@ -105,10 +116,20 @@ export function LekkoConfigProviderSuspend({
   // or similar after the first render
   const lekkoClient = suspend(async () => {
     if (!clientSetup.initialized) {
-      const client = await initLocalClient({ settings, setOverrides, activeConfigs })
+      const client = await initLocalClient({ settings })
       return client
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && lekkoClient !== undefined) {
+      window.addEventListener("message", (event: ExtensionMessageSync) => {
+        return handleExtensionMessageSync(lekkoClient, event, setOverrides, activeConfigs).catch((error) => {
+          console.error(error)
+        })
+      })
+    }
+  }, [activeConfigs, lekkoClient])
 
   // the case where an outer provider already setup the providers
   if (clientSetup.initialized) {

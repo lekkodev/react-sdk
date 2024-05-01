@@ -17,6 +17,8 @@ export async function handleExtensionMessageSync(
   setOverrides: (overrides: Record<string, SimpleResult>) => void,
   activeConfigs: ConfigRef[]
 ) {
+    console.log('the active configs are')
+    console.log(activeConfigs)
   const eventData = event.data
   if (eventData !== undefined) {
     switch (eventData.type) {

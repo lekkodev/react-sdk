@@ -61,8 +61,8 @@ export function LekkoConfigProvider({
 
   useEffect(() => {
     if (typeof window !== "undefined" && contextClient !== undefined) {
-      const handleMessage = async (event: ExtensionMessageSync) => {
-        await handleExtensionMessageSync(
+      const handleMessage = (event: ExtensionMessageSync) => {
+        handleExtensionMessageSync(
           contextClient,
           event,
           setOverrides,
@@ -141,8 +141,8 @@ export function LekkoConfigProviderSuspend({
 
   useEffect(() => {
     if (typeof window !== "undefined" && lekkoClient !== undefined) {
-      const handleMessage = async (event: ExtensionMessageSync) => {
-        await handleExtensionMessageSync(
+      const handleMessage = (event: ExtensionMessageSync) => {
+        handleExtensionMessageSync(
           lekkoClient,
           event,
           setOverrides,

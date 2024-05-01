@@ -89,8 +89,8 @@ export default function useLekkoClient(): SyncClient | undefined {
 
   useEffect(() => {
     if (typeof window !== "undefined" && contextClient !== undefined) {
-      const handleMessage = async (event: ExtensionMessageSync) => {
-        await handleExtensionMessageSync(
+      const handleMessage = (event: ExtensionMessageSync) => {
+        handleExtensionMessageSync(
           contextClient,
           event,
           setOverrides,

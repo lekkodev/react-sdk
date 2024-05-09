@@ -8,10 +8,10 @@ import { initLocalClient } from "../hooks/useLekkoClient"
 import { LekkoGlobalContext } from "./lekkoGlobalContext"
 import { ClientContext, type SyncClient } from "@lekko/js-sdk"
 import {
-  type SimpleResult,
   type LekkoSettings,
   type ConfigRef,
   type ExtensionMessageSync,
+  type ResultSet,
 } from "../utils/types"
 import { LekkoOverrideContext } from "./lekkoOverrideProvider"
 import { LekkoConfigTrackerProvider } from "./lekkoConfigTrackerContext"
@@ -33,7 +33,7 @@ export function LekkoConfigProvider({
 }: ProviderProps) {
   const clientSetup = useContext(LekkoClientContext)
   const [activeConfigs, setActiveConfigs] = useState<ConfigRef[]>([])
-  const [overrides, setOverrides] = useState<Record<string, SimpleResult>>({})
+  const [overrides, setOverrides] = useState<Record<string, ResultSet>>({})
 
   const [contextClient, setContextClient] = useState<SyncClient | undefined>(
     clientSetup.contextClient,
@@ -128,7 +128,7 @@ export function LekkoConfigProviderSuspend({
 }: ProviderProps) {
   const clientSetup = useContext(LekkoClientContext)
   const [activeConfigs, setActiveConfigs] = useState<ConfigRef[]>([])
-  const [overrides, setOverrides] = useState<Record<string, SimpleResult>>({})
+  const [overrides, setOverrides] = useState<Record<string, ResultSet>>({})
 
   // TODO: For use in Next.js, we need to call POST methods in a useEffect
   // or similar after the first render

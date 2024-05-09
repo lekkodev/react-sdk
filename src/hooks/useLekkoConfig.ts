@@ -70,7 +70,9 @@ export function useLekkoConfig<
           configRef?.configName !== undefined &&
           overrides[configRef?.configName] !== undefined
         ) {
-          return overrides[configRef.configName] as T | EvaluationResult<E>
+          return overrides[configRef.configName].result as
+            | T
+            | EvaluationResult<E>
         }
 
         return handleLekkoErrors(
@@ -83,7 +85,9 @@ export function useLekkoConfig<
           configRef?.configName !== undefined &&
           overrides[configRef?.configName] !== undefined
         ) {
-          return overrides[configRef?.configName] as T | EvaluationResult<E>
+          return overrides[configRef?.configName].result as
+            | T
+            | EvaluationResult<E>
         }
         // Local evaluation with function interface
         return config(toPlainContext(combinedContext) as C)
@@ -98,7 +102,7 @@ export function useLekkoConfig<
         configRef?.configName !== undefined &&
         overrides[configRef?.configName] !== undefined
       ) {
-        return overrides[configRef.configName] as T | EvaluationResult<E>
+        return overrides[configRef.configName].result as T | EvaluationResult<E>
       }
       if (client === undefined) {
         throw new Error("This pathway requires a client")

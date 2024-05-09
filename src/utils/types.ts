@@ -199,9 +199,16 @@ export interface RequestOverridesData extends BaseMessageData {
 
 export type SimpleResult = boolean | string | number
 
+export interface ResultSet {
+  result: Result
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  serialized: any
+  default: boolean
+}
+
 export interface SetOverridesData extends BaseMessageData {
   type: "SET_OVERRIDES"
-  overrides: Record<string, SimpleResult>
+  overrides: Record<string, ResultSet>
 }
 
 export type ExtensionMessageDataSync = RequestOverridesData | SetOverridesData
@@ -213,4 +220,10 @@ export interface ExtensionMessageSync {
 export interface ConfigRef {
   configName: string
   namespaceName: string
+}
+
+export interface Grouping {
+  configResults: Record<string, ResultSet>
+  evaluatedContextPercentage: number
+  exampleContext?: JSONClientContext
 }

@@ -7,7 +7,15 @@ import { suspend } from "suspend-react"
 import { initLocalClient } from "../hooks/useLekkoClient"
 import { LekkoGlobalContext } from "./lekkoGlobalContext"
 import { ClientContext, type SyncClient } from "@lekko/js-sdk"
-import { type LekkoSettings } from "../utils/types"
+import {
+  type LekkoSettings,
+  type ConfigRef,
+  type ExtensionMessageSync,
+  type ResultSet,
+} from "../utils/types"
+import { LekkoOverrideContext } from "./lekkoOverrideProvider"
+import { LekkoConfigTrackerProvider } from "./lekkoConfigTrackerContext"
+import { handleExtensionMessageSync } from "../utils/syncMessages"
 
 export interface IntermediateProviderProps extends PropsWithChildren {
   settings?: LekkoSettings
@@ -24,6 +32,9 @@ export function LekkoConfigProvider({
   children,
 }: ProviderProps) {
   const clientSetup = useContext(LekkoClientContext)
+  const [activeConfigs, setActiveConfigs] = useState<ConfigRef[]>([])
+  const [overrides, setOverrides] = useState<Record<string, ResultSet>>({})
+
   const [contextClient, setContextClient] = useState<SyncClient | undefined>(
     clientSetup.contextClient,
   )
@@ -48,6 +59,27 @@ export function LekkoConfigProvider({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && contextClient !== undefined) {
+      const handleMessage = (event: ExtensionMessageSync) => {
+        handleExtensionMessageSync(
+          contextClient,
+          event,
+          setOverrides,
+          activeConfigs,
+        ).catch((error) => {
+          console.error(error)
+        })
+      }
+
+      window.addEventListener("message", handleMessage)
+
+      return () => {
+        window.removeEventListener("message", handleMessage)
+      }
+    }
+  }, [JSON.stringify(activeConfigs), contextClient !== undefined, setOverrides])
+
   // the case where an outer provider already setup the providers
   if (clientSetup.initialized) {
     return (
@@ -71,12 +103,19 @@ export function LekkoConfigProvider({
       }}
     >
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
-        <LekkoIntermediateConfigProvider
-          settings={settings}
-          globalContext={globalContext}
-        >
-          {children}
-        </LekkoIntermediateConfigProvider>
+        <LekkoOverrideContext.Provider value={{ overrides, setOverrides }}>
+          <LekkoConfigTrackerProvider
+            activeConfigs={activeConfigs}
+            setActiveConfigs={setActiveConfigs}
+          >
+            <LekkoIntermediateConfigProvider
+              settings={settings}
+              globalContext={globalContext}
+            >
+              {children}
+            </LekkoIntermediateConfigProvider>
+          </LekkoConfigTrackerProvider>
+        </LekkoOverrideContext.Provider>
       </LekkoSettingsContext.Provider>
     </LekkoClientContext.Provider>
   )
@@ -88,6 +127,8 @@ export function LekkoConfigProviderSuspend({
   children,
 }: ProviderProps) {
   const clientSetup = useContext(LekkoClientContext)
+  const [activeConfigs, setActiveConfigs] = useState<ConfigRef[]>([])
+  const [overrides, setOverrides] = useState<Record<string, ResultSet>>({})
 
   // TODO: For use in Next.js, we need to call POST methods in a useEffect
   // or similar after the first render
@@ -97,6 +138,27 @@ export function LekkoConfigProviderSuspend({
       return client
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && lekkoClient !== undefined) {
+      const handleMessage = (event: ExtensionMessageSync) => {
+        handleExtensionMessageSync(
+          lekkoClient,
+          event,
+          setOverrides,
+          activeConfigs,
+        ).catch((error) => {
+          console.error(error)
+        })
+      }
+
+      window.addEventListener("message", handleMessage)
+
+      return () => {
+        window.removeEventListener("message", handleMessage)
+      }
+    }
+  }, [JSON.stringify(activeConfigs), lekkoClient !== undefined, setOverrides])
 
   // the case where an outer provider already setup the providers
   if (clientSetup.initialized) {
@@ -121,12 +183,19 @@ export function LekkoConfigProviderSuspend({
       }}
     >
       <LekkoSettingsContext.Provider value={settings ?? DEFAULT_LEKKO_SETTINGS}>
-        <LekkoIntermediateConfigProvider
-          settings={settings}
-          globalContext={globalContext}
-        >
-          {children}
-        </LekkoIntermediateConfigProvider>
+        <LekkoOverrideContext.Provider value={{ overrides, setOverrides }}>
+          <LekkoConfigTrackerProvider
+            activeConfigs={activeConfigs}
+            setActiveConfigs={setActiveConfigs}
+          >
+            <LekkoIntermediateConfigProvider
+              settings={settings}
+              globalContext={globalContext}
+            >
+              {children}
+            </LekkoIntermediateConfigProvider>
+          </LekkoConfigTrackerProvider>
+        </LekkoOverrideContext.Provider>
       </LekkoSettingsContext.Provider>
     </LekkoClientContext.Provider>
   )

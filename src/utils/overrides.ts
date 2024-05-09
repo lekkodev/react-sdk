@@ -78,13 +78,15 @@ const LEKKO_CONTEXT_OVERRIDES = "LEKKO_CONTEXT_OVERRIDES"
 const LEKKO_CONFIG_EVALUATIONS = "LEKKO_CONFIG_EVALUATIONS"
 
 export function persistDefaultContext() {
-  localStorage.setItem(
-    LEKKO_CONTEXT_OVERRIDES,
-    JSON.stringify(CONTEXT_OVERRIDES),
-  )
+  if (typeof localStorage !== "undefined" && localStorage !== null)
+    localStorage.setItem(
+      LEKKO_CONTEXT_OVERRIDES,
+      JSON.stringify(CONTEXT_OVERRIDES),
+    )
 }
 
 export function loadDefaultContext() {
+  if (typeof localStorage === "undefined" || localStorage === null) return
   const overrides = localStorage.getItem(LEKKO_CONTEXT_OVERRIDES)
   if (overrides !== null) {
     setContextOverrides(JSON.parse(overrides) as ClientContext)
@@ -92,10 +94,13 @@ export function loadDefaultContext() {
 }
 
 export function persistConfigEvaluations(configs: ConfigResults) {
-  localStorage.setItem(LEKKO_CONFIG_EVALUATIONS, JSON.stringify(configs))
+  if (typeof localStorage !== "undefined" && localStorage !== null) {
+    localStorage.setItem(LEKKO_CONFIG_EVALUATIONS, JSON.stringify(configs))
+  }
 }
 
 export function loadPersistedEvaluations(queryClient: QueryClient) {
+  if (typeof localStorage === "undefined" || localStorage === null) return
   const configs = localStorage.getItem(LEKKO_CONFIG_EVALUATIONS)
   if (configs !== null) {
     Object.entries(JSON.parse(configs) as ConfigResults).forEach(
@@ -119,6 +124,7 @@ export function resetExtensionChanges(queryClient: QueryClient) {
 }
 
 export function isUsingPersistedState() {
+  if (typeof localStorage === "undefined" || localStorage === null) return false
   return (
     localStorage.getItem(LEKKO_CONFIG_EVALUATIONS) !== null ||
     localStorage.getItem(LEKKO_CONTEXT_OVERRIDES) !== null

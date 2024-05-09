@@ -50,11 +50,13 @@ export function initRemoteClient({
 
   const client = initAPIClient(clientSettings)
 
-  window.addEventListener("message", (event: ExtensionMessage) => {
-    handleExtensionMessage(client, queryClient, event).catch((error) => {
-      console.error(error)
+  if (typeof window !== "undefined") {
+    window.addEventListener("message", (event: ExtensionMessage) => {
+      handleExtensionMessage(client, queryClient, event).catch((error) => {
+        console.error(error)
+      })
     })
-  })
+  }
 
   return client
 }

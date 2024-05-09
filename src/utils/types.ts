@@ -185,3 +185,45 @@ export interface ExtensionMessage {
 export interface ConfigOptions {
   backgroundRefetch?: boolean
 }
+
+export const SET_OVERRIDES = "SET_OVERRIDES"
+export const REQUEST_OVERRIDES = "REQUEST_OVERRIDES"
+export const REQUEST_OVERRIDES_RESPONSE = "REQUEST_OVERRIDES_RESPONSE"
+
+export interface RequestOverridesData extends BaseMessageData {
+  type: "REQUEST_OVERRIDES"
+  namespace: string
+  contextCombinations: Array<Record<string, string>>
+  excludedConfigNames: string[]
+}
+
+export type SimpleResult = boolean | string | number
+
+export interface ResultSet {
+  result: Result
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  serialized: any
+  default: boolean
+}
+
+export interface SetOverridesData extends BaseMessageData {
+  type: "SET_OVERRIDES"
+  overrides: Record<string, ResultSet>
+}
+
+export type ExtensionMessageDataSync = RequestOverridesData | SetOverridesData
+
+export interface ExtensionMessageSync {
+  data?: ExtensionMessageDataSync
+}
+
+export interface ConfigRef {
+  configName: string
+  namespaceName: string
+}
+
+export interface Grouping {
+  configResults: Record<string, ResultSet>
+  evaluatedContextPercentage: number
+  exampleContext?: JSONClientContext
+}

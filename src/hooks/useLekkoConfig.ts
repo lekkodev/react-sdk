@@ -14,6 +14,11 @@ import { getCombinedContext, toPlainContext } from "../utils/context"
 import { ClientContext } from "@lekko/js-sdk"
 import { useContext, useMemo } from "react"
 import { LekkoGlobalContext } from "../providers/lekkoGlobalContext"
+import { LekkoOverrideContext } from "../providers/lekkoOverrideProvider"
+import {
+  getConfigRef,
+  useActiveConfig,
+} from "../providers/lekkoConfigTrackerContext"
 
 // Overload for supporting native lang interface, where we pass functions
 export function useLekkoConfig<T, C extends LekkoContext>(
@@ -34,7 +39,11 @@ export function useLekkoConfig<
   contextOrOptions?: C | ConfigOptions,
 ): T | EvaluationResult<E> {
   const { globalContext } = useContext(LekkoGlobalContext)
+  const { overrides } = useContext(LekkoOverrideContext)
+
   const client = useLekkoClient()
+  const configRef = getConfigRef(config)
+  useActiveConfig(configRef)
 
   const isFn = typeof config === "function"
 
@@ -57,6 +66,14 @@ export function useLekkoConfig<
           context: combinedContext,
         }
         // TODO: History upsert
+        if (
+          configRef?.configName !== undefined &&
+          overrides[configRef?.configName] !== undefined
+        ) {
+          return overrides[configRef.configName].result as
+            | T
+            | EvaluationResult<E>
+        }
 
         return handleLekkoErrors(
           () => config(toPlainContext(combinedContext) as C, client),
@@ -64,6 +81,14 @@ export function useLekkoConfig<
           client?.repository,
         )
       } else {
+        if (
+          configRef?.configName !== undefined &&
+          overrides[configRef?.configName] !== undefined
+        ) {
+          return overrides[configRef?.configName].result as
+            | T
+            | EvaluationResult<E>
+        }
         // Local evaluation with function interface
         return config(toPlainContext(combinedContext) as C)
       }
@@ -72,6 +97,12 @@ export function useLekkoConfig<
       const combinedConfig = {
         ...config,
         context: getCombinedContext(globalContext, config.context),
+      }
+      if (
+        configRef?.configName !== undefined &&
+        overrides[configRef?.configName] !== undefined
+      ) {
+        return overrides[configRef.configName].result as T | EvaluationResult<E>
       }
       if (client === undefined) {
         throw new Error("This pathway requires a client")
@@ -82,7 +113,15 @@ export function useLekkoConfig<
         client.repository,
       )
     }
-  }, [isFn, client, config, contextOrOptions, globalContext])
+  }, [
+    isFn,
+    client,
+    config,
+    contextOrOptions,
+    globalContext,
+    overrides,
+    configRef?.configName,
+  ])
 
   return result
 }

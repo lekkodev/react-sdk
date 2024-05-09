@@ -1,7 +1,7 @@
 import { initCachedAPIClient, RepositoryKey } from "@lekko/js-sdk"
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { useContext, useEffect } from "react"
-import { type LekkoSettings } from "../utils/types"
+import { type ExtensionMessageSync, type LekkoSettings } from "../utils/types"
 import {
   getAPIKeyFromEnv,
   getHostnameFromEnv,
@@ -11,6 +11,9 @@ import {
 import { LekkoClientContext } from "../providers/lekkoClientContext"
 import { type SyncClient } from "@lekko/js-sdk"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
+import { handleExtensionMessageSync } from "../utils/syncMessages"
+import { LekkoOverrideContext } from "../providers/lekkoOverrideProvider"
+import { LekkoConfigTrackerContext } from "../providers/lekkoConfigTrackerContext"
 
 export function getRepositoryKey(
   settings: LekkoSettings = DEFAULT_LEKKO_SETTINGS,
@@ -65,6 +68,8 @@ export function prepareClientSettings(settings: LekkoSettings) {
 
 export default function useLekkoClient(): SyncClient | undefined {
   const settings = useContext(LekkoSettingsContext)
+  const { setOverrides } = useContext(LekkoOverrideContext)
+  const { activeConfigs } = useContext(LekkoConfigTrackerContext)
   const { contextClient, setContextClient, fetchInitiated, setFetchInitiated } =
     useContext(LekkoClientContext)
 
@@ -81,6 +86,27 @@ export default function useLekkoClient(): SyncClient | undefined {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && contextClient !== undefined) {
+      const handleMessage = (event: ExtensionMessageSync) => {
+        handleExtensionMessageSync(
+          contextClient,
+          event,
+          setOverrides,
+          activeConfigs,
+        ).catch((error) => {
+          console.error(error)
+        })
+      }
+
+      window.addEventListener("message", handleMessage)
+
+      return () => {
+        window.removeEventListener("message", handleMessage)
+      }
+    }
+  }, [JSON.stringify(activeConfigs), contextClient !== undefined, setOverrides])
 
   return contextClient
 }

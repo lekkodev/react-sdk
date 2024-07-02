@@ -126,6 +126,8 @@ export function useLekkoConfig<
   return result
 }
 
+export const useLekko = useLekkoConfig
+
 /**
  * A convenience wrapper for {@link useLekkoConfig} that is specifically for using boolean configs.
  */

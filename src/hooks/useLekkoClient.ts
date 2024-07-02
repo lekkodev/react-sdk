@@ -1,4 +1,4 @@
-import { initCachedAPIClient, RepositoryKey } from "@lekko/js-sdk"
+import { initClient, RepositoryKey } from "@lekko/js-sdk"
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { useContext, useEffect } from "react"
 import { type ExtensionMessageSync, type LekkoSettings } from "../utils/types"
@@ -45,7 +45,7 @@ export async function initLocalClient({
 
   if (clientSettings === undefined) return undefined
 
-  const client = await initCachedAPIClient(clientSettings)
+  const client = await initClient(clientSettings)
 
   return client
 }

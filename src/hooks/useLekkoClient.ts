@@ -1,4 +1,4 @@
-import { initClient, RepositoryKey } from "@lekko/js-sdk"
+import { initClient, RepositoryKey, logInfo } from "@lekko/js-sdk"
 import { DEFAULT_LEKKO_SETTINGS } from "../utils/constants"
 import { useContext, useEffect } from "react"
 import { type ExtensionMessageSync, type LekkoSettings } from "../utils/types"
@@ -54,6 +54,17 @@ export function prepareClientSettings(settings: LekkoSettings) {
   const apiKey = settings?.apiKey ?? getAPIKeyFromEnv()
   const repositoryKey = getRepositoryKey(settings)
   const hostname = settings?.hostname ?? getHostnameFromEnv()
+
+  if (apiKey === undefined) {
+    logInfo(
+      "[lekko] API key is not set, Lekko SDK client will not be initialized and in-code fallback will be used.",
+    )
+  }
+  if (repositoryKey === undefined) {
+    logInfo(
+      "[lekko] Repository is not set in .lekko file, Lekko SDK client will not be initialized and in-code fallback will be used.",
+    )
+  }
 
   if (repositoryKey === undefined || apiKey === undefined) return undefined
 

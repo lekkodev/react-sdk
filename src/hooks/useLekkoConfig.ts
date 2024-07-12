@@ -113,11 +113,13 @@ export function useLekkoConfig<
         client.repository,
       )
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isFn,
     client,
     config,
-    contextOrOptions,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    JSON.stringify(contextOrOptions),
     globalContext,
     overrides,
     configRef?.configName,

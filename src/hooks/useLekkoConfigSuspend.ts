@@ -19,7 +19,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query"
 import { upsertHistoryItem } from "../utils/overrides"
-import { getCombinedContext, toPlainContext } from "../utils/context"
+import { getCombinedContext } from "../utils/context"
 import { ClientContext } from "@lekko/js-sdk"
 import useLekkoRemoteClient from "./useLekkoRemoteClient"
 
@@ -65,7 +65,7 @@ export function useLekkoConfigSuspend<
   if (isFn) {
     const combinedContext = getCombinedContext(
       globalContext,
-      ClientContext.fromJSON(contextOrOptions as C),
+      ClientContext.fromObject(contextOrOptions as C),
     )
     if (
       "_namespaceName" in config &&
@@ -83,8 +83,7 @@ export function useLekkoConfigSuspend<
       // TODO: History upsert
       query.queryFn = async () =>
         await handleLekkoErrorsAsync(
-          async () =>
-            await config(toPlainContext(combinedContext) as C, client),
+          async () => await config(combinedContext.toObject() as C, client),
           combinedConfig,
           client.repository,
           defaultConfigLookup,
@@ -94,8 +93,7 @@ export function useLekkoConfigSuspend<
       query.queryKey = [config.toString(), createContextKey(combinedContext)] // HACK: we don't have good config info in local
       query.gcTime = 0
       query.staleTime = 0 // Invalidate cache immediately (since we have no cache key and don't want to cache this)
-      query.queryFn = async () =>
-        await config(toPlainContext(combinedContext) as C)
+      query.queryFn = async () => await config(combinedContext.toObject() as C)
     }
   } else {
     // Remote evaluation with object interface

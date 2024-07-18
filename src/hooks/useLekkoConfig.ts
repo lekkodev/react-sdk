@@ -10,7 +10,7 @@ import {
 } from "../utils/types"
 import useLekkoClient from "./useLekkoClient"
 import { handleLekkoErrors } from "../errors/errors"
-import { getCombinedContext, toPlainContext } from "../utils/context"
+import { getCombinedContext } from "../utils/context"
 import { ClientContext } from "@lekko/js-sdk"
 import { useContext, useMemo } from "react"
 import { LekkoGlobalContext } from "../providers/lekkoGlobalContext"
@@ -51,7 +51,7 @@ export function useLekkoConfig<
     if (isFn) {
       const combinedContext = getCombinedContext(
         globalContext,
-        ClientContext.fromJSON(contextOrOptions as C),
+        ClientContext.fromObject(contextOrOptions as C),
       )
       if (
         "_namespaceName" in config &&
@@ -76,7 +76,7 @@ export function useLekkoConfig<
         }
 
         return handleLekkoErrors(
-          () => config(toPlainContext(combinedContext) as C, client),
+          () => config(combinedContext.toObject() as C, client),
           combinedConfig,
           client?.repository,
         )
@@ -90,7 +90,7 @@ export function useLekkoConfig<
             | EvaluationResult<E>
         }
         // Local evaluation with function interface
-        return config(toPlainContext(combinedContext) as C)
+        return config(combinedContext.toObject() as C)
       }
     } else {
       // Remote evaluation with object interface

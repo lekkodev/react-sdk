@@ -6,16 +6,23 @@ import React, {
   type SetStateAction,
 } from "react"
 import { camelToKebabCase } from "../utils/helpers"
-import { type ConfigRef } from "../utils/types"
+import {
+  type LekkoConfig,
+  type LekkoConfigFn,
+  type LekkoContext,
+  type ConfigRef,
+} from "../utils/types"
 
-function getConfigRef(config: any): ConfigRef | undefined {
-  if (typeof config === "function") {
-    if (config._namespaceName && config._configName) {
+function getConfigRef<T, C extends LekkoContext>(
+  config: LekkoConfigFn<T, C> | LekkoConfig,
+): ConfigRef | undefined {
+  if (typeof config === "function" && "_namespaceName" in config) {
+    if (config._namespaceName !== "" && config._configName !== "") {
       return {
         namespaceName: config._namespaceName,
         configName: config._configName,
       }
-    } else if (config.name) {
+    } else if (config.name !== "") {
       const casedName = camelToKebabCase(config.name)
       return {
         namespaceName: "frontend", // need the namespace here
@@ -23,7 +30,7 @@ function getConfigRef(config: any): ConfigRef | undefined {
       }
     }
   } else if (typeof config === "object") {
-    return config.namespaceName && config.configName
+    return config.namespaceName !== "" && config.configName !== ""
       ? {
           namespaceName: config.namespaceName,
           configName: config.configName,
@@ -98,6 +105,7 @@ function useActiveConfig(configRef: ConfigRef | undefined) {
     return () => {
       if (configRef !== undefined) unregisterConfig(configRef)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(configRef)])
 }
 

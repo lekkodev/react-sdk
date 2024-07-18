@@ -1,6 +1,6 @@
 {
   "name": "@lekko/react-sdk",
-  "version": "0.8.7-beta.4",
+  "version": "0.8.7",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -12,7 +12,7 @@
     "prepack": "rm -f *.tgz || true"
   },
   "dependencies": {
-    "@lekko/js-sdk": "beta",
+    "@lekko/js-sdk": "^0.1.7",
     "@tanstack/react-query": "^5.8.1",
     "dotenv": "^16.3.1",
     "lz-string": "^1.5.0",

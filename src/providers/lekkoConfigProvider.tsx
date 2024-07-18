@@ -78,6 +78,7 @@ export function LekkoConfigProvider({
         window.removeEventListener("message", handleMessage)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(activeConfigs), contextClient !== undefined, setOverrides])
 
   // the case where an outer provider already setup the providers
@@ -158,6 +159,7 @@ export function LekkoConfigProviderSuspend({
         window.removeEventListener("message", handleMessage)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(activeConfigs), lekkoClient !== undefined, setOverrides])
 
   // the case where an outer provider already setup the providers

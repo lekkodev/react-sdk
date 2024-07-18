@@ -16,7 +16,7 @@ import {
 } from "../utils/types"
 import { upsertHistoryItem } from "../utils/overrides"
 import { LekkoSettingsContext } from "../providers/lekkoSettingsProvider"
-import { getCombinedContext, toPlainContext } from "../utils/context"
+import { getCombinedContext } from "../utils/context"
 import { ClientContext } from "@lekko/js-sdk"
 import useLekkoRemoteClient from "./useLekkoRemoteClient"
 
@@ -81,7 +81,7 @@ export function useLekkoConfigDLE<
     settings = { ...settings, ...options }
     const combinedContext = getCombinedContext(
       globalContext,
-      ClientContext.fromJSON(contextOrOptions as C),
+      ClientContext.fromObject(contextOrOptions as C),
     )
     if (
       "_namespaceName" in config &&
@@ -99,8 +99,7 @@ export function useLekkoConfigDLE<
       // TODO: History upsert
       query.queryFn = async () =>
         await handleLekkoErrorsAsync(
-          async () =>
-            await config(toPlainContext(combinedContext) as C, client),
+          async () => await config(combinedContext.toObject() as C, client),
           combinedConfig,
           client.repository,
           defaultConfigLookup,
@@ -111,7 +110,7 @@ export function useLekkoConfigDLE<
       query.gcTime = 0
       query.staleTime = 0 // Invalidate cache immediately (since we have no cache key and don't want to cache this)
       query.queryFn = async () => {
-        return await config(toPlainContext(combinedContext) as C)
+        return await config(combinedContext.toObject() as C)
       }
     }
   } else {

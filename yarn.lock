@@ -833,18 +833,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lekko/js-sdk@npm:^0.1.6 || >=0.1.6-beta.3":
-  version: 0.1.6-beta.3
-  resolution: "@lekko/js-sdk@npm:0.1.6-beta.3"
+"@lekko/js-sdk@npm:beta":
+  version: 0.1.7-beta.2
+  resolution: "@lekko/js-sdk@npm:0.1.7-beta.2"
   dependencies:
     "@bufbuild/protobuf": ^1.7.2
     "@connectrpc/connect": ^1.3.0
     "@connectrpc/connect-web": ^1.3.0
     js-base64: ^3.7.7
+    lodash.camelcase: ^4.3.0
     lodash.snakecase: ^4.1.1
     tslib: ^2.6.2
     xxhashjs: ^0.2.2
-  checksum: 0708cb1c1548e98aa7a04778b0e5709e83c08a3be18bf1d37f474d3fcf119752791b26d37be4a2caaf4eb6a71364c617b5092c94bcecd61b1e20a2088426a295
+  checksum: 2ccfbd4d4459d6cdb550ec7be5b8262a238a33086aed8b91ef7c9ec3a03cc0af5b4e7c7249aa9a65b04ad759c9fce034ce067056e03ddb2bdd38612f92f1099c
   languageName: node
   linkType: hard
 
@@ -853,7 +854,7 @@ __metadata:
   resolution: "@lekko/react-sdk@workspace:."
   dependencies:
     "@babel/core": ^7.23.9
-    "@lekko/js-sdk": ^0.1.6 || >=0.1.6-beta.3
+    "@lekko/js-sdk": beta
     "@rollup/plugin-commonjs": ^25.0.7
     "@rollup/plugin-node-resolve": ^15.2.3
     "@rollup/plugin-terser": ^0.4.4
@@ -4795,6 +4796,13 @@ __metadata:
   dependencies:
     p-locate: ^5.0.0
   checksum: 72eb661788a0368c099a184c59d2fee760b3831c9c1c33955e8a19ae4a21b4116e53fa736dc086cdeb9fce9f7cc508f2f92d2d3aae516f133e16a2bb59a39f5a
+  languageName: node
+  linkType: hard
+
+"lodash.camelcase@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "lodash.camelcase@npm:4.3.0"
+  checksum: cb9227612f71b83e42de93eccf1232feeb25e705bdb19ba26c04f91e885bfd3dd5c517c4a97137658190581d3493ea3973072ca010aab7e301046d90740393d1
   languageName: node
   linkType: hard
 

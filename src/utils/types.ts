@@ -1,4 +1,9 @@
-import { type SyncClient, type Client, type ClientContext } from "@lekko/js-sdk"
+import {
+  type SyncClient,
+  type Client,
+  type ClientContext,
+  type ContextObject,
+} from "@lekko/js-sdk"
 import { type Any } from "@bufbuild/protobuf"
 
 export type Optional<T> = T | undefined
@@ -29,7 +34,7 @@ export interface JSONClientContext {
   data: JSONObject
 }
 
-export type LekkoContext = Record<string, boolean | string | number>
+export type LekkoContext = ContextObject
 
 export interface LekkoConfig<E extends EvaluationType = EvaluationType> {
   namespaceName: string

@@ -117,6 +117,7 @@ export default function useLekkoClient(): SyncClient | undefined {
         window.removeEventListener("message", handleMessage)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(activeConfigs), contextClient !== undefined, setOverrides])
 
   return contextClient
